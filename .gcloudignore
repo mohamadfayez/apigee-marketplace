@@ -1,0 +1,4 @@
+*.local.*
+1_env.*.sh
+node_modules
+codelabs

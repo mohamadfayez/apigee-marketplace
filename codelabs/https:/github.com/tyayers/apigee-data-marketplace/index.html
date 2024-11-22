@@ -1,0 +1,171 @@
+
+<!doctype html>
+
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+  <meta name="theme-color" content="#4F7DC9">
+  <meta charset="UTF-8">
+  <title>Apigee Data Marketplace - Part 1 Deployment</title>
+  <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Source+Code+Pro:400|Roboto:400,300,400italic,500,700|Roboto+Mono">
+  <link rel="stylesheet" href="//fonts.googleapis.com/icon?family=Material+Icons">
+  <link rel="stylesheet" href="https://storage.googleapis.com/claat-public/codelab-elements.css">
+  <style>
+    .success {
+      color: #1e8e3e;
+    }
+    .error {
+      color: red;
+    }
+  </style>
+</head>
+<body>
+  <google-codelab-analytics gaid="UA-49880327-14" ga4id=""></google-codelab-analytics>
+  <google-codelab codelab-gaid="UA-143215160-5"
+                  codelab-ga4id=""
+                  id="https://github.com/tyayers/apigee-data-marketplace"
+                  title="Apigee Data Marketplace - Part 1 Deployment"
+                  environment="web"
+                  feedback-link="https://github.com/tyayers/apigee-data-marketplace/issues">
+    
+      <google-codelab-step label="Introduction" duration="0">
+        <p class="image-container"><img style="width: 475.47px" src="img/93b822fb45112d80.png"></p>
+<p><strong>Last Updated:</strong> 2024-04-30</p>
+<h2 is-upgraded><strong>What makes a data marketplace?</strong></h2>
+<p>A data marketplace is a web portal for publishing, browsing, consuming and buying data. There are many approaches to building such a marketplace, but in this demo we will be using Google Cloud services such as Firebase, Apigee, Application Integration, Cloud Run &amp; Identity Platform to build it using cloud-native services.</p>
+<aside class="warning"><p><strong>Note:</strong> To begin you will need a Google Cloud project with Apigee X provisioned to deploy this solution in. You will also need at least Editor rights to be able to enable APIs and create the services needed.</p>
+</aside>
+<p>This solution is built on three layers.</p>
+<p class="image-container"><img style="width: 568.38px" src="img/e26939f029bff684.png"></p>
+<p>We will be deploying components in all three of these layers, and focusing on the API &amp; Integration layer to automate the API, integration &amp; connectivity between the marketplace &amp; data layers. The result should be an end-to-end solution that works seamlessly to bring data products to market, and manage publishing and access to the products in an automated and unified way.</p>
+<h2 is-upgraded><strong>What you&#39;ll build</strong></h2>
+<p>In this lab you will deploy a marketplace that lets data owners publish &amp; manage their data products, and data consumers register, browse, subscribe and get access to the products.</p>
+<p>Your app will:</p>
+<ul>
+<li>Set up Google Cloud Identity Platform to make it easy for users to register with their email or social media accounts.</li>
+<li>Deploy Application Integration workflows to handle processing &amp; background tasks for the marketplace.</li>
+<li>Publish APIs to Apigee to manage the API access to management &amp; data assets.</li>
+<li>Deploy the marketplace app to Cloud Run that presents the user interface to the user.</li>
+</ul>
+<p class="image-container"><img style="width: 590.50px" src="img/d0cbe92a390e35ea.png"></p>
+<h2 class="checklist" is-upgraded><strong>What you&#39;ll learn</strong></h2>
+<ul class="checklist">
+<li>How to build a data marketplace solution using cloud-native Google Cloud services.</li>
+<li>How the API &amp; Integration layer can help orchestrate between the app and the data sources.</li>
+<li>How different data sources can be mapped to different access protocols to reach more users.</li>
+<li>The importance of data &amp; API product management for publishing effective and attractive data products.</li>
+</ul>
+<h2 is-upgraded><strong>What you&#39;ll need</strong></h2>
+<ul>
+<li>A recent version of Chrome</li>
+<li>A Google Cloud project with Apigee X &amp; Application Integration provisioned. You can provision an <a href="https://cloud.google.com/apigee/docs/api-platform/get-started/eval-orgs" target="_blank">Apigee X evaluation environment using the wizard</a>, as well as <a href="https://cloud.google.com/application-integration/docs/setup-application-integration" target="_blank">Application Integration</a>. Or you can also provision both using automation and a Terraform script as documented <a href="https://cloud.google.com/application-integration/docs/setup-application-integration" target="_blank">here</a>. </li>
+<li>Access to a Linux shell such as <a href="https://shell.cloud.google.com/" target="_blank">Google Cloud Shell</a>, with the Google Cloud tooling installed (<a href="https://cloud.google.com/sdk/docs/install-sdk" target="_blank">gcloud CLI</a>) and with access to a Google Cloud project.</li>
+</ul>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Setting up deployment" duration="10">
+        <p>To begin, let&#39;s clone the Apigee Data Marketplace project into our shell environment.</p>
+<h2 is-upgraded><strong>Clone the repository to your shell</strong></h2>
+<p>Open the Github repository and clone the source code to your shell environment.</p>
+<p><a href="https://github.com/tyayers/apigee-data-marketplace" target="_blank"><paper-button class="colored" raised>Open the repository</paper-button></a></p>
+<pre><code>git clone https://github.com/tyayers/apigee-data-marketplace.git
+
+cd apigee-data-marketplace
+
+npm i</code></pre>
+<p>The last command above npm i will install all of the dependencies for the project.</p>
+<p>Now also install the <a href="https://github.com/apigee/apigeecli" target="_blank">apigeecli</a> and <a href="https://github.com/GoogleCloudPlatform/application-integration-management-toolkit" target="_blank">integrationcli</a> CLI tools to help with the deployments.</p>
+<pre><code>curl -L https://raw.githubusercontent.com/apigee/apigeecli/main/downloadLatest.sh | sh -
+export PATH=$PATH:$HOME/.apigeecli/bin
+
+curl -L https://raw.githubusercontent.com/GoogleCloudPlatform/application-integration-management-toolkit/main/downloadLatest.sh | sh -
+export PATH=$PATH:$HOME/.integrationcli/bin
+</code></pre>
+<p>After the installations are complete, go back to your shell environment, and open the folder <strong>apigee-data-marketplace</strong> in your source editor. If you are using Google Cloud Shell, you can click on the hamburger menu in the upper left corner, <strong>File</strong>, and then <strong>Open Folder</strong>.</p>
+<p class="image-container"><img style="width: 592.50px" src="img/c8b31f3a7a54dc9b.png"></p>
+<p>Run these commands in the shell to copy an environment variable file, so that you can set your values from your environment.</p>
+<pre><code>./1_copy_env.sh</code></pre>
+<p>Open the file 1_env.local.sh in the editor and set the values for your environment.</p>
+<p class="image-container"><img style="width: 624.00px" src="img/f5b5beba0e7fe3fe.png"></p>
+<p>Start by setting the values of your GCP project into <strong>PROJECT_ID</strong> and your chosen region to deploy to in <strong>REGION</strong>. You can also change the <strong>SERVICE_NAME</strong> and <strong>SITE_NAME</strong> to other values if you wish (this will be the name of your site that you deploy, and <strong>SERVICE_NAME</strong> will be the name of the Cloud Run service deployment, and so must be lowercase with only dashes).</p>
+<p>Now we will collect the rest of the information to put into the environment variables.</p>
+<h2 is-upgraded><strong>Setup Identity Platform</strong></h2>
+<p>Google Cloud Identity Platform uses Firebase Auth as a federated identity hub for users to be able to flexibly login to our marketplace.</p>
+<p>To start, we need to set up the service Identity Platform in our Google Cloud project. Open up the configuration page, and enable the service if needed. </p>
+<p><a href="https://console.cloud.google.com/customer-identity" target="_blank"><paper-button class="colored" raised>Open Identity Platform setup</paper-button></a></p>
+<p class="image-container"><img style="width: 564.50px" src="img/4152e4e0cfed3f0a.png"></p>
+<p>After enabling you should see a screen where you can manage identity providers.</p>
+<p class="image-container"><img style="width: 565.50px" src="img/1036b04802e2898e.png"></p>
+<p>Go ahead and add two providers by clicking the <strong>ADD A PROVIDER</strong> button and selecting <strong>Email / Password</strong> and <strong>Google</strong>. You can test adding other providers as well.</p>
+<p>For the <strong>Google</strong> provider you will need to configure the OAuth consent screen for your project.</p>
+<p>After updating the identity providers, click on the button <strong>APPLICATION SETUP DETAILS</strong> to display the web application configuration snippet. <img style="width: 623.50px" src="img/1554737fc7bcc39a.png">Copy the value of the <strong>apiKey</strong> field and put it in the <strong>1_env.local.sh</strong> file in your Cloud Shell editor for the variable <strong>FIREBASE_APIKEY</strong>.</p>
+<h3 is-upgraded><strong>Get Apigee information</strong></h3>
+<p>Now go to the Apigee console in a new tab to get the environment information.</p>
+<p><a href="https://console.cloud.google.com/apigee" target="_blank"><paper-button class="colored" raised>Open the Apigee console</paper-button></a></p>
+<p>Go to the menu section at the bottom under <strong>Management</strong> and click on <strong>Environments</strong>. Pick an environment that fits and add it to your <strong>1_env.local.sh</strong> file for the variable <strong>APIGEE_ENV</strong>.</p>
+<p>In my configuration below I will pick the <strong>dev</strong> environment.</p>
+<p class="image-container"><img style="width: 624.00px" src="img/d74d04d2e6dd11df.png"></p>
+<p>Now click on the <strong>ENVIRONMENT GROUPS</strong> tab, and copy the value from the <strong>Host Names</strong> column for the group that your environment belongs to (for me it is <strong>dev.34-36-221-53.nip.io</strong>). Paste it in the <strong>1_env.local.sh</strong> file for the variable <strong>APIGEE_ENVGROUP_HOST</strong>.</p>
+<p class="image-container"><img style="width: 624.00px" src="img/905f3cdd1381d115.png"></p>
+<p>Now we will set the variables <strong>INTERNAL_DOMAINS</strong>, which is the email domain that will be accepted as internal users with no approval needed to access the marketplace, and <strong>ADMIN_EMAIL</strong> for the user who will be asked to approve users from all other domains. In my demo I will be using <strong>gmail.com</strong> as my INTERNAL_DOMAIN, and <strong>testuser5532@gmail.com</strong> as the <strong>ADMIN_EMAIL</strong>. The <strong>ADMIN_EMAIL</strong> needs to be a registered GCP user who can receive emails to approve users.</p>
+<p>After setting your environment variables, save the file <strong>1_env.local.sh</strong> and source it in your shell. Sourcing makes the variables available to all following commands.</p>
+<pre><code>source 1_env.local.sh</code></pre>
+<h3 is-upgraded><strong>Create base resources</strong></h3>
+<p>The next step will create some basic resources in your project - a service account, enable needed services, and prepare the project for the next deployments.</p>
+<p>Run the command 2_create_resources.sh to run the commands.</p>
+<pre><code>./2_create_resources.sh</code></pre>
+<h3 is-upgraded><strong>Create APIs</strong></h3>
+<p>Let&#39;s now deploy our Users API to be used to register and login users.</p>
+<pre><code>./2_deploy_apis.sh</code></pre>
+<p>This will deploy the API to Apigee. Now open the Apigee console to see the API for users.</p>
+<p><a href="https://console.cloud.google.com/apigee/proxies" target="_blank"><paper-button class="colored" raised>Open the Apigee console</paper-button></a></p>
+<p>You should see the UsersAPI-v1, and if you click on it, see the deployment being done to your chosen environment.</p>
+<p class="image-container"><img style="width: 624.00px" src="img/f694db9651e4e3fa.png"></p>
+<h3 is-upgraded><strong>Create integrations</strong></h3>
+<p>Now we&#39;re going to create the Application Integration integrations to handle the backend processing, for example when a new user is registered, and we want to register the user and check if an approval is necessary.</p>
+<pre><code>./2_deploy_integrations.sh</code></pre>
+<p>Check in the Application Integration console that the integrations were created correctly. You should see integrations like in this screenshot.</p>
+<p><a href="https://console.cloud.google.com/integrations/list" target="_blank"><paper-button class="colored" raised>Open the Application Integration console</paper-button></a></p>
+<p class="image-container"><img style="width: 624.00px" src="img/a51b0f693ea0766c.png"></p>
+<h3 is-upgraded><strong>Import test data</strong></h3>
+<p>Now we&#39;re going to import some test data to get started. Simply run the script 3_import_data.sh to do the import.</p>
+<pre><code>./3_import_data.sh</code></pre>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Test the application" duration="10">
+        <p>Now go into the shell window and run npm run dev to start the application. You should see a message that the app is running at `http://localhost:5173` . Now go to the top-right corner and click the <strong>Web Preview</strong> button.</p>
+<p class="image-container"><img style="width: 82.00px" src="img/b8ec871e31934416.png"></p>
+<p>Then click <strong>Change Port</strong> and enter the <strong>5173</strong> port, and click <strong>Change.</strong><img style="width: 624.00px" src="img/87492d2c707fae6.png"></p>
+<p>A new tab should be opened with the application running.</p>
+<p class="image-container"><img style="width: 534.48px" src="img/7b0f4eeddfcc6bb8.png"></p>
+<p>Click on <strong>Register</strong> and then try registering with an email/password to create a new account.</p>
+<h3 is-upgraded><strong>Set your account to admin</strong></h3>
+<p>Now that you are registered, let&#39;s make sure your account has admin access. The app uses Firestore to store application data.</p>
+<p>Open the Firestore Studio console so that we can set the user to have the admin role.</p>
+<p><a href="https://console.cloud.google.com/firestore/databases/-default-" target="_blank"><paper-button class="colored" raised>Open Firestore Studio</paper-button></a></p>
+<p>Open up the collection <strong>data-marketplace-users</strong>, click on your account&#39;s email address, and press the <strong>+</strong> symbol next to the <strong>roles</strong> property in the right panel. Type in <strong>admin</strong> and save the entry, you should now have both <strong>internal</strong> and <strong>admin</strong> roles in the collection for your user.</p>
+<p class="image-container"><img style="width: 624.00px" src="img/a131360244eb56fd.png"></p>
+<p>Now refresh the marketplace app again, and you should have the <strong>Publish data</strong> button available in the header bar on the right-hand side.</p>
+<p class="image-container"><img style="width: 624.00px" src="img/7d2700d58bf2cfb0.png"></p>
+<p>Click on the <strong>Publish data</strong> button to create a new data product. Enter <strong>BikeData-v1</strong> as the name, enter any description, set <strong>bike-data</strong> as the entity, and then set a BigQuery test dataset <strong>bigquery-public-data.austin_bikeshare.bikeshare_trips</strong> as the query.</p>
+<p>Set the other properties with some values, and make sure the status is set to <strong>Published</strong> before clicking <strong>Save.</strong></p>
+<p class="image-container"><img style="width: 624.00px" src="img/1ced0054cf347013.png"></p>
+<p>After clicking <strong>Save</strong> you can go back to the <strong>Data Marketplace </strong>home page, and you should see your published product available for users.</p>
+
+
+      </google-codelab-step>
+    
+  </google-codelab>
+
+  <script src="https://storage.googleapis.com/claat-public/native-shim.js"></script>
+  <script src="https://storage.googleapis.com/claat-public/custom-elements.min.js"></script>
+  <script src="https://storage.googleapis.com/claat-public/prettify.js"></script>
+  <script src="https://storage.googleapis.com/claat-public/codelab-elements.js"></script>
+  <script src="//support.google.com/inapp/api.js"></script>
+
+</body>
+</html>

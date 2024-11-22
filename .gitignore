@@ -1,3 +1,6 @@
+*.local.*
+1_env.*.sh
+
 # Logs
 logs
 *.log

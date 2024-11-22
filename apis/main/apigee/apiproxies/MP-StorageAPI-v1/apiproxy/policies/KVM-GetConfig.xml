@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<KeyValueMapOperations continueOnError="false" enabled="true" name="KVM-GetConfig" mapIdentifier="marketplace-kvm">
+  <DisplayName>KVM-GetConfig</DisplayName>
+  <Properties/>
+  <ExclusiveCache>false</ExclusiveCache>
+  <ExpiryTimeInSecs>10</ExpiryTimeInSecs>
+  <Get assignTo="storage_function_url" index="1">
+    <Key>
+      <Parameter>storage_function_url</Parameter>
+    </Key>
+  </Get>
+  <Get assignTo="storage_bucket" index="1">
+    <Key>
+      <Parameter>storage_bucket</Parameter>
+    </Key>
+  </Get>
+  <Scope>environment</Scope>
+</KeyValueMapOperations>

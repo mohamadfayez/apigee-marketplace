@@ -1,0 +1,27 @@
+{
+  "environment": "web",
+  "format": "html",
+  "prefix": "https://storage.googleapis.com",
+  "mainga": "UA-49880327-14",
+  "updated": "2024-05-02T10:48:44Z",
+  "id": "apigee-data-marketplace",
+  "duration": 20,
+  "title": "Apigee Data Marketplace",
+  "authors": "Tyler Ayers",
+  "summary": "Demo of a data marketplace using Google Cloud \u0026 Apigee",
+  "source": "1yR8Fxe5xFA2QWG78oejSJPoNoSlJiGhMOjOw_aovWFM",
+  "theme": "apigee",
+  "status": [
+    "published"
+  ],
+  "category": [
+    "apigee",
+    "data",
+    "marketplace"
+  ],
+  "tags": [
+    "web"
+  ],
+  "ga": "UA-143215160-5",
+  "url": "apigee-data-marketplace"
+}

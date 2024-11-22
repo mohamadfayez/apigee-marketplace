@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<APIProxy revision="2" name="MP-ServicesAPI-v1">
+  <DisplayName/>
+  <Description/>
+  <CreatedAt>1714706876703</CreatedAt>
+  <LastModifiedAt>1714707452691</LastModifiedAt>
+  <BasePaths>/v1/data</BasePaths>
+  <Policies>
+    <Policy>AM-SetDataVariables</Policy>
+    <Policy>EV-ExtractName</Policy>
+    <Policy>JS-RunPostTarget-Script</Policy>
+    <Policy>JS-RunPreTarget-Script</Policy>
+    <Policy>KVM-GetVariables</Policy>
+  </Policies>
+  <ProxyEndpoints>
+    <ProxyEndpoint>default</ProxyEndpoint>
+  </ProxyEndpoints>
+  <Resources>
+    <Resource>jsc://bigquery_functions.js</Resource>
+    <Resource>jsc://bigquery_posttarget.js</Resource>
+    <Resource>jsc://bigquery_pretarget.js</Resource>
+  </Resources>
+  <TargetEndpoints>
+    <TargetEndpoint>default</TargetEndpoint>
+  </TargetEndpoints>
+</APIProxy>

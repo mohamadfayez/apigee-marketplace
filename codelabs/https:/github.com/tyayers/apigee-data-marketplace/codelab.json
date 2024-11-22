@@ -1,0 +1,28 @@
+{
+  "environment": "web",
+  "format": "html",
+  "prefix": "https://storage.googleapis.com",
+  "mainga": "UA-49880327-14",
+  "updated": "2024-05-31T13:42:34Z",
+  "id": "https://github.com/tyayers/apigee-data-marketplace",
+  "duration": 20,
+  "title": "Apigee Data Marketplace - Part 1 Deployment",
+  "authors": "Tyler Ayers",
+  "summary": "Lab to set up and deploy the Apigee Data Marketplace project.",
+  "source": "1yR8Fxe5xFA2QWG78oejSJPoNoSlJiGhMOjOw_aovWFM",
+  "theme": "apigee",
+  "status": [
+    "published"
+  ],
+  "category": [
+    "apigee",
+    "data",
+    "marketplace"
+  ],
+  "tags": [
+    "web"
+  ],
+  "feedback": "https://github.com/tyayers/apigee-data-marketplace/issues",
+  "ga": "UA-143215160-5",
+  "url": "https://github.com/tyayers/apigee-data-marketplace"
+}

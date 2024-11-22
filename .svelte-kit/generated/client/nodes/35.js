@@ -1,0 +1,1 @@
+export { default as component } from "../../../../src/routes/user/apps/bigquery/new/+page.svelte";

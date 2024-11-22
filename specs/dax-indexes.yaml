@@ -1,0 +1,157 @@
+openapi: 3.0.3
+info:
+  title: Trading Data API
+  description: This API provides access to Trading data.
+  version: 1.0.0
+servers:
+  - url: https://api.34-110-134-67.nip.io/v1/data
+security:
+  - ApiKeyAuth: []
+paths:
+  /trading-data:
+    get:
+      parameters:
+      - in: query
+        name: filter
+        schema:
+          type: string
+        description: A filter for the data query.
+        example: Symbol='ESM0'
+      - in: query
+        name: orderBy
+        schema:
+          type: string
+        description: A column and direction to order the results by
+        example: Quantity ASC
+      - in: query
+        name: pageSize
+        schema:
+          type: integer
+          default: 10
+        description: How many records to return per page.
+        example: 100
+      - in: query
+        name: pageToken
+        schema:
+          type: integer
+        description: The next page token to return (returned in previous page result).
+      responses:
+        '200':
+          description: 'Success'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  investment-trades:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/investment-trades'
+                  next_page_token:
+                    $ref: '#/components/schemas/next_page_token'
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      name: apikey
+      in: query
+  schemas: 
+    investment-trades: 
+      type: array
+      description: The investment-trades array for the object. 
+      items: 
+        type: object
+        description: object
+        properties: 
+          SendingTime: 
+            type: string
+            description: The SendingTime tag for the object. 
+            example: 1.589822606E9
+          TargetCompID: 
+            type: string
+            description: The TargetCompID tag for the object. 
+            example: MOMOES-COMPID
+          SenderCompID: 
+            type: string
+            description: The SenderCompID tag for the object. 
+            example: MDOC
+          Symbol: 
+            type: string
+            description: The Symbol tag for the object. 
+            example: ESM0
+          Quantity: 
+            type: string
+            description: The Quantity tag for the object. 
+            example: 1
+          OrderID: 
+            type: string
+            description: The OrderID tag for the object. 
+            example: d8eefa63-6f10-4566-8f15-81460448f2ac
+          TransactTime: 
+            type: string
+            description: The TransactTime tag for the object. 
+            example: 1.589822606393E9
+          StrikePrice: 
+            type: string
+            description: The StrikePrice tag for the object. 
+            example: 2953.125
+          LastPx: 
+            type: string
+            description: The LastPx tag for the object. 
+            example: 2953.125
+          MaturityDate: 
+            type: string
+            description: The MaturityDate tag for the object. 
+            example: 1.589822666393E9
+          TradeReportID: 
+            type: string
+            description: The TradeReportID tag for the object. 
+            example: d8eefa63-6f10-4566-8f15-81460448f2ac-0
+          TradeDate: 
+            type: string
+            description: The TradeDate tag for the object. 
+            format: date
+            example: 2020-05-18
+          CFICode: 
+            type: string
+            description: The CFICode tag for the object. 
+            example: MMMXXX
+          Sides: 
+            type: array
+            description: The Sides array for the object. 
+            items: 
+              type: object
+              description: object
+              properties: 
+                Side: 
+                  type: string
+                  description: The Side tag for the object. 
+                  example: LONG
+                OrderID: 
+                  type: string
+                  description: The OrderID tag for the object. 
+                  example: d8eefa63-6f10-4566-8f15-81460448f2ac
+                PartyIDs: 
+                  type: array
+                  description: The PartyIDs array for the object. 
+                  items: 
+                    type: object
+                    description: object
+                    properties: 
+                      PartyID: 
+                        type: string
+                        description: The PartyID tag for the object. 
+                        example: MOMOES
+                      PartyIDSource: 
+                        type: string
+                        description: The PartyIDSource tag for the object. 
+                        example: PROP CODE
+                      PartyRole: 
+                        type: string
+                        description: The PartyRole tag for the object. 
+                        example: INITIATING TRADER
+    next_page_token: 
+      type: integer
+      format: int32
+      description: The next_page_token number.
+      example: 2

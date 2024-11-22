@@ -1,0 +1,127 @@
+{
+	"/": [],
+	"/admin": [
+		"src/routes/admin/+page.ts"
+	],
+	"/admin/monetization": [],
+	"/admin/monetization/[id]": [
+		"src/routes/admin/monetization/[id]/+page.ts"
+	],
+	"/admin/products": [],
+	"/admin/products/new": [],
+	"/admin/products/[id]": [
+		"src/routes/admin/products/[id]/+page.ts"
+	],
+	"/admin/roles": [],
+	"/admin/sites": [],
+	"/admin/sites/new": [],
+	"/admin/sites/[id]": [
+		"src/routes/admin/sites/[id]/+page.ts"
+	],
+	"/admin/slas": [],
+	"/admin/slas/new": [],
+	"/admin/slas/[id]": [
+		"src/routes/admin/slas/[id]/+page.ts"
+	],
+	"/admin/users": [],
+	"/admin/users/[id]": [
+		"src/routes/admin/users/[id]/+page.ts"
+	],
+	"/api/analytics-hub": [
+		"src/routes/api/analytics-hub/+server.ts"
+	],
+	"/api/apps/api": [
+		"src/routes/api/apps/api/+server.ts"
+	],
+	"/api/apps/api/[id]": [
+		"src/routes/api/apps/api/[id]/+server.ts"
+	],
+	"/api/apps/api/[id]/keys/[keyId]": [
+		"src/routes/api/apps/api/[id]/keys/[keyId]/+server.ts"
+	],
+	"/api/apps/bigquery": [
+		"src/routes/api/apps/bigquery/+server.ts"
+	],
+	"/api/apps/storage": [
+		"src/routes/api/apps/storage/+server.ts"
+	],
+	"/api/billing": [
+		"src/routes/api/billing/+server.ts"
+	],
+	"/api/categories": [
+		"src/routes/api/categories/+server.ts"
+	],
+	"/api/categories/[id]": [
+		"src/routes/api/categories/[id]/+server.ts"
+	],
+	"/api/data": [
+		"src/routes/api/data/+server.ts"
+	],
+	"/api/data/[id]": [
+		"src/routes/api/data/[id]/+server.ts"
+	],
+	"/api/products": [
+		"src/routes/api/products/+server.ts"
+	],
+	"/api/products/generate": [
+		"src/routes/api/products/generate/+server.ts"
+	],
+	"/api/products/generate/spec": [
+		"src/routes/api/products/generate/spec/+server.ts"
+	],
+	"/api/products/[id]": [
+		"src/routes/api/products/[id]/+server.ts"
+	],
+	"/api/products/[id]/monetization": [
+		"src/routes/api/products/[id]/monetization/+server.ts"
+	],
+	"/api/products/[id]/monetization/[name]": [
+		"src/routes/api/products/[id]/monetization/[name]/+server.ts"
+	],
+	"/api/products/[id]/spec": [
+		"src/routes/api/products/[id]/spec/+server.ts"
+	],
+	"/api/usage": [
+		"src/routes/api/usage/+server.ts"
+	],
+	"/api/usage/latency": [
+		"src/routes/api/usage/latency/+server.ts"
+	],
+	"/api/users": [
+		"src/routes/api/users/+server.ts"
+	],
+	"/api/users/roles": [
+		"src/routes/api/users/roles/+server.ts"
+	],
+	"/api/users/[id]": [
+		"src/routes/api/users/[id]/+server.ts"
+	],
+	"/home": [],
+	"/mission": [],
+	"/partners": [],
+	"/pricing": [],
+	"/privacy": [],
+	"/products/[id]": [
+		"src/routes/products/[id]/+page.server.ts"
+	],
+	"/register": [],
+	"/register/email": [],
+	"/sign-in": [],
+	"/sign-in/email": [],
+	"/user": [],
+	"/user/approval": [],
+	"/user/apps": [
+		"src/routes/user/apps/+page.ts"
+	],
+	"/user/apps/api": [],
+	"/user/apps/api/new": [],
+	"/user/apps/api/[id]": [
+		"src/routes/user/apps/api/[id]/+page.server.ts"
+	],
+	"/user/apps/bigquery": [],
+	"/user/apps/bigquery/new": [],
+	"/user/apps/storage": [],
+	"/user/apps/storage/new": [],
+	"/user/billing": [],
+	"/user/usage": []
+}
