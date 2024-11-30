@@ -1,0 +1,17 @@
+<APIProxy revision="6" name="MP-MockData-v1">
+    <DisplayName></DisplayName>
+    <Description></Description>
+    <CreatedAt>1732291153503</CreatedAt>
+    <LastModifiedAt>1732802457599</LastModifiedAt>
+    <BasePaths>/v1/mock</BasePaths>
+    <Policies>
+        <Policy>AM-SetCors</Policy>
+        <Policy>AM-SetResponse</Policy>
+        <Policy>EV-ExtractName</Policy>
+        <Policy>KVM-GetData</Policy>
+        <Policy>RF-CheckCors</Policy>
+    </Policies>
+    <ProxyEndpoints>
+        <ProxyEndpoint>default</ProxyEndpoint>
+    </ProxyEndpoints>
+</APIProxy>

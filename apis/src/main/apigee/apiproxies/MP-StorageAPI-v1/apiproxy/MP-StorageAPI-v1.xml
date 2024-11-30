@@ -1,0 +1,25 @@
+<APIProxy revision="2" name="MP-StorageAPI-v1">
+    <DisplayName></DisplayName>
+    <Description></Description>
+    <CreatedAt>1732291156223</CreatedAt>
+    <LastModifiedAt>1732291156223</LastModifiedAt>
+    <BasePaths>/v1/storage</BasePaths>
+    <Policies>
+        <Policy>AM-DownloadRedirect</Policy>
+        <Policy>AM-MockBackendResponse</Policy>
+        <Policy>AM-RemoveHeaderAuthz</Policy>
+        <Policy>EV-GetURL</Policy>
+        <Policy>JS-SetTargetServiceURL</Policy>
+        <Policy>KVM-GetConfig</Policy>
+        <Policy>OA-VerifyAccessToken</Policy>
+        <Policy>RF-404</Policy>
+        <Policy>SC-GetSignedUrl</Policy>
+    </Policies>
+    <ProxyEndpoints>
+        <ProxyEndpoint>default</ProxyEndpoint>
+    </ProxyEndpoints>
+    <Resources>
+        <Resource>jsc://setTargetServiceURL.js</Resource>
+        <Resource>properties://.placeholder</Resource>
+    </Resources>
+</APIProxy>
