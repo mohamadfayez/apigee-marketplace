@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { goto, invalidate, invalidateAll } from "$app/navigation";
-    import { appService } from "./app-service";
+  import { fade, slide, fly, blur, scale } from 'svelte/transition';
+  import { appService } from "./app-service";
   import type { DataProduct } from "./interfaces";
   import {capitalizeFirstLetter} from "./utils";
 
@@ -30,7 +31,7 @@
 {#if data}
   <!-- svelte-ignore a11y-no-static-element-interactions -->
   <!-- svelte-ignore a11y-click-events-have-key-events -->
-  <div class="product-box" on:click={OpenProduct}>
+  <div class="product-box" in:fade on:click={OpenProduct}>
     <div>
       {#if data.imageUrl}
         <img height="32px" alt="Product" src={data.imageUrl} />

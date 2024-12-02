@@ -1,12 +1,6 @@
-# Apigee Data Marketplace
-This project uses the Google Cloud Apigee and Application Integration services to offer a holistic data marketplace on top of data lakes, databases, and any other data-related assets, along with other APIs and services.
-
-This approach has the advantage that unified identity, access management, integration flows, monetization and security policies make it possible to truly offer a unified marketplace for data assets in an organization.
-
-## Codelab
-Click here to open a Codelab for the deployment.
-
-[Open Deployment Codelab](https://tyayers.github.io/apigee-data-marketplace/codelabs/apigee-data-marketplace)
+# Apigee Data Marketplace Sample
+This project offers a sample marketplace frontend application for Apigee to offer publishing & subscription user flows for data, AI & API products. This is only a demo to show what is possible using the **Headless API Distribution** engine in Apigee (supporting any type of frontend framework). In this case the marketplace app uses [SvelteKit](https://svelte.dev/) as the frontend framework.
 
 ## Open source libraries used
+- [Svelte-JSON Editor](https://github.com/josdejong/svelte-jsoneditor) - awesome JSON editor svelte control.
 - [Rapidoc](https://rapidocweb.com/) - very nice Open API spec documentation web element that is used for API docs.

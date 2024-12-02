@@ -18,7 +18,8 @@
     });
     
     document.addEventListener("siteUpdated", () => {
-      sites = appService.sites;
+      if (sites.length === 0)
+        sites = appService.sites;
     });
   });
 
@@ -76,7 +77,7 @@
       </div>
 
       <div class="left_menu_page_right_content">
-        {#if sites}
+        {#if sites && sites.length > 0}
           <table class="flat_table">
             <thead>
               <tr>

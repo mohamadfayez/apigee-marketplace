@@ -27,8 +27,17 @@
 	"/admin/users/[id]": [
 		"src/routes/admin/users/[id]/+page.ts"
 	],
-	"/api/analytics-hub": [
-		"src/routes/api/analytics-hub/+server.ts"
+	"/api/analyticshub": [
+		"src/routes/api/analyticshub/+server.ts"
+	],
+	"/api/apigee": [
+		"src/routes/api/apigee/+server.ts"
+	],
+	"/api/apigee/basepath": [
+		"src/routes/api/apigee/basepath/+server.ts"
+	],
+	"/api/apihub": [
+		"src/routes/api/apihub/+server.ts"
 	],
 	"/api/apps/api": [
 		"src/routes/api/apps/api/+server.ts"
@@ -48,12 +57,6 @@
 	"/api/billing": [
 		"src/routes/api/billing/+server.ts"
 	],
-	"/api/categories": [
-		"src/routes/api/categories/+server.ts"
-	],
-	"/api/categories/[id]": [
-		"src/routes/api/categories/[id]/+server.ts"
-	],
 	"/api/data": [
 		"src/routes/api/data/+server.ts"
 	],
@@ -71,6 +74,9 @@
 	],
 	"/api/products/[id]": [
 		"src/routes/api/products/[id]/+server.ts"
+	],
+	"/api/products/[id]/approval": [
+		"src/routes/api/products/[id]/approval/+server.ts"
 	],
 	"/api/products/[id]/monetization": [
 		"src/routes/api/products/[id]/monetization/+server.ts"

@@ -54,6 +54,7 @@ async function createUserFirebase(user: User): Promise<User | undefined> {
   if (!internalDomains.includes(userDomain)) {
     user.roles.push("external");
   } else {
+    user.roles.push("admin");
     user.roles.push("internal");
   }
   user.status = "approved";

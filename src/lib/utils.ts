@@ -16,14 +16,6 @@ export function logDebug(name: string, payload: string): void {
 // Generates a random string of a given length. Defaults to 6 characters.
 export const generateRandomString = (length=6)=>Math.random().toString(20).substring(2, length + 2);
 
-export enum DataSourceTypes {
-  BigQuery = "BigQuery",
-  BigQueryTable = "BigQueryTable",
-  GenAITest = "GenAITest",
-  AI = "AI",
-  API = "API"
-}
-
 export let bqtables: {name: string, table: string, entity: string}[] = [
   {
     name: "Austin bike share trips",
@@ -46,11 +38,6 @@ export let protocols: DisplayOptions[] = [
   {
     name: "Analytics Hub",
     displayName: "Analytics Hub",
-    active: true
-  },
-  {
-    name: "Event",
-    displayName: "Event stream",
     active: true
   },
   {

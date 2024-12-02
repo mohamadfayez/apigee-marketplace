@@ -1,9 +1,8 @@
-import type { DataProduct } from "$lib/interfaces";
+import { type DataProduct, DataSourceTypes } from "$lib/interfaces";
 import { json, text, type RequestHandler } from "@sveltejs/kit";
 import { GoogleAuth } from "google-auth-library";
 import { VertexAI } from "@google-cloud/vertexai";
 import { PUBLIC_PROJECT_ID, PUBLIC_API_HOST, PUBLIC_APIGEE_ENV } from '$env/static/public';
-import { DataSourceTypes } from "$lib/utils";
 
 const auth = new GoogleAuth({
   scopes: 'https://www.googleapis.com/auth/cloud-platform'
@@ -26,19 +25,26 @@ export const POST: RequestHandler = async({ params, url, request}) => {
 
   let payload = newProduct.samplePayload.replaceAll("\"", "'");
 
-  let callPath: string = "services";
-  if (newProduct.source.startsWith("BigQuery"))
-    callPath = "data";
-  else if (newProduct.source === DataSourceTypes.GenAITest)
-    callPath = "test/mock";
+  if (newProduct.source.startsWith("BigQuery")) {
+    newProduct.specPrompt = newProduct.specPrompt.replaceAll("{path}", "/v1/data/" + newProduct.entity);
+  }
+  else if (newProduct.source === DataSourceTypes.API) {
+    newProduct.specPrompt = newProduct.specPrompt.replaceAll("{path}", "/v1/services/" + newProduct.entity);
+  }
+  else if (newProduct.source === DataSourceTypes.GenAITest) {
+    newProduct.specPrompt = newProduct.specPrompt.replaceAll("{path}", "/v1/mock/" + newProduct.entity);
+  }
+  else if (newProduct.source === DataSourceTypes.ApigeeProduct) {
+    newProduct.specPrompt = newProduct.specPrompt.replaceAll("{path}", newProduct.path);
+  }
 
-  newProduct.specPrompt = newProduct.specPrompt.replaceAll("${name}", newProduct.name).replaceAll("${apigeeHost}", PUBLIC_API_HOST).replaceAll("${path}", `/v1/${callPath}/` + newProduct.entity);
+  newProduct.specPrompt = newProduct.specPrompt.replaceAll("{name}", newProduct.name).replaceAll("{apigeeHost}", PUBLIC_API_HOST);
 
   let prompt: string = newProduct.specPrompt;
 
   prompt += "   " + payload;
 
-  let newSpec = (await generateSpecGemini(prompt)).replace("```json", "").replace("```", "");
+  let newSpec = (await generateSpecGemini(prompt)).replaceAll("```json", "").replaceAll("```", "");
   newProduct.specContents = newSpec;
 
 	return json(newProduct);

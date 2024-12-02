@@ -1,8 +1,7 @@
-import type { DataProduct } from "$lib/interfaces";
+import { type DataProduct, DataSourceTypes } from "$lib/interfaces";
 import { json, type RequestHandler } from "@sveltejs/kit";
 import { GoogleAuth } from "google-auth-library";
 import { PUBLIC_PROJECT_ID, PUBLIC_API_HOST, PUBLIC_APIGEE_ENV } from '$env/static/public';
-import { DataSourceTypes } from "$lib/utils";
 import { VertexAI } from "@google-cloud/vertexai";
 
 const auth = new GoogleAuth({
@@ -31,10 +30,13 @@ export const GET: RequestHandler = async ({ url }) => {
   }
   else if (type === "API") {
     let response =  await fetch(`https://${PUBLIC_API_HOST}/v1/test/services/${entity}`);
-    testPayload = await response.json();
+    if (response.status === 200)
+      testPayload = await response.text();
+    else
+      console.error(`Could not get API data from Apigee - ${response.status}`)
   }
-  else {
-    let response =  await fetch(`https://${PUBLIC_API_HOST}/v1/test/mock/${entity}`);
+  else if (type === DataSourceTypes.GenAITest) {
+    let response =  await fetch(`https://${PUBLIC_API_HOST}/v1/mock/${entity}`);
     if (response.status === 200) {
       testPayload = await response.json();
     }
@@ -92,11 +94,12 @@ async function setKVMEntry(KVMName: string, keyName: string, keyValue: string) {
       })
     });
 
-    if (response.status != 200)
-      console.error(response);
+    if (response.status != 200) {
+      console.error("Could not set KVM entry for " + keyName + " - " + response.status);
+    }
   }
-  else {
-    console.error(response);
+  else if (response.status !== 201) {
+    console.error("Could not set KVM entry for " + keyName + " - " + response.status);
   }
 }
 

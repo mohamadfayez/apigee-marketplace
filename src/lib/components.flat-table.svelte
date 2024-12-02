@@ -10,7 +10,7 @@
   export let onRowDelete: (row: any) => void;
 
   let displayData = data.data;
-  let filterInput: string = "";  
+  let filterInput: string = "";
   let sortFlags: { [key: string]: boolean } = {};
 
   function sortHeader(header: FlatTableHeader) {
@@ -33,12 +33,17 @@
     if (filterInput) {
       let tempData: any[] = [];
 
-      for(let row of data.data) {
+      for (let row of data.data) {
         let addRow: boolean = false;
 
-        for(let header of data.headers) {
+        for (let header of data.headers) {
           if (header.searchable) {
-            if(row[header.name].toString().toLowerCase().includes(filterInput.toLowerCase())) {
+            if (
+              row[header.name]
+                .toString()
+                .toLowerCase()
+                .includes(filterInput.toLowerCase())
+            ) {
               addRow = true;
               break;
             }
@@ -76,7 +81,12 @@
     >
     <span class="filter_input_box">
       Filter
-      <input class="filter_input" on:keyup={search} bind:value={filterInput} placeholder="Value to filter for" />
+      <input
+        class="filter_input"
+        on:keyup={search}
+        bind:value={filterInput}
+        placeholder="Value to filter for"
+      />
     </span>
   </div>
   <table class="flat_table" style="margin-top: 8px;">

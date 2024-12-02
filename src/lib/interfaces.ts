@@ -8,6 +8,9 @@ export class User {
   providerId = "";
   developerData?: Developer;
   status = "";
+  productAwaitingApprovals: string[] = [];
+  productApprovalExecutionIds: {[id: string]: string} = {};
+  productApprovals: string[] = [];
 
   constructor(email: string, userName: string, firstName: string, lastName: string) {
     this.email = email;
@@ -42,6 +45,17 @@ export class Product {
   typeArray?: string[] = [];
 }
 
+export let specPrompt: string = `Generate an OpenAPI spec in JSON format with the name {name} at the server https://{apigeeHost}. 
+It should have a good description instructing the user on the basics of how to use the API.
+It should offer full CRUD operations at the {path} path and be authorized with an API key in the x-api-key header.
+The GET operation should offer query parameters for pageSize, filter, nextToken and orderBy.
+It should use the following data structure for all operations: `;
+
+export let specApiProductPrompt: string = `Generate an OpenAPI spec in JSON format with the name {name} at the server https://{apigeeHost}. 
+It should have a good description instructing the user on the basics of how to use the API.
+It should offer full CRUD operations at the {path} path and be authorized with an API key in the x-api-key header.
+It should use the following data structure for all operations: `;
+
 export class DataProduct {
   id: string;
   ownerEmail: string;
@@ -51,8 +65,10 @@ export class DataProduct {
   imageUrl: string = "/data_icon.png";
   specUrl: string = "https://raw.githubusercontent.com/tyayers/apigee-data-marketplace/main/specs/esg-analytics.yaml";
   specContents: string = "";
-  specPrompt: string = "Generate an OpenAPI spec in json format with the name ${name} at the server https://${apigeeHost}. It should have one GET operation at the ${path} path, be authorized with an API key in the x-api-key header, and return the following data structure:";
+  specPrompt: string = specPrompt;
+  sampleRequest: string = "";
   samplePayload: string = "";
+  apigeeProductId: string = "";
   analyticsHubName: string = "";
   anaylticsHubDisplayName: string = "";
   analyticsHubDescription: string = "";
@@ -62,11 +78,14 @@ export class DataProduct {
   source: string;
   entity: string;
   query: string;
+  path: string = "";
+  pathVerbs: string[] = [];
   sla: SLA = new SLA("no_sla_5k3j", "no_sla_5k3j")
   createdAt: string;
   protocols: string[];
   audiences: string[];
   categories: string[];
+  approvalRequired: boolean = false;
 
   constructor(id: string, email: string, ownerName: string, name: string, description: string, status: string, source: string, entity: string, query: string, createdAt: string, protocols: string[], audiences: string[], categories: string[]) {
     this.id = id;
@@ -233,7 +252,7 @@ export class MonetizationRatePlan {
   billingPeriod: string = "MONTHLY"; // can also be WEEKLY
   paymentFundingModel: string = "POSTPAID"; // can also be PREPAID
   currencyCode: string = "USD";
-  setupFee: MonetizationRatePlanMoney = {currencyCode: "USD", units: "0", nanos: "0"};
+  setupFee: MonetizationRatePlanMoney = {currencyCode: "USD", units: "500", nanos: "0"};
   fixedRecurringFee: MonetizationRatePlanMoney = {currencyCode: "USD", units: "0", nanos: "0"};
   fixedFeeFrequency: number = 0;
   consumptionPricingType: MonetizationConsumptionTypes = MonetizationConsumptionTypes.FIXED_PER_UNIT; // can also be BANDED
@@ -326,6 +345,7 @@ export interface DataExchnageListing {
 export class Site {
   id: string = "";
   name: string = "";
+  googleCloudProjectId: string = "";
   nameTop: string = "-12px";
   nameLeft: string = "4px";
   logoUrl: string = "/loop.svg";
@@ -345,4 +365,48 @@ export enum DialogType {
 export class DialogResult {
   result: DialogType = DialogType.Ok;
   inputs: {label: string, value: string}[] = [];
+}
+
+export class ApiHubApi {
+  name: string = "";
+  displayName: string = "";
+  description: string = "";
+  documentation: {externalUri: string} = {externalUri: ""};
+  owner: {displayName: string, email: string} = {displayName: "", email: ""};
+  versions: string[] = [];
+  createTime: string = "";
+  updateTime: string = "";
+}
+
+export class ApigeeApiProduct {
+  name: string = "";
+  displayName: string = "";
+  description: string = "";
+  approvalType: string = "auto";
+  environments: string[] = [];
+  createdAt: string = "";
+  lastModifiedAt: string = "";
+  operationGroup?: { operationConfigs: {apiSource: string, operations: {resource: string, methods: string[]}[]}[]};
+}
+
+export class ApigeeApi {
+  name: string = "";
+  revision: string[] = [];
+}
+
+export enum ProductProtocols {
+  API = "API",
+  DataSync = "Data sync",
+  Event = "Event",
+  AnalyticsHub = "Analytics Hub"
+}
+
+export enum DataSourceTypes {
+  BigQuery = "BigQuery",
+  BigQueryTable = "BigQueryTable",
+  GenAITest = "GenAITest",
+  AI = "Vertex AI",
+  ApigeeProduct = "Apigee API Product",
+  ApiHub = "Apigee API Hub",
+  API = "API",
 }

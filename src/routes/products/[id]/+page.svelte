@@ -1,11 +1,12 @@
 <script lang="ts">
+  import { fade, slide, fly, blur, scale } from 'svelte/transition';
   import { goto, invalidateAll } from "$app/navigation";
   import { page } from "$app/stores";
   import { appService } from "$lib/app-service";
-  import { onMount } from "svelte";
+  import { onDestroy, onMount } from "svelte";
   import { JSONEditor, Mode } from "svelte-jsoneditor";
   import type { PageServerData } from "./$types";
-  import type { DataProduct } from "$lib/interfaces";
+  import { DialogType, type DataProduct } from "$lib/interfaces";
   import { capitalizeFirstLetter } from "$lib/utils";
   import ProductCard from "$lib/components.product-card.svelte";
 
@@ -16,6 +17,9 @@
   let products: DataProduct[] | undefined = appService.products;
   let product: DataProduct | undefined = undefined;
   let relatedProducts: DataProduct[] = [];
+  let accessApproved: boolean = false;
+  let accessApprovalWaiting: boolean = false;
+  let accessChecker: NodeJS.Timeout | undefined = undefined;
 
   let selectedProductTab = "overview";
 
@@ -26,7 +30,7 @@
   let apiKey: string = "";
 
   let previewDataOpen: boolean = false;
-  let previewDataType: Mode = Mode.table;
+  let previewDataType: Mode = Mode.tree;
   let apiDocOpen: boolean = false;
 
   let payloadEditor: { set(content: any): void; refresh(): void };
@@ -50,6 +54,13 @@
     refresh(productId);
   });
 
+  onDestroy(() => {
+    if (accessChecker) {
+      clearInterval(accessChecker);
+      accessChecker = undefined;
+    }
+  });
+
   function refresh(newProductId: string) {
     loadProduct(newProductId);
     refreshApps();
@@ -58,16 +69,49 @@
   function loadProduct(newProductId: string) {
     if (newProductId && products && products.length > 0) {
       product = products.find((prod) => prod.id === newProductId);
+      if (product && !product.apigeeProductId) product.apigeeProductId = product?.id;
 
       relatedProducts = [];
       for (let tempProduct of products) {
         if (
           tempProduct.categories.some(
             (item) =>
-              product?.categories.includes(item) && tempProduct.id != product.id
+              product?.categories.includes(item) &&
+              tempProduct.id != product.id,
           )
         )
           relatedProducts.push(tempProduct);
+      }
+    }
+
+    if (product && product.approvalRequired) {
+      if (
+        appService.currentUser &&
+        appService.currentUser.productApprovals &&
+        appService.currentUser.productApprovals.includes(product.id)
+      ) {
+        accessApproved = true;
+      } else if (
+        appService.currentUser &&
+        appService.currentUser.productAwaitingApprovals &&
+        appService.currentUser?.productAwaitingApprovals.includes(product.id)
+      ) {
+        accessApprovalWaiting = true;
+      }
+    } else if (product && !product.approvalRequired) {
+      accessApproved = true;
+    }
+
+    if (product && !accessChecker) {
+      if (
+        appService.currentUser?.productApprovalExecutionIds &&
+        appService.currentUser?.productApprovalExecutionIds[product.id] &&
+        appService.currentUser.productAwaitingApprovals.includes(product.id)
+      ) {
+        // we are waiting for approval, so start checker
+        startApprovalChecker(
+          appService.currentUser?.productApprovalExecutionIds[product.id],
+        );
       }
     }
   }
@@ -77,7 +121,7 @@
       var newAppSubscriptions = [];
       for (let app of appService.apiApps.apps) {
         let productId: string = "";
-        if (product && product.id) productId = product.id;
+        if (product && product.apigeeProductId) productId = product.apigeeProductId;
         if (app.apiProducts && app.apiProducts.includes(productId)) {
           newAppSubscriptions.push(app.name);
           if (!apiKey && app.credentials && app.credentials.length > 0)
@@ -105,18 +149,16 @@
 
     setTimeout(() => {
       if (product) {
-
         let payloadData = JSON.parse(product.samplePayload);
         let editorData = [];
 
         if (payloadData[product.entity]) {
           editorData = payloadData[product.entity];
-        }
-        else {
+        } else {
           editorData = payloadData;
           previewDataType = Mode.tree;
         }
-        
+
         let payloadContent = {
           json: editorData,
         };
@@ -126,6 +168,130 @@
         }
       }
     }, 1);
+  }
+
+  function formatFee(fee: {
+    units: string;
+    nanos: string;
+    currencyCode: string;
+  }): string {
+    let result = fee.units ? fee.units : "0";
+    result += ".";
+    result += fee.nanos ? fee.nanos : "00";
+    result += " " + fee.currencyCode;
+
+    return result;
+  }
+
+  function formatRange(rate: { start: string; end: string }): string {
+    let result = rate.start ? rate.start : "0";
+    result += " - ";
+    result += rate.end ? rate.end : "unlimited";
+    return result;
+  }
+
+  function requestApproval() {
+    if (
+      product &&
+      (!appService.currentUser?.productAwaitingApprovals ||
+        !appService.currentUser?.productAwaitingApprovals.includes(product.id))
+    ) {
+      if (
+        appService.currentUser &&
+        !appService.currentUser?.productAwaitingApprovals
+      ) {
+        appService.currentUser.productAwaitingApprovals = [];
+      }
+      if (
+        appService.currentUser &&
+        !appService.currentUser?.productApprovalExecutionIds
+      ) {
+        appService.currentUser.productApprovalExecutionIds = {};
+      }
+
+      appService.currentUser?.productAwaitingApprovals.push(product.id);
+      accessApprovalWaiting = true;
+
+      // start approval workflow
+      fetch(
+        `/api/products/${product.id}/approval?productName=${product.name}&userEmail=${appService.currentUser?.email}&approverEmail=${appService.currentSiteData.owner}`,
+        {
+          method: "POST",
+        },
+      )
+        .then((response) => {
+          return response.json();
+        })
+        .then((result: { executionId: string }) => {
+          if (product && appService.currentUser) {
+            appService.currentUser.productApprovalExecutionIds[product.id] =
+              result.executionId;
+            // persist user
+            fetch(
+              `/api/data/${appService.currentUser?.email}?col=apigee-marketplace-users`,
+              {
+                method: "PUT",
+                body: JSON.stringify(appService.currentUser),
+              },
+            );
+
+            startApprovalChecker(result.executionId);
+          }
+        });
+    }
+  }
+
+  function startApprovalChecker(executionId: string) {
+    accessChecker = setInterval(() => {
+      if (product)
+        fetch(`/api/products/${product.id}/approval?executionId=${executionId}`)
+          .then((response) => {
+            return response.json();
+          })
+          .then((result: { result: boolean }) => {
+            console.log(result);
+            if (result.result) {
+              // approval finished
+              if (accessChecker) {
+                clearInterval(accessChecker);
+                accessChecker = undefined;
+              }
+              if (product && appService.currentUser) {
+                let index =
+                  appService.currentUser.productAwaitingApprovals.indexOf(
+                    product.id,
+                  );
+                appService.currentUser.productAwaitingApprovals.splice(
+                  index,
+                  1,
+                );
+                if (!appService.currentUser.productApprovals)
+                  appService.currentUser.productApprovals = [];
+                if (
+                  !appService.currentUser.productApprovals.includes(product.id)
+                )
+                  appService.currentUser.productApprovals.push(product.id);
+                fetch(
+                  `/api/data/${appService.currentUser?.email}?col=apigee-marketplace-users`,
+                  {
+                    method: "PUT",
+                    body: JSON.stringify(appService.currentUser),
+                  },
+                );
+              }
+
+              accessApprovalWaiting = false;
+              accessApproved = true;
+
+              appService.ShowDialog(
+                "Congratulations, you have been granted access to this product! Click on the 'Subscribe' button to complete the process.",
+                "Ok",
+                DialogType.Ok,
+                [],
+              );
+            }
+          });
+    }, 3000);
   }
 </script>
 
@@ -148,7 +314,7 @@
 </div>
 
 {#if product}
-  <div class="product_overview">
+  <div class="product_overview" in:fade>
     <div class="product_overview_icon">
       {#if product?.imageUrl}
         <img height="62px" alt="Product" src={product?.imageUrl} />
@@ -177,47 +343,61 @@
         {product?.description}
       </div>
 
+      <!-- SUBSCRIBE BUTTONS -->
+
       <div class="product_overview_buy">
-        {#if product?.protocols.includes("API") || product?.protocols.includes("Event")}
-          <a
-            href={"/user/apps/api/new?product=" + product?.id}
-            class="rounded_button_filled">Subscribe API</a
+        {#if !accessApproved && !accessApprovalWaiting}
+          <!-- REQUEST APPROVAL -->
+          <button on:click={requestApproval} class="rounded_button_filled"
+            >Request access</button
           >
-        {/if}
-        {#if product?.protocols.includes("Analytics Hub")}
-          <a
-            href={"/user/apps/bigquery/new?product=" + product?.id}
-            class="rounded_button_filled"
+        {:else if !accessApproved && accessApprovalWaiting}
+          <!-- AWAITING APPROVAL -->
+          <button disabled class="rounded_button_filled"
+            >Awaiting access...</button
           >
-            <svg
-              width="25"
-              height="25"
-              style="position: relative; top: 7px; left: -6px;"
-              class="sobti"
-              ><g fill="none" fill-rule="evenodd"
-                ><path
-                  d="M20.66 12.7c0-.61-.05-1.19-.15-1.74H12.5v3.28h4.58a3.91 3.91 0 0 1-1.7 2.57v2.13h2.74a8.27 8.27 0 0 0 2.54-6.24z"
-                  fill="#4285F4"
-                /><path
-                  d="M12.5 21a8.1 8.1 0 0 0 5.63-2.06l-2.75-2.13a5.1 5.1 0 0 1-2.88.8 5.06 5.06 0 0 1-4.76-3.5H4.9v2.2A8.5 8.5 0 0 0 12.5 21z"
-                  fill="#34A853"
-                /><path
-                  d="M7.74 14.12a5.11 5.11 0 0 1 0-3.23v-2.2H4.9A8.49 8.49 0 0 0 4 12.5c0 1.37.33 2.67.9 3.82l2.84-2.2z"
-                  fill="#FBBC05"
-                /><path
-                  d="M12.5 7.38a4.6 4.6 0 0 1 3.25 1.27l2.44-2.44A8.17 8.17 0 0 0 12.5 4a8.5 8.5 0 0 0-7.6 4.68l2.84 2.2a5.06 5.06 0 0 1 4.76-3.5z"
-                  fill="#EA4335"
-                /></g
-              ></svg
+        {:else}
+          {#if product?.protocols.includes("API") || product?.protocols.includes("Event")}
+            <a
+              href={"/user/apps/api/new?product=" + product?.apigeeProductId}
+              class="rounded_button_filled">Subscribe API</a
             >
-            Subscribe Analytics Hub
-          </a>
-        {/if}
-        {#if product?.protocols.includes("Data sync")}
-          <a
-            href={"/user/apps/storage/new?product=" + product?.id}
-            class="rounded_button_filled">Subscribe data sync</a
-          >
+          {/if}
+          {#if product?.protocols.includes("Analytics Hub")}
+            <a
+              href={"/user/apps/bigquery/new?product=" + product?.id}
+              class="rounded_button_filled"
+            >
+              <svg
+                width="25"
+                height="25"
+                style="position: relative; top: 7px; left: -6px;"
+                class="sobti"
+                ><g fill="none" fill-rule="evenodd"
+                  ><path
+                    d="M20.66 12.7c0-.61-.05-1.19-.15-1.74H12.5v3.28h4.58a3.91 3.91 0 0 1-1.7 2.57v2.13h2.74a8.27 8.27 0 0 0 2.54-6.24z"
+                    fill="#4285F4"
+                  /><path
+                    d="M12.5 21a8.1 8.1 0 0 0 5.63-2.06l-2.75-2.13a5.1 5.1 0 0 1-2.88.8 5.06 5.06 0 0 1-4.76-3.5H4.9v2.2A8.5 8.5 0 0 0 12.5 21z"
+                    fill="#34A853"
+                  /><path
+                    d="M7.74 14.12a5.11 5.11 0 0 1 0-3.23v-2.2H4.9A8.49 8.49 0 0 0 4 12.5c0 1.37.33 2.67.9 3.82l2.84-2.2z"
+                    fill="#FBBC05"
+                  /><path
+                    d="M12.5 7.38a4.6 4.6 0 0 1 3.25 1.27l2.44-2.44A8.17 8.17 0 0 0 12.5 4a8.5 8.5 0 0 0-7.6 4.68l2.84 2.2a5.06 5.06 0 0 1 4.76-3.5z"
+                    fill="#EA4335"
+                  /></g
+                ></svg
+              >
+              Subscribe Analytics Hub
+            </a>
+          {/if}
+          {#if product?.protocols.includes("Data sync")}
+            <a
+              href={"/user/apps/storage/new?product=" + product?.id}
+              class="rounded_button_filled">Subscribe data sync</a
+            >
+          {/if}
         {/if}
         {#if product?.samplePayload}
           <button
@@ -275,7 +455,7 @@
     >
   </div>
 
-  <div class="product_tab_content">
+  <div class="product_tab_content" in:fade>
     {#if selectedProductTab == "overview"}
       <div class="product_tab_content_inner">
         <h3>Overview</h3>
@@ -373,7 +553,7 @@
                 product?.monetizationData.setupFee.currencyCode}
             {/if}
             <br /><br />
-            {#if product?.monetizationData.fixedRecurringFee}
+            {#if product?.monetizationData.fixedRecurringFee && product?.monetizationData.fixedRecurringFee.units}
               Fixed recurring fee: {product?.monetizationData.fixedRecurringFee
                 .units +
                 " " +
@@ -392,17 +572,17 @@
             <tbody>
               {#if product?.monetizationData.consumptionPricingRates && product?.monetizationData.consumptionPricingRates.length > 0}
                 {#each product?.monetizationData.consumptionPricingRates as rate, i}
-                  {#if !rate.start}
+                  {#if product?.monetizationData.consumptionPricingType === "FIXED_PER_UNIT"}
                     <tr>
                       <td>{i + 1}</td>
-                      <td>{rate.fee.units + " " + rate.fee.currencyCode}</td>
+                      <td>{formatFee(rate.fee)}</td>
                       <td>Price per unit</td>
                     </tr>
                   {:else}
                     <tr>
                       <td>{i + 1}</td>
-                      <td>{rate.fee.units + " " + rate.fee.currencyCode}</td>
-                      <td>{rate.start + " - " + rate.end}</td>
+                      <td>{formatFee(rate.fee)}</td>
+                      <td>{formatRange(rate)}</td>
                     </tr>
                   {/if}
                 {/each}
@@ -430,13 +610,13 @@
           class="product_tab_content_text"
           style="display: flex; flex-wrap: wrap;"
         >
-        {#if relatedProducts.length > 0}
-          {#each relatedProducts as relatedProduct}
-            <ProductCard data={relatedProduct} />
-          {/each}
-        {:else}
-          <div>No related products found.</div>
-        {/if}
+          {#if relatedProducts.length > 0}
+            {#each relatedProducts as relatedProduct}
+              <ProductCard data={relatedProduct} />
+            {/each}
+          {:else}
+            <div>No related products found.</div>
+          {/if}
         </div>
       </div>
     {/if}
@@ -451,8 +631,11 @@
           <h3 style="position: relative; top: -4px; left: 6px;">
             Preview data
           </h3>
-          <a href={"data:application/octet-stream," + encodeURI(product.samplePayload)}
-            class="rounded_button_outlined" download={product.entity + ".json"}
+          <a
+            href={"data:application/octet-stream," +
+              encodeURI(product.samplePayload)}
+            class="rounded_button_outlined"
+            download={product.entity + ".json"}
             style="margin-left: 26px; max-height: 16px; font-size: 12px"
             >Download</a
           >

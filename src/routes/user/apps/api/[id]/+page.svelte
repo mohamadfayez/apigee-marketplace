@@ -32,7 +32,7 @@
   function setProductChecks() {
     if (products) {
       for (let product of products) {
-        apiProductChecks[product.name] = false;
+        apiProductChecks[product.apigeeProductId] = false;
       }
     }
 
@@ -281,9 +281,11 @@
                   <h4>Product subscriptions</h4>
                   {#if products}
                     {#each products as product}
-                      <div class="product_list_line">
-                        <input type="checkbox" id={product.id} name={product.id} bind:checked={apiProductChecks[product.id]}/><label for={product.id}>{product.name}</label>
-                      </div>
+                      {#if product.apigeeProductId}
+                        <div class="product_list_line">
+                          <input type="checkbox" id={product.apigeeProductId} name={product.apigeeProductId} bind:checked={apiProductChecks[product.apigeeProductId]}/><label for={product.apigeeProductId}>{product.name}</label>
+                        </div>
+                      {/if}
                     {/each}
                   {/if}
                 </div>

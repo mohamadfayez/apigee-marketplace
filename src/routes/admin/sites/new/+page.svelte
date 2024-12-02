@@ -21,7 +21,7 @@
   });
 
   function back() {
-    appService.GoTo("/admin/sites");
+    history.back();
   }
 
   function submit() {
@@ -166,6 +166,14 @@
           </label>
         </div>
 
+        <h4>Header preview</h4>
+
+        <div style="margin-top: 22px; margin-left: 8px;">
+          <img src={site.logoUrl} alt="logo preview"
+          width={site.logoWidth}/><span class="header_title_preview"
+          style={"left: " + site.nameLeft + "; top: " + site.nameTop + ";"}>{site.name}</span>
+        </div>
+
         <div class="form_list" style="margin-bottom: 44px;">
           <h4>Categories</h4>
     
@@ -236,4 +244,13 @@
   </div>
 </div>
 
-
+<style>
+  .header_title_preview {
+    font-family: "Open Sans", sans-serif;
+    color: #2c2c2c;
+    font-weight: 550;
+    font-size: larger;
+    position: relative;
+    height: 100%;
+  }
+</style>

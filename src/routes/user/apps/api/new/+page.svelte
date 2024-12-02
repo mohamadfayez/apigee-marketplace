@@ -4,7 +4,7 @@
   import { appService } from "$lib/app-service";
   import { onMount } from "svelte";
   import MenuLeftAccount from "$lib/components-menus-left/menus-left.account.svelte";
-  import { ApiApp, DataProduct } from "$lib/interfaces";
+  import { ApiApp, DataProduct, DialogType } from "$lib/interfaces";
 
   let name: string = "";
   let description: string = "";
@@ -14,13 +14,30 @@
   let products: DataProduct[] | undefined = appService.products;
   var urlProduct = $page.url.searchParams.get("product");
   if (urlProduct) {
-    product_input = urlProduct;
     selectedProducts.push(urlProduct);
+
+    // set default name
+    if (products && !name) {
+      let product = products.find((x) => x.apigeeProductId === urlProduct);
+      if (product) {
+        name = product.name + " app";
+        product_input = product.id;
+      }
+    }
   }
 
   onMount(() => {
     document.addEventListener("productsUpdated", () => {
       products = appService.products;
+
+      // set default name
+      if (products && !name) {
+        let product = products.find((x) => x.apigeeProductId === urlProduct);
+        if (product) {
+          name = product.name + " app";
+          product_input = product.id;
+        }
+      }
     });
   });
 
@@ -44,17 +61,23 @@
       },
       body: JSON.stringify(newApp),
     }).then((response) => {
-      appService.ShowSnackbar("Subscription created.");
-      appService.GetUserApps();
+      if (response.status === 200) {
+        appService.ShowSnackbar("Subscription created.");
+        appService.GetUserApps();
 
-      if (product_input) appService.GoTo("/products/" + product_input);
-      else appService.GoTo("/user/apps/api/" + name);
+        history.back();
+        // if (product_input) appService.GoTo("/products/" + product_input);
+        // else appService.GoTo("/user/apps/api/" + name);
+      } else {
+        appService.ShowDialog("That app name has already been taken, please use a different name.", "Ok", DialogType.Ok, []);
+      }
     });
   }
 
   function back() {
-    if (product_input) appService.GoTo("/products/" + product_input);
-    else appService.GoTo("/user/apps/api");
+    history.back();
+    // if (product_input) appService.GoTo("/products/" + product_input);
+    // else appService.GoTo("/user/apps/api");
   }
 </script>
 
@@ -145,13 +168,13 @@
                 {#if product.protocols.includes("API")}
                   <div class="form_list_line">
                     <input
-                      id={product.id}
-                      name={product.id}
-                      checked={selectedProducts.includes(product.id)}
+                      id={product.apigeeProductId}
+                      name={product.apigeeProductId}
+                      checked={selectedProducts.includes(product.apigeeProductId)}
                       on:change={onProductChange}
                       type="checkbox"
                     />
-                    <label for={product.id}>{product.name}</label>
+                    <label for={product.apigeeProductId}>{product.name}</label>
                   </div>
                 {/if}
               {/each}

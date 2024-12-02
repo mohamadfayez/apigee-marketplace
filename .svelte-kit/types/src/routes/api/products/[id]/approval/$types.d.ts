@@ -4,7 +4,7 @@ type Expand<T> = T extends infer O ? { [K in keyof O]: O[K] } : never;
 // @ts-ignore
 type MatcherParam<M> = M extends (param : string) => param is infer U ? U extends string ? U : string : string;
 type RouteParams = { id: string };
-type RouteId = '/api/categories/[id]';
+type RouteId = '/api/products/[id]/approval';
 
 export type EntryGenerator = () => Promise<Array<RouteParams>> | Array<RouteParams>;
 export type RequestHandler = Kit.RequestHandler<RouteParams, RouteId>;

@@ -3,6 +3,7 @@
   import { Site, User } from './interfaces';
   import { appService } from './app-service';
 	import { goto } from '$app/navigation';
+    import { fade, slide } from 'svelte/transition';
 
   let currentUser: User | undefined = appService.currentUser;
   let currentSite: Site = appService.currentSiteData;
@@ -110,7 +111,7 @@
       {#if menuVisible}
         <!-- svelte-ignore a11y-no-static-element-interactions -->
         <!-- svelte-ignore a11y-click-events-have-key-events -->
-        <div class="menuPanel" on:click|stopPropagation={() => {}}>
+        <div class="menuPanel" transition:slide on:click|stopPropagation={() => {}}>
           <div class="arrow" />
           <div class="menu">
             <div class="menu_profile">
@@ -137,19 +138,25 @@
       {#if siteMenuVisible}
         <!-- svelte-ignore a11y-no-static-element-interactions -->
         <!-- svelte-ignore a11y-click-events-have-key-events -->
-        <div class="menuPanel" on:click|stopPropagation={() => {}} style="right: 76px; width: 200px; max-height: 454px;">
+        <div class="menuPanel" transition:slide on:click|stopPropagation={() => {}} style="right: 76px; width: 200px; max-height: 454px;">
           <div class="arrow" style="left: 158px;" />
           <div class="menu" style="width: 200px;">
             <div class="panel">
               <span style="width: 100%; text-align: center; font-size: 17px; position: relative; top: -13px; color: darkslategray;">
                 {#if currentUser.roles.includes("admin")}
-                  <a href={`/admin/sites?site=${currentSite.id}`}>Sites</a>
+                  <div style="display: flex; padding-left: 4px; padding-right: 4px;">
+                    <a class="text_button" style="width: 50%; text-align: left; padding: 0px;" href={`/admin/sites?site=${currentSite.id}`}>Sites</a>
+                    <a class="text_button" style="width: 50%; text-align: right; padding: 0px;" href={`/admin/sites/new?site=${currentSite.id}`}>+ New</a>
+                  </div>
                 {:else}
                   <b>Sites</b>
                 {/if}
               </span>
               {#each allSites as site}
-                <a class="site_button" style="width: 97%;" href={"/home?site=" + site.id}>{site.name}</a>
+                <div class="site_line" style="display: flex;">
+                    <img src={site.logoUrl} alt="" width="10%" style="position: relative; top: -2px; margin: 0px 4px;"/>
+                    <a class="site_button" style="width: 90%; text-align: left;" href={"/home?site=" + site.id}>{site.name}</a>
+                </div>
               {/each}
             </div>
           </div>
@@ -356,16 +363,16 @@
   }
 
   .site_button {
-    font-size: 14px;
+    font-size: 15px;
     width: 97%;
     text-align: center;
     font-weight: 400;
     /* border-bottom: solid 1px lightgray; */
     margin-bottom: 4px;
-    padding: 4px;
+    padding: 6px;
   }
 
-  .site_button:hover {
+  .site_line:hover {
     background-color: #f1f1f1;
   }
 </style>

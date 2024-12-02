@@ -130,6 +130,7 @@
 
       <div class="right_content">
         {#if site}
+          <h4>Theme</h4>
           <div class="input_field_panel">
             <!-- svelte-ignore a11y-autofocus -->
             <input class="input_field" type="text" name="name" id="name" required bind:value={site.name} autocomplete="off" autofocus title="none" />
@@ -158,7 +159,7 @@
             <!-- svelte-ignore a11y-autofocus -->
             <input class="input_field" type="text" name="logo" id="logo" required bind:value={site.logoUrl} autocomplete="off" title="none" />
             <label for="logo" class='input_field_placeholder'>
-              Logo url
+              Logo source (URL or data contents)
             </label>
           </div>
 
@@ -168,6 +169,14 @@
             <label for="logo_width" class='input_field_placeholder'>
               Logo width
             </label>
+          </div>
+
+          <h4>Header preview</h4>
+
+          <div style="margin-top: 22px; margin-left: 8px;">
+            <img src={site.logoUrl} alt="logo preview"
+            width={site.logoWidth}/><span class="header_title_preview"
+            style={"left: " + site.nameLeft + "; top: " + site.nameTop + ";"}>{site.name}</span>
           </div>
 
           <div class="form_list" style="margin-bottom: 44px;">
@@ -240,3 +249,13 @@
     </div>
   </div>
 </div>
+
+<style>
+  .header_title_preview {
+    font-family: "Open Sans", sans-serif;
+    color: #2c2c2c;
+    font-weight: 550;
+    font-size: larger;
+    position: relative;
+  }
+</style>

@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { PageServerData } from './$types';
+  import { fade, slide, fly, blur, scale } from 'svelte/transition';
 
   import ProductCard from '$lib/components.product-card.svelte';
   import type { User, Product, Products, DataProduct } from '$lib/interfaces';
@@ -19,11 +20,14 @@
   let categories: { [key: string]: string[] } = {};
   let categoryArray: string[] = [];
 
-    let category_filter: string = "";
+  let category_filter: string = "";
   let types: string[] = [];
   let catChecked: string[] = [];
   let typesChecked: string[] = [];
   let searchText: string = "";
+  let visibleProductsCount: number = 0;
+
+  let loading: boolean = true;
 
 	onMount(() => {
     document.addEventListener("userUpdated", () => {
@@ -54,7 +58,7 @@
 
   function reloadProducts() {
     let tempTypes = types;
-    if (products && products.length > 0 && currentUser?.status == "approved") {
+    if (products && currentUser?.status == "approved") {
       for (let prod of products) {
         if (prod.status == "Published") {
           productsByName[prod.name] = prod;
@@ -95,6 +99,7 @@
 
       types = tempTypes;
       refreshProductList();
+      loading = false;
     }
   }
 
@@ -145,6 +150,8 @@
 
   function refreshProductList() {
     let tempCatProducts: {[key: string]: string[]} = {};
+    let tempVisibleProductCount: number = 0;
+
     for (let subCatSel of catChecked) {
       let cat = subCatSel.split(" - ")[0];
       if (! tempCatProducts[cat]) tempCatProducts[cat] = [];
@@ -155,6 +162,7 @@
             (typesChecked.length === 0 || prod.protocols?.some(item => typesChecked.includes(item))) &&
             (prod.audiences?.length === 0 || prod.audiences.includes("external") || currentUser?.roles.some(item => prod.audiences?.includes(item)))) {
           tempCatProducts[cat].push(prodName);
+          tempVisibleProductCount++;
         }
       }
     }
@@ -169,6 +177,7 @@
             (typesChecked.length === 0 || prod.protocols?.some(item => typesChecked.includes(item))) &&
             (prod.audiences?.length === 0 || prod.audiences.includes("external") || currentUser?.roles.some(item => prod.audiences?.includes(item)))) {
             tempCatProducts[cat].push(prodName);
+            tempVisibleProductCount++;
           }
         }
       }
@@ -182,6 +191,7 @@
       return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
     });
 
+    visibleProductsCount = tempVisibleProductCount;
     catProducts = tempCatProducts;
   }
 </script>
@@ -207,9 +217,9 @@
   </a>
 </div>
 
-{#if currentUser && currentUser?.status == "approved"}
+{#if !loading}
   <div class="home_content">
-    <div class="banner">
+    <div class="banner" in:fade>
       <div class="banner_title">{"Welcome to " + appService.siteName}
         <div class="banner_subtitle">
           {"The " + appService.siteName + " has all data products, APIs and service ecosystem access."}

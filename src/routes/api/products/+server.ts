@@ -1,10 +1,9 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { Firestore } from '@google-cloud/firestore';
-import { DataProduct, StorageConfig, User } from '$lib/interfaces';
+import { DataProduct, StorageConfig, User, DataSourceTypes, ProductProtocols } from '$lib/interfaces';
 import { GoogleAuth } from 'google-auth-library';
 import { PUBLIC_PROJECT_ID, PUBLIC_API_HOST, PUBLIC_APIGEE_ENV, PUBLIC_APIHUB_REGION } from '$env/static/public';
-import { DataSourceTypes } from '$lib/utils';
 
 const auth = new GoogleAuth({
   scopes: 'https://www.googleapis.com/auth/cloud-platform'
@@ -20,7 +19,7 @@ export const GET: RequestHandler = async ({ url }) => {
   const email = url.searchParams.get('email') ?? '';
   const site = url.searchParams.get('site') ?? '';
   let colName = "apigee-marketplace-sites/default/products";
-  if (site) 
+  if (site)
     colName = "apigee-marketplace-sites/" + site + "/products";
 
   const userDoc = await firestore.doc('apigee-marketplace-users/' + email).get();
@@ -40,60 +39,66 @@ export const GET: RequestHandler = async ({ url }) => {
   return json(results);
 };
 
-export const POST: RequestHandler = async({ params, url, request}) => {
+export const POST: RequestHandler = async ({ params, url, request }) => {
   const site = url.searchParams.get('site') ?? '';
   let colName = "apigee-marketplace-sites/default/products";
-  if (site) 
+  if (site)
     colName = "apigee-marketplace-sites/" + site + "/products";
 
   let newProduct: DataProduct = await request.json();
   let proxyName: string = newProduct.source.startsWith("BigQuery") ? "MP-DataAPI-v1" : "MP-ServicesAPI-v1";
   let callPath: string = newProduct.source.startsWith("BigQuery") ? "/data" : "/services";
 
-  // Set mock data if product is Gen AI test generated
-  if (newProduct.source === DataSourceTypes.GenAITest && newProduct.samplePayload) {
-    setKVMEntry("marketplace-kvm", newProduct.entity + "-mock", newProduct.samplePayload);
-  }
+  newProduct.specUrl = `/api/products/${newProduct.id}/spec?site=${site}`;
 
-  if (newProduct.protocols.includes("API")) {
+  if (newProduct.source === DataSourceTypes.GenAITest && newProduct.samplePayload) {
+    // set mock data if product is Gen AI test generated
+    setKVMEntry("marketplace-kvm", newProduct.entity + "-mock", newProduct.samplePayload);
+    // create and set product
+    createProduct("marketplace_" + newProduct.id, "Marketplace " + newProduct.name, "/" + newProduct.entity, proxyName);
+    newProduct.apigeeProductId = "marketplace_" + newProduct.id;
+  } else if ((newProduct.source.startsWith("BigQuery") || newProduct.source === DataSourceTypes.API)
+    && newProduct.protocols.includes(ProductProtocols.API)
+    && newProduct.entity) {
+    // set data API kvm entry
     setKVMEntry("marketplace-kvm", newProduct.entity, newProduct.query);
-    createProduct(newProduct.id, newProduct.name, "/" + newProduct.entity, proxyName);
     if (!newProduct.samplePayload) {
-      let response =  await fetch(`https://${PUBLIC_API_HOST}/v1/test${callPath}/` + newProduct.entity);
+      let response = await fetch(`https://${PUBLIC_API_HOST}/v1/test${callPath}/` + newProduct.entity);
       newProduct.samplePayload = await response.text();
     }
-    
-    newProduct.specUrl = `/api/products/${newProduct.id}/spec?site=${site}`;
-    
+
     if (!newProduct.specContents) {
       newProduct.specContents = await generateSpec(newProduct.name, `/v1${callPath}/${newProduct.entity}`, newProduct.samplePayload);
       newProduct.specContents = newProduct.specContents.replaceAll("```json", "").replaceAll("```", "");
     }
+    
+    // create and set product
+    createProduct("marketplace_" + newProduct.id, "Marketplace " + newProduct.name, "/" + newProduct.entity, proxyName);
+    newProduct.apigeeProductId = "marketplace_" + newProduct.id;
+    // await apiHubRegister(newProduct);
+    // await apiHubCreateDeployment(newProduct);
+    // await apiHubCreateVersion(newProduct);
+    // await apiHubCreateVersionSpec(newProduct);
+  }
 
-    await apiHubRegister(newProduct);
-    await apiHubCreateDeployment(newProduct);
-    await apiHubCreateVersion(newProduct);
-    await apiHubCreateVersionSpec(newProduct);
-  } 
-  
-  if (newProduct.protocols.includes("Data sync")) {
+  if (newProduct.protocols.includes(ProductProtocols.DataSync)) {
     // Set KVM entry for the data proxy to BigQuery
     setKVMEntry("marketplace-kvm", newProduct.entity, newProduct.query);
     // Create the API product to access the storage export
-    createProduct(newProduct.id + "_storage", newProduct.name + " Storage", "/", "MP-StorageAPI-v1");
+    createProduct("marketplace_storage_" + newProduct.id, "Marketplace Storage " + newProduct.name, "/", "MP-StorageAPI-v1");
     // Add to storage entities to sync daily through integration flow
-    let storageConfigDoc = firestore.doc("data-marketplace-config/storage-sync");
-    let storageConfig = await storageConfigDoc.get();
-    let storageConfigObject: StorageConfig;
-    if (storageConfig.exists) 
-      storageConfigObject = storageConfig.data() as StorageConfig;
-    else
-      storageConfigObject = { entities: [] };
-    
-    if (!storageConfigObject.entities.includes(newProduct.entity)) {
-      storageConfigObject.entities.push(newProduct.entity);
-      storageConfigDoc.set(storageConfigObject);
-    }
+    // let storageConfigDoc = firestore.doc("data-marketplace-config/storage-sync");
+    // let storageConfig = await storageConfigDoc.get();
+    // let storageConfigObject: StorageConfig;
+    // if (storageConfig.exists)
+    //   storageConfigObject = storageConfig.data() as StorageConfig;
+    // else
+    //   storageConfigObject = { entities: [] };
+
+    // if (!storageConfigObject.entities.includes(newProduct.entity)) {
+    //   storageConfigObject.entities.push(newProduct.entity);
+    //   storageConfigDoc.set(storageConfigObject);
+    // }
 
     // Do first data sync
     fetch(`https://${PUBLIC_API_HOST}/v1/test/data/${newProduct.entity}?export=true`);
@@ -103,11 +108,11 @@ export const POST: RequestHandler = async({ params, url, request}) => {
   let newDoc = firestore.doc(colName + "/" + newProduct.id);
   newDoc.set(newProduct);
 
-	return json(newProduct);
+  return json(newProduct);
 }
 
 async function getProductsApigee(user: User) {
-  
+
 }
 
 async function apiHubRegister(product: DataProduct) {
@@ -118,7 +123,7 @@ async function apiHubRegister(product: DataProduct) {
     method: "POST",
     headers: {
       "Authorization": `Bearer ${token}`,
-      "Content-Type": "application/json"      
+      "Content-Type": "application/json"
     },
     body: JSON.stringify({
       display_name: product.name,
@@ -144,7 +149,7 @@ async function apiHubCreateDeployment(product: DataProduct) {
     method: "POST",
     headers: {
       "Authorization": `Bearer ${token}`,
-      "Content-Type": "application/json"      
+      "Content-Type": "application/json"
     },
     body: JSON.stringify({
       name: `projects/${PUBLIC_PROJECT_ID}/locations/${apigeeHubLocation}/deployments/${product.id}`,
@@ -184,7 +189,7 @@ async function apiHubCreateVersion(product: DataProduct) {
     method: "POST",
     headers: {
       "Authorization": `Bearer ${token}`,
-      "Content-Type": "application/json"      
+      "Content-Type": "application/json"
     },
     body: JSON.stringify({
       display_name: product.name,
@@ -209,7 +214,7 @@ async function apiHubCreateVersionSpec(product: DataProduct) {
     method: "POST",
     headers: {
       "Authorization": `Bearer ${token}`,
-      "Content-Type": "application/json"      
+      "Content-Type": "application/json"
     },
     body: JSON.stringify({
       name: `projects/${PUBLIC_PROJECT_ID}/locations/${apigeeHubLocation}/apis/${product.id}/versions/${product.id}/specs/${product.id}`,
@@ -253,12 +258,12 @@ function generateSpec(name: string, path: string, payload: string): Promise<stri
       })
     }).then((response) => {
       return response.json();
-    }).then((result: {answer: string}) => {
+    }).then((result: { answer: string }) => {
       resolve(result.answer);
     }).catch((error) => {
       reject("Error in calling Gen AI API.");
     })
-    
+
   });
 }
 
