@@ -9,7 +9,7 @@
   export let onRowClick: (row: any) => void;
   export let onRowDelete: (row: any) => void;
 
-  let displayData = data.data;
+  $: displayData = data;
   let filterInput: string = "";
   let sortFlags: { [key: string]: boolean } = {};
 
@@ -18,9 +18,9 @@
       let tempData = displayData;
 
       if (sortFlags[header.name]) {
-        tempData.sort((a, b) => (a[header.name] < b[header.name] ? -1 : 1));
+        tempData.data.sort((a, b) => (a[header.name] < b[header.name] ? -1 : 1));
       } else {
-        tempData.sort((a, b) => (a[header.name] > b[header.name] ? -1 : 1));
+        tempData.data.sort((a, b) => (a[header.name] > b[header.name] ? -1 : 1));
       }
       if (sortFlags[header.name]) sortFlags[header.name] = false;
       else sortFlags[header.name] = true;
@@ -53,9 +53,9 @@
         if (addRow) tempData.push(row);
       }
 
-      displayData = tempData;
+      displayData.data = tempData;
     } else {
-      displayData = data.data;
+      displayData.data = data.data;
     }
   }
 
@@ -138,7 +138,7 @@
       </tr>
     </thead>
     <tbody>
-      {#each Object.values(displayData) as row, i}
+      {#each Object.values(displayData.data) as row, i}
         <tr on:click={() => rowClick(row)}>
           {#each Object.values(data.headers) as header, i}
             <td>{row[header.name]}</td>

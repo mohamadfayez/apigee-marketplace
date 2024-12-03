@@ -73,6 +73,7 @@ export class DataProduct {
   anaylticsHubDisplayName: string = "";
   analyticsHubDescription: string = "";
   monetizationId: string = "";
+  apigeeMonetizationId: string = "";
   monetizationData?: MonetizationRatePlan;
   status: string;
   source: string;

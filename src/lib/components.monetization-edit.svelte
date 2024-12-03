@@ -16,7 +16,7 @@
 
 <div class="right_content_tip">
   Give your product monetization plan an appropriate name and description, and enter the rate type and details.
-  <a href={`/home?site=${appService.currentSiteData.id}`} target="_blank">Learn more <svg class="right_content_tip_learnmore" width="18" height="18" aria-hidden="true"><path fill-rule="evenodd" d="M13.85 5H14V4h-4v1h2.15l-5.36 5.364.848.848L13 5.85V8h1V4h-1v.15l.15-.15.85.85-.15.15zM8 4H4.995A1 1 0 004 4.995v8.01a1 1 0 00.995.995h8.01a1 1 0 00.995-.995V10h-1v3H5V5h3V4z"></path></svg></a>
+  <a href="https://cloud.google.com/apigee/docs/api-platform/monetization/overview" target="_blank">Learn more <svg class="right_content_tip_learnmore" width="18" height="18" aria-hidden="true"><path fill-rule="evenodd" d="M13.85 5H14V4h-4v1h2.15l-5.36 5.364.848.848L13 5.85V8h1V4h-1v.15l.15-.15.85.85-.15.15zM8 4H4.995A1 1 0 004 4.995v8.01a1 1 0 00.995.995h8.01a1 1 0 00.995-.995V10h-1v3H5V5h3V4z"></path></svg></a>
 </div>
 
 <div class="product_box">
@@ -62,6 +62,8 @@
         <select name="billingPeriod" id="billingPeriod" bind:value={plan.billingPeriod}>
           <option value="WEEKLY">Weekly</option>
           <option value="MONTHLY">Monthly</option>
+          <option value="QUARTERLY">Quarterly</option>
+          <option value="YEARLY">Yearly</option>
         </select>
       </div>
     </div>

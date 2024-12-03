@@ -332,7 +332,7 @@
         {#if appService?.currentUser?.roles.includes("admin")}
           <a
             style="font-size: 14px; position: relative; left: 10px; top: -2px; color: blue;"
-            href={"/admin/products/" + product?.id}>Edit</a
+            href={"/manage/products/" + product?.id}>Edit</a
           >
         {/if}
       </h2>

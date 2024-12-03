@@ -12,6 +12,7 @@
     ApigeeApiProduct,
     DataSourceTypes,
     Site,
+    MonetizationRatePlan,
   } from "$lib/interfaces";
   import InputSelect from "$lib/components.input.select.svelte";
   import TagCloud from "$lib/components.tag.cloud.svelte";
@@ -36,6 +37,7 @@
   let specLoading: boolean = false;
   let payloadLoading: boolean = false;
   let categories: string[] = appService.currentSiteData.categories;
+  let ratePlans: MonetizationRatePlan[] = [];
 
   let samplePayloadData: any = {};
   if (product.samplePayload)
@@ -43,7 +45,6 @@
 
   let payloadEditor: { set(content: any): void; refresh(): void, get(): any };
   let specEditor: { set(content: any): void; refresh(): void };
-
   setCategories();
 
   onMount(async () => {
@@ -63,13 +64,10 @@
       specEditor.refresh();
     }
 
-    // set SLA
-    if (slas.length > 0) {
-      let sla = slas.find((o) => o.id === product.sla.id);
-      if (sla) product.sla = sla;
-    }
     document.addEventListener("siteUpdated", () => {
       site = appService.currentSiteData;
+      if (appService.configData && appService.configData.ratePlans)
+        ratePlans = appService.configData.ratePlans;
       bqTables = site.bqtables;
       if (
         slas.length === 0 &&
@@ -117,6 +115,16 @@
       .then((result: ApigeeApiProduct[]) => {
         apigeeApiProducts = result;
       });
+
+    // set SLA
+    if (slas.length > 0) {
+      let sla = slas.find((o) => o.id === product.sla.id);
+      if (sla) product.sla = sla;
+    }
+
+    // set monetization rate plans
+    if (appService.configData && appService.configData.ratePlans)
+      ratePlans = appService.configData.ratePlans;
 
     initialLoad();
   });
@@ -760,6 +768,22 @@
         </select>
       </div>
     </div>
+
+    <!-- MONETIZATION selection -->
+
+    <div class="form_list">
+      <h4>Monetization rate plan</h4>
+      <div class="select_dropdown">
+        <select name="monetization" id="monetization" bind:value={product.monetizationId}>
+          <option value=""> </option>
+          {#each ratePlans as ratePlan}
+            <option value={ratePlan.name}>{ratePlan.displayName}</option>
+          {/each}
+        </select>
+      </div>
+    </div>
+
+    <!-- PUBLISHED / DRAFT selection -->
 
     <div class="form_list">
       <h4>Status</h4>

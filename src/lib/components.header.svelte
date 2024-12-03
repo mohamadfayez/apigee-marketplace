@@ -29,7 +29,7 @@
   });
 
   function goToPublish() {
-    appService.GoTo(`/admin/products/new`);
+    appService.GoTo(`/manage/products/new`);
     document.dispatchEvent(new Event('cancelEvent'));
   }
 
@@ -60,7 +60,7 @@
   }
 
   function goToAdmin() {
-    appService.GoTo("/admin");
+    appService.GoTo("/manage");
 
     //First, we initialize our event
     const event = new Event('cancelEvent');
@@ -145,8 +145,8 @@
               <span style="width: 100%; text-align: center; font-size: 17px; position: relative; top: -13px; color: darkslategray;">
                 {#if currentUser.roles.includes("admin")}
                   <div style="display: flex; padding-left: 4px; padding-right: 4px;">
-                    <a class="text_button" style="width: 50%; text-align: left; padding: 0px;" href={`/admin/sites?site=${currentSite.id}`}>Sites</a>
-                    <a class="text_button" style="width: 50%; text-align: right; padding: 0px;" href={`/admin/sites/new?site=${currentSite.id}`}>+ New</a>
+                    <a class="text_button" style="width: 50%; text-align: left; padding: 0px;" href={`/manage/sites?site=${currentSite.id}`}>Sites</a>
+                    <a class="text_button" style="width: 50%; text-align: right; padding: 0px;" href={`/manage/sites/new?site=${currentSite.id}`}>+ New</a>
                   </div>
                 {:else}
                   <b>Sites</b>

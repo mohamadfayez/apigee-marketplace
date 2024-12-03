@@ -1,7 +1,7 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { Firestore } from '@google-cloud/firestore';
-import { DataProduct, StorageConfig, User, DataSourceTypes, ProductProtocols } from '$lib/interfaces';
+import { DataProduct, StorageConfig, User, DataSourceTypes, ProductProtocols, MonetizationRatePlan } from '$lib/interfaces';
 import { GoogleAuth } from 'google-auth-library';
 import { PUBLIC_PROJECT_ID, PUBLIC_API_HOST, PUBLIC_APIGEE_ENV, PUBLIC_APIHUB_REGION } from '$env/static/public';
 
@@ -75,10 +75,16 @@ export const POST: RequestHandler = async ({ params, url, request }) => {
     // create and set product
     createProduct("marketplace_" + newProduct.id, "Marketplace " + newProduct.name, "/" + newProduct.entity, proxyName);
     newProduct.apigeeProductId = "marketplace_" + newProduct.id;
+
     // await apiHubRegister(newProduct);
     // await apiHubCreateDeployment(newProduct);
     // await apiHubCreateVersion(newProduct);
     // await apiHubCreateVersionSpec(newProduct);
+  }
+
+  // create monetization rate plan for product, if set
+  if (newProduct.monetizationData) {
+    createMonetizationPlanForProduct(newProduct);
   }
 
   if (newProduct.protocols.includes(ProductProtocols.DataSync)) {
@@ -111,8 +117,27 @@ export const POST: RequestHandler = async ({ params, url, request }) => {
   return json(newProduct);
 }
 
-async function getProductsApigee(user: User) {
+async function createMonetizationPlanForProduct(product: DataProduct) {
+  let newPlan: MonetizationRatePlan = JSON.parse(JSON.stringify(product.monetizationData))
+  delete newPlan.name;
 
+  let token = await auth.getAccessToken();
+  let response = await fetch(`https://apigee.googleapis.com/v1/organizations/${PUBLIC_PROJECT_ID}/apiproducts/${product.apigeeProductId}/rateplans`, {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${token}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(newPlan)
+  });
+
+  let responsePayload = await response.json();
+
+  if (response.status != 201) {
+    console.error("Error creating monetization plan");
+    console.error(JSON.stringify(newPlan));
+    console.error(`${response.status} - ${response.statusText}`);
+  }
 }
 
 async function apiHubRegister(product: DataProduct) {

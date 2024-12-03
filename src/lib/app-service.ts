@@ -12,8 +12,8 @@ import {
 } from "firebase/auth";
 import type { User as FirebaseUser} from "firebase/auth";
 import { initializeApp } from "firebase/app";
-import { SLA, User, Developer, ApiApps, DataProduct, Site, DialogResult, DialogType } from "./interfaces";
-import {PUBLIC_FIREBASE_APIKEY, PUBLIC_FIREBASE_AUTHDOMAIN, PUBLIC_SITE_NAME} from '$env/static/public';
+import { SLA, User, Developer, ApiApps, DataProduct, Site, DialogResult, DialogType, MonetizationRatePlan } from "./interfaces";
+import {PUBLIC_FIREBASE_APIKEY, PUBLIC_FIREBASE_AUTHDOMAIN, PUBLIC_PROJECT_ID, PUBLIC_SITE_NAME} from '$env/static/public';
 
 export class AppService {
   googleProvider = new GoogleAuthProvider();
@@ -33,10 +33,11 @@ export class AppService {
     owner: "",
     categories: [],
     products: [],
-    bqtables: []
+    bqtables: [],
+    googleCloudProjectId: PUBLIC_PROJECT_ID
   };
   sites: Site[] = [];
-  configData: {roles: string[], slas: SLA[]} | undefined = undefined;
+  configData: {roles: string[], slas: SLA[], ratePlans: MonetizationRatePlan[]} | undefined = undefined;
 
   currentUser: User | undefined = undefined;
   currentUserLoaded: boolean = false;
@@ -63,6 +64,7 @@ export class AppService {
         return response.json();
       }).then((result: any) => {
         this.configData = result;
+        if (this.configData && !this.configData?.ratePlans) this.configData.ratePlans = [];
         
         fetch("/api/data?col=apigee-marketplace-sites")
         .then((response) => {

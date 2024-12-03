@@ -28,7 +28,7 @@
   </div>
   <div class="left_menu_page_left_list">
     <a
-      href={`/admin/users?site=${appService.currentSiteData.id}`}
+      href={`/manage/users?site=${appService.currentSiteData.id}`}
       class={getClassName("side_menu_button", "users")}
     >
       <svg
@@ -59,7 +59,7 @@
       <span class={getClassName("side_menu_button_name", "users")}>Users</span>
     </a>
     <a
-      href={`/admin/roles?site=${appService.currentSiteData.id}`}
+      href={`/manage/roles?site=${appService.currentSiteData.id}`}
       class={getClassName("side_menu_button", "roles")}
     >
       <svg
@@ -80,7 +80,7 @@
       <span class={getClassName("side_menu_button_name", "roles")}>Roles</span>
     </a>
     <a
-      href={`/admin/products?site=${appService.currentSiteData.id}`}
+      href={`/manage/products?site=${appService.currentSiteData.id}`}
       class={getClassName("side_menu_button", "products")}
     >
       <svg
@@ -109,7 +109,7 @@
       >
     </a>
     <a
-      href={`/admin/monetization?site=${appService.currentSiteData.id}`}
+      href={`/manage/monetization?site=${appService.currentSiteData.id}`}
       class={getClassName("side_menu_button", "monetization")}
     >
       <svg
@@ -133,7 +133,7 @@
         >Monetization</span
       >
     </a>
-    <a href={`/admin/slas?site=${appService.currentSiteData.id}`} class={getClassName("side_menu_button", "slas")}>
+    <a href={`/manage/slas?site=${appService.currentSiteData.id}`} class={getClassName("side_menu_button", "slas")}>
       <!-- <svg class="side_menu_button_logo side_menu_button_logo_selected" width="20px" viewBox="0 0 18 18" preserveAspectRatio="xMidYMid meet" focusable="false"><path d="M7.9 8.76L6 7.58a1.09 1.09 0 000-.26 1 1 0 10-.33.75l2 1.17a.28.28 0 00.15 0A.31.31 0 008 9.15a.29.29 0 00-.1-.39zM5 7.78a.46.46 0 010-.92.46.46 0 010 .92z"></path><path d="M6.9 14.12A5.12 5.12 0 1112 9a5.13 5.13 0 01-5.1 5.12zM6.9 5a4 4 0 104 4 4 4 0 00-4-4z"></path><path d="M14.83 11.66a1.4 1.4 0 00-.83.27L9.68 9.45a1.72 1.72 0 000-.9L14 6.07A1.39 1.39 0 1013.43 5a.68.68 0 000 .14L9.08 7.59a1.85 1.85 0 100 2.82l4.37 2.5a.68.68 0 000 .14 1.4 1.4 0 101.4-1.39z"></path></svg>             -->
       <svg
         style="position: relative; top: -2px"
@@ -152,7 +152,7 @@
       >
       <span class={getClassName("side_menu_button_name", "slas")}>SLAs</span>
     </a>
-    <a href={`/admin/sites?site=${appService.currentSiteData.id}`} class={getClassName("side_menu_button", "sites")}>
+    <a href={`/manage/sites?site=${appService.currentSiteData.id}`} class={getClassName("side_menu_button", "sites")}>
       <!-- <svg class="side_menu_button_logo side_menu_button_logo_selected" width="20px" viewBox="0 0 18 18" preserveAspectRatio="xMidYMid meet" focusable="false"><path d="M7.9 8.76L6 7.58a1.09 1.09 0 000-.26 1 1 0 10-.33.75l2 1.17a.28.28 0 00.15 0A.31.31 0 008 9.15a.29.29 0 00-.1-.39zM5 7.78a.46.46 0 010-.92.46.46 0 010 .92z"></path><path d="M6.9 14.12A5.12 5.12 0 1112 9a5.13 5.13 0 01-5.1 5.12zM6.9 5a4 4 0 104 4 4 4 0 00-4-4z"></path><path d="M14.83 11.66a1.4 1.4 0 00-.83.27L9.68 9.45a1.72 1.72 0 000-.9L14 6.07A1.39 1.39 0 1013.43 5a.68.68 0 000 .14L9.08 7.59a1.85 1.85 0 100 2.82l4.37 2.5a.68.68 0 000 .14 1.4 1.4 0 101.4-1.39z"></path></svg>             -->
       <svg
         style="position: relative; top: -2px"
