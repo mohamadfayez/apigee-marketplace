@@ -16,6 +16,7 @@
   } from "$lib/interfaces";
   import InputSelect from "$lib/components.input.select.svelte";
   import TagCloud from "$lib/components.tag.cloud.svelte";
+  import CatTableSelect from "$lib/components.flat-table-grouped.svelte";
   import { protocols, audiences } from "$lib/utils";
   import { JSONEditor, Mode } from "svelte-jsoneditor";
   // import {FlatTable} from "$lib/components.flat-table.svelte";
@@ -448,15 +449,9 @@
           <option value={DataSourceTypes.BigQueryTable}>BigQuery table</option>
           <option value={DataSourceTypes.BigQuery}>BigQuery query</option>
           <option value={DataSourceTypes.GenAITest}>Gen AI test data</option>
-          <option value={DataSourceTypes.ApigeeProduct}
-            >{DataSourceTypes.ApigeeProduct}</option
-          >
-          <option value={DataSourceTypes.ApiHub}
-            >{DataSourceTypes.ApiHub}</option
-          >
-          <option value={DataSourceTypes.API}
-          >API endpoint</option
-          >
+          <option value={DataSourceTypes.ApigeeProduct}>{DataSourceTypes.ApigeeProduct}</option>
+          <option value={DataSourceTypes.ApiHub}>{DataSourceTypes.ApiHub}</option>
+          <option value={DataSourceTypes.API}>API endpoint</option>
         </select>
       </div>
     </div>
@@ -465,6 +460,7 @@
 
     <div class="input_field_panel" style="position: relative; top: -12px;">
       {#if product.source === DataSourceTypes.GenAITest}
+        <!-- svelte-ignore a11y-autofocus -->
         <textarea
           name="query"
           id="query"
@@ -504,7 +500,35 @@
           BigQuery query
         </label>
       {:else if product.source === DataSourceTypes.ApiHub}
-        <div class="select_dropdown">
+        <div style="width: 380px; height: 300px;">
+          <CatTableSelect linkColumnName="Name" update={()=> {}} headers={["Name", "Version", "Created on", "Updated on"]} categories={{
+            "test1": [
+            {
+              "Name": "test1",
+              "Version": "v1",
+              "Created on": "",
+              "Updted on": ""
+            },{
+              "Name": "test1",
+              "Version": "v2",
+              "Created on": "",
+              "Updted on": ""
+            }],
+            "test2": [
+            {
+              "Name": "test2",
+              "Version": "v1",
+              "Created on": "",
+              "Updted on": ""
+            },{
+              "Name": "test2",
+              "Version": "v1",
+              "Created on": "",
+              "Updted on": ""
+            }
+          ]}} />
+        </div>
+        <!-- <div class="select_dropdown">
           <select
             name="apihubapi"
             id="apihubapi"
@@ -515,7 +539,7 @@
               <option value={api.name}>{api.displayName}</option>
             {/each}
           </select>
-        </div>
+        </div> -->
       {:else if product.source === DataSourceTypes.ApigeeProduct}
         <div class="select_dropdown">
           <select
