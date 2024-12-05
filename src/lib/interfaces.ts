@@ -257,14 +257,17 @@ export class MonetizationRatePlan {
   fixedRecurringFee: MonetizationRatePlanMoney = {currencyCode: "USD", units: "0", nanos: "0"};
   fixedFeeFrequency: number = 0;
   consumptionPricingType: MonetizationConsumptionTypes = MonetizationConsumptionTypes.FIXED_PER_UNIT; // can also be BANDED
-  consumptionPricingRates: MonetizationRatePlanRate[] = [];
+  consumptionPricingRates: MonetizationRatePlanRate[] = [{
+    start: "0",
+    end: "-1",
+    fee: { currencyCode: "USD", units: "1", nanos: "0" }
+  }];
   state: string = "PUBLISHED" // can also be DRAFT
   startTime: number = 0;
   endTime: number = 0;
   constructor(apiProduct: string, displayName: string) {
     this.apiproduct = apiProduct;
     this.displayName = displayName;
-    this.consumptionPricingRates.push(new MonetizationRatePlanRate());
   }
 }
 
@@ -281,8 +284,8 @@ export class MonetizationRatePlanMoney {
 
 export class MonetizationRatePlanRate {
   start: string = "0";
-  end: string = "0";
-  fee: MonetizationRatePlanMoney = { currencyCode: "USD", units: "", nanos: "0" };
+  end: string = "-1";
+  fee: MonetizationRatePlanMoney = { currencyCode: "USD", units: "1", nanos: "" };
 }
 
 export interface ApigeeApps {

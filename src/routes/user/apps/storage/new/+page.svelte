@@ -14,7 +14,7 @@
   var urlProduct = $page.url.searchParams.get("product");
   if (urlProduct) {
     productId = urlProduct;
-    productData = appService.products?.find((x) => x.id === productId);
+    productData = appService.products?.find((x) => x.apigeeProductId === productId);
     if (productData) productName = productData.name;
   }
 
@@ -27,13 +27,13 @@
   });
 
   function submit() {
-    productData = appService.products?.find((x) => x.id === productId);
+    productData = appService.products?.find((x) => x.apigeeProductId === productId);
 
     fetch(
       "/api/apps/storage?email=" +
         currentUser?.email +
         "&product=" +
-        productId + "_storage" +
+        productId +
         "&createdAt=" +
         new Date().toLocaleString() + "&entityName=" + productData?.entity,
       {
@@ -91,12 +91,12 @@
         <form>
           <div class="product_list">
             <h4>Data products</h4>
-            <div class="select_dropdown">
+            <div class="select_dropdown" style="width: 280px;">
               <select name="product" id="product" bind:value={productId}>
                 {#if appService && appService.products}
                   {#each appService.products as product}
                     {#if product.protocols?.includes("Data sync")}
-                      <option value={product.id}>{product.name}</option>
+                      <option value={product.apigeeProductId}>{product.name}</option>
                     {/if}
                   {/each}
                 {/if}

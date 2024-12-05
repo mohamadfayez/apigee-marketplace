@@ -92,6 +92,7 @@ export const POST: RequestHandler = async ({ params, url, request }) => {
     setKVMEntry("marketplace-kvm", newProduct.entity, newProduct.query);
     // Create the API product to access the storage export
     createProduct("marketplace_storage_" + newProduct.id, "Marketplace Storage " + newProduct.name, "/", "MP-StorageAPI-v1");
+    newProduct.apigeeProductId = "marketplace_storage_" + newProduct.id;
     // Add to storage entities to sync daily through integration flow
     // let storageConfigDoc = firestore.doc("data-marketplace-config/storage-sync");
     // let storageConfig = await storageConfigDoc.get();

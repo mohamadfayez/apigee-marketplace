@@ -11,13 +11,27 @@
 
   function addBand() {
     let rates = plan.consumptionPricingRates;
-    rates.push(new MonetizationRatePlanRate());
+    let newBand = new MonetizationRatePlanRate();
+    let previousBand = rates[rates.length - 1];
+
+    if (previousBand.end == "-1" || previousBand.end == "0" || previousBand.end == "") {
+      previousBand.end = (parseInt(previousBand.start) + 100).toString();
+      newBand.start = (parseInt(previousBand.end) + 1).toString();
+      newBand.fee = {currencyCode: "USD", units: "0", nanos: (100 - rates.length * 10).toString()};
+    } else {
+      let previosEnd = parseInt(previousBand.end);
+      newBand.start = (previosEnd + 1).toString();
+      newBand.fee = {currencyCode: "USD", units: "0", nanos: (100 - rates.length * 10).toString()};
+    }
+
+    rates.push(newBand);
     plan.consumptionPricingRates = rates;
   }
 
   function deleteBand(index: number) {
     let tempRates = plan.consumptionPricingRates;
     tempRates.splice(index, 1);
+    tempRates[tempRates.length - 1].end = "-1";
     plan.consumptionPricingRates = tempRates;
   }
 </script>

@@ -3,6 +3,7 @@
   import { appService } from "$lib/app-service";
   import {
     DataProduct,
+    DialogType,
     DisplayOptions,
     MonetizationConsumptionTypes,
     MonetizationRatePlan,
@@ -17,7 +18,7 @@
   export let data: PageData;
   let plan: MonetizationRatePlan;
 
-  let titleText: string = "Create monetization plan";
+  let titleText: string = "Edit monetization plan";
 
   onMount(async () => {
     document.addEventListener("siteUpdated", () => {
@@ -34,7 +35,18 @@
   });
 
   function submit() {
+    let validationResult = validateMonetizationPlan();
 
+    if (validationResult) {
+      appService.configData?.ratePlans.push(plan);
+      fetch("/api/data/default?col=apigee-marketplace-config", {
+        method: "PUT",
+        body: JSON.stringify(appService.configData)
+      });
+      appService.GoTo("/manage/monetization");
+    }
+    else
+      appService.ShowDialog("The rate plan could not be validated, please check the entries and try again.", "Ok", DialogType.Ok, []);
   }
 
   function back() {
