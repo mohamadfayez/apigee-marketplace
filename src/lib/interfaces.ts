@@ -1,3 +1,5 @@
+import type { EnumValue } from "svelte-jsoneditor";
+
 export class User {
   email: string;
   userName: string;
@@ -413,4 +415,13 @@ export enum DataSourceTypes {
   ApigeeProduct = "Apigee API Product",
   ApiHub = "Apigee API Hub",
   API = "API",
+}
+
+export class DataGenJob {
+  name: string = "";
+  target: string = "APIHUB";
+  topic: string = "financial services investment banking";
+  apiCount: number = 40;
+  versionCount: number = 3;
+  categoryCount: number = 15;
 }
