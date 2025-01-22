@@ -74,6 +74,10 @@
       }
     });
   }
+
+  function setExampleGradient() {
+    site.heroGradientStyle = "background: linear-gradient(0deg, rgba(255,255,255,.5) 0%, rgba(255,255,255,1) 62%, rgba(255,255,255,.6) 100%);";
+  }
 </script>
 
 <div class="input_field_panel">
@@ -122,6 +126,32 @@
   <img src={site.logoUrl} alt="logo preview"
   width={site.logoWidth}/><span class="header_title_preview"
   style={"left: " + site.nameLeft + "; top: " + site.nameTop + ";"}>{site.name}</span>
+</div>
+
+<div class="input_field_panel">
+  <!-- svelte-ignore a11y-autofocus -->
+  <input class="input_field" type="text" name="heroImageUrl" id="heroImageUrl" required bind:value={site.heroImageUrl} autocomplete="off" title="none" />
+  <label for="heroImageUrl" class='input_field_placeholder'>
+    Hero image url
+  </label>
+</div>
+
+<div class="input_field_panel">
+  <!-- svelte-ignore a11y-autofocus -->
+  <input class="input_field" type="text" name="heroGradientStyle" id="heroGradientStyle" required bind:value={site.heroGradientStyle} autocomplete="off" title="none" />
+  <label for="heroGradientStyle" class='input_field_placeholder'>
+    Hero gradient style
+  </label>
+</div>
+
+<button class="rounded_button_outlined" on:click={setExampleGradient}>Set example gradient</button>
+
+<h4>Hero preview</h4>
+
+<div style="margin-top: 22px; margin-left: 8px; width: 100%;">
+  <div style={"height: 445px; width: 80%; position: absolute; " + site.heroGradientStyle}></div>
+  <div style={"width: 80%; height: 445px; background-size: cover; background-image: url(" + site.heroImageUrl + "); "}
+  />
 </div>
 
 <div class="form_list" style="margin-bottom: 44px;">

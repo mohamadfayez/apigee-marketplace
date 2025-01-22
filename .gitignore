@@ -1,5 +1,6 @@
 *.local.*
-1_env.*.sh
+.1.env.*.sh
+.env.*
 .svelte-kit
 
 # Logs

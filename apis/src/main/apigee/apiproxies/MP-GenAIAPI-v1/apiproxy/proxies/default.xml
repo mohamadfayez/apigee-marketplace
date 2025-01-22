@@ -28,9 +28,6 @@
     <Request/>
     <Response>
       <Step>
-        <Name>DC-TokenCounts</Name>
-      </Step>
-      <Step>
         <Name>AM-SetCors</Name>
       </Step>
     </Response>

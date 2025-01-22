@@ -9,9 +9,13 @@
   let job: DataGenJob = new DataGenJob();
   let processing: boolean = false;
 
-  onMount(() => {
-    document.addEventListener("siteUpdated", () => {
+  job.userName = appService.currentUser?.firstName + " " + appService.currentUser?.lastName;
+  job.userEmail = appService.currentUser?.email ?? "";
 
+  onMount(() => {
+    document.addEventListener("userUpdated", () => {
+      job.userName = appService.currentUser?.firstName + " " + appService.currentUser?.lastName;
+      job.userEmail = appService.currentUser?.email ?? "";
     });
   });
 

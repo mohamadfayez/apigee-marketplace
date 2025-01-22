@@ -7,7 +7,7 @@
   import { appService } from "$lib/app-service";
   import { PUBLIC_PROJECT_ID } from '$env/static/public';
 
-  let site: Site = {id: generateRandomString(4), name: "", nameTop: "-12px", nameLeft: "4px", logoUrl: "/loop.svg", logoWidth: "36px", owner: appService.currentUser?.email ? appService.currentUser?.email : "", categories: [], products: [], bqtables: [], googleCloudProjectId: PUBLIC_PROJECT_ID};
+  let site: Site = {id: generateRandomString(4), name: "", nameTop: "-12px", nameLeft: "4px", logoUrl: "/loop.svg", logoWidth: "36px", owner: appService.currentUser?.email ? appService.currentUser?.email : "", categories: [], products: [], bqtables: [], googleCloudProjectId: PUBLIC_PROJECT_ID, heroImageUrl: "/products_banner.png", heroGradientStyle: ""};
 
   onMount(() => {
     

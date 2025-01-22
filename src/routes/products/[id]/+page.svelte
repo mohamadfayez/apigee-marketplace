@@ -293,6 +293,19 @@
           });
     }, 3000);
   }
+
+  function downloadSpec() {
+    if (product && product.specContents) {
+      const node = Object.assign(document.createElement('a'), {
+        href: `data:text/plain;charset=utf-8,${encodeURIComponent(product?.specContents)}`,
+        download: product.entity + "-oas.json",
+        style: 'display: none'
+      });
+      document.body.appendChild(node);
+      node.click();
+      document.body.removeChild(node);
+    }
+  }
 </script>
 
 <div class="product_header">
@@ -667,11 +680,7 @@
           <h3 style="position: relative; top: -4px; left: 6px;">
             API Documentation
           </h3>
-          <button
-            class="rounded_button_outlined"
-            style="margin-left: 26px; height: 39px; font-size: 12px"
-            >Download spec</button
-          >
+          <button class="rounded_button_outlined" on:click={downloadSpec} style="margin-left: 26px; font-size: 12px; height: 38px;">Download</button>
         </div>
 
         <div style="position: absolute; right: 10px; top: 24px;">

@@ -1,8 +1,8 @@
-<APIProxy revision="2" name="MP-ServicesAPI-v1">
+<APIProxy revision="1" name="MP-ServicesAPI-v1">
     <DisplayName></DisplayName>
     <Description></Description>
-    <CreatedAt>1732291154453</CreatedAt>
-    <LastModifiedAt>1732291154453</LastModifiedAt>
+    <CreatedAt>1737436349305</CreatedAt>
+    <LastModifiedAt>1737436349305</LastModifiedAt>
     <BasePaths>/v1/services</BasePaths>
     <Policies>
         <Policy>AM-RemoveKey</Policy>

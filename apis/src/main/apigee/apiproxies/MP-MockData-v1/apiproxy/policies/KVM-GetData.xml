@@ -3,7 +3,7 @@
   <DisplayName>KVM-GetData</DisplayName>
   <Properties/>
   <ExclusiveCache>false</ExclusiveCache>
-  <ExpiryTimeInSecs>300</ExpiryTimeInSecs>
+  <ExpiryTimeInSecs>5</ExpiryTimeInSecs>
   <Get assignTo="data.mock">
     <Key>
       <Parameter ref="entityName"/>

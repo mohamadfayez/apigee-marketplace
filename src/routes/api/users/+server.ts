@@ -16,6 +16,8 @@ export const GET: RequestHandler = async ({ url, params }) => {
   let prodColRef = firestore.collection("apigee-marketplace-users");
   let products = await prodColRef.listDocuments();
 
+  console.log(PUBLIC_PROJECT_ID);
+
   let results: User[] = [];
   for (let doc of products.entries()) {
     let docData = await doc[1].get()

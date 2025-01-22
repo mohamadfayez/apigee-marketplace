@@ -94,6 +94,7 @@ echo "Creating Firestore default instance..."
 gcloud firestore databases create --location=$REGION --project $PROJECT_ID
 
 echo "Setting web app variables..."
+rm .env 1>/dev/null 2>/dev/null
 touch .env
 echo $"PUBLIC_SITE_NAME=$SITE_NAME" >> .env
 echo $"PUBLIC_API_HOST=$APIGEE_ENVGROUP_HOST" >> .env
@@ -104,6 +105,7 @@ echo $"PUBLIC_FIREBASE_APIKEY=$FIREBASE_APIKEY" >> .env
 echo $"PUBLIC_FIREBASE_AUTHDOMAIN=$FIREBASE_AUTHDOMAIN" >> .env
 echo $"PUBLIC_OAUTH_CLIENT_ID=$OAUTH_CLIENT_ID" >> .env
 echo $"PUBLIC_INTERNAL_DOMAINS=$INTERNAL_DOMAINS" >> .env
+cp .env .env.$PROJECT_ID.env
 
 echo "Creating storage bucket..."
 gcloud storage buckets create gs://$BUCKET_NAME --location=eu --project $PROJECT_ID

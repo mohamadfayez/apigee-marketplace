@@ -1,22 +1,21 @@
-<APIProxy revision="20" name="MP-GenAIAPI-v1">
+<APIProxy revision="1" name="MP-GenAIAPI-v1">
     <DisplayName></DisplayName>
     <Description>This API provides Gen AI services.</Description>
-    <CreatedAt>1732771062740</CreatedAt>
-    <LastModifiedAt>1732771131763</LastModifiedAt>
+    <CreatedAt>1737436346971</CreatedAt>
+    <LastModifiedAt>1737452147335</LastModifiedAt>
     <BasePaths>/v1/genai</BasePaths>
     <Policies>
-        <Policy>AM-SetGeminiData</Policy>
-        <Policy>EV-GetInputs</Policy>
-        <Policy>JS-SetGeminiResponse</Policy>
-        <Policy>RF-ValidateInputs</Policy>
-        <Policy>AM-SetMistralData</Policy>
-        <Policy>EV-GetMistralTokens</Policy>
-        <Policy>DC-TokenCounts</Policy>
-        <Policy>VA-VerifyKey</Policy>
         <Policy>AM-RemoveKey</Policy>
+        <Policy>AM-SetCors</Policy>
+        <Policy>AM-SetGeminiData</Policy>
+        <Policy>AM-SetMistralData</Policy>
+        <Policy>EV-GetInputs</Policy>
+        <Policy>EV-GetMistralTokens</Policy>
+        <Policy>JS-SetGeminiResponse</Policy>
         <Policy>JS-SetMistralResponse</Policy>
         <Policy>RF-ReturnCors</Policy>
-        <Policy>AM-SetCors</Policy>
+        <Policy>RF-ValidateInputs</Policy>
+        <Policy>VA-VerifyKey</Policy>
     </Policies>
     <ProxyEndpoints>
         <ProxyEndpoint>default</ProxyEndpoint>

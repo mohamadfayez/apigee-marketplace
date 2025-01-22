@@ -2,7 +2,7 @@ import type { DataProduct, MonetizationRatePlan } from "$lib/interfaces";
 import { Firestore } from "@google-cloud/firestore";
 import { error, json, type NumericRange, type RequestHandler } from "@sveltejs/kit";
 import { GoogleAuth } from "google-auth-library";
-import { PUBLIC_PROJECT_ID } from '$env/static/public';
+import { PUBLIC_PROJECT_ID, PUBLIC_APIGEE_ENV } from '$env/static/public';
 
 const auth = new GoogleAuth({
   scopes: 'https://www.googleapis.com/auth/cloud-platform'
@@ -57,6 +57,9 @@ export const PUT: RequestHandler = async({ params, url, request}) => {
     if (newProduct.monetizationData)
       await createMonetizationPlanForProduct(newProduct);
   }
+
+  // update mock data
+  setKVMEntry("marketplace-kvm", newProduct.entity + "-mock", newProduct.samplePayload);
 
   let newDoc = firestore.doc(colName + "/" + newProduct.id);
   newDoc.set(newProduct);
@@ -148,4 +151,23 @@ async function deleteMonetizationPlanForProduct(name: string, productId: string)
     console.error("Error deleting monetization plan " + name + " " + productId);
     console.error(`${response.status} - ${response.statusText}`);
   }
+}
+
+function setKVMEntry(KVMName: string, keyName: string, keyValue: string) {
+  auth.getAccessToken().then((token) => {
+    fetch(`https://apigee.googleapis.com/v1/organizations/${PUBLIC_PROJECT_ID}/environments/${PUBLIC_APIGEE_ENV}/keyvaluemaps/${KVMName}/entries`, {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        name: keyName,
+        value: keyValue
+      })
+    }).then((response) => {
+    }).catch((error) => {
+      console.error(error);
+    });
+  });
 }

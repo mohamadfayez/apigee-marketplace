@@ -3,5 +3,6 @@
   <DisplayName>EV-ExtractName</DisplayName>
   <URIPath>
     <Pattern>/{entityName}</Pattern>
+    <Pattern>/{entityName}/{entityId}</Pattern>
   </URIPath>
 </ExtractVariables>

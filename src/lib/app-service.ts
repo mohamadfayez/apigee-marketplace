@@ -25,10 +25,10 @@ export class AppService {
   auth;
   currentSiteData: Site = {
     id: "default",
-    name: "",
+    name: "Apigee Marketplace",
     nameTop: "-12px",
     nameLeft: "4px",
-    logoUrl: "",
+    logoUrl: "/loop.svg",
     logoWidth: "36px",
     owner: "",
     categories: [],

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<KeyValueMapOperations continueOnError="false" enabled="true" name="KVM-UpdateData" mapIdentifier="marketplace-kvm">
+  <DisplayName>KVM-UpdateData</DisplayName>
+  <Properties/>
+  <ExclusiveCache>false</ExclusiveCache>
+  <ExpiryTimeInSecs>300</ExpiryTimeInSecs>
+  <Put override="true">
+    <Key>
+      <Parameter ref="entityName"/>
+      <Parameter>mock</Parameter>
+    </Key>
+    <Value ref="request.content"/>
+  </Put>
+  <Scope>environment</Scope>
+</KeyValueMapOperations>

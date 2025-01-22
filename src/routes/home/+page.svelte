@@ -219,7 +219,9 @@
 
 {#if !loading}
   <div class="home_content">
-    <div class="banner" in:fade>
+    <div class="banner" in:fade style={"background-image: url(" + appService.currentSiteData.heroImageUrl + "); "}>
+      <div class="banner_gradient" style={appService.currentSiteData.heroGradientStyle}>
+      </div>
       <div class="banner_title">{"Welcome to " + appService.siteName}
         <div class="banner_subtitle">
           {"The " + appService.siteName + " has all data products, APIs and service ecosystem access."}
@@ -230,6 +232,7 @@
           <input class="banner_search_input" bind:value={searchText} placeholder="Search for data & API products" />
         </div>
       </div>
+
     </div>
 
     <div class="product_showcase">
@@ -293,7 +296,8 @@
   }
 
   .banner {
-    background-image: url('/products_banner.png');
+    /* background-image: url('/products_banner.png'); */
+    /* background-image: url(https://static.it-jobs.aldi-sued.de/img/technology_exc/ALDI_app_scene.jpg); */
     background-size: cover;
     width: 100%;
     height: 300px;
@@ -302,12 +306,22 @@
     padding-top: 145px;
   }
 
+  .banner_gradient {
+    /* background: linear-gradient(0deg, rgba(255,255,255,.5) 0%, rgba(255,255,255,1) 62%, rgba(255,255,255,.6) 100%); */
+    /* background: linear-gradient(0deg, rgba(255,255,255,.5) 0%, rgba(255,255,255,1) 100%); */
+    position: relative;
+    height: 445px;    
+    top: -145px;
+  }
+
   .banner_title {
     text-align: left;
     width: 580px;
     margin-left: auto;
     margin-right: auto;
     font-size: xx-large;
+    position: relative;
+    top: -445px;
   }
 
   .banner_subtitle {

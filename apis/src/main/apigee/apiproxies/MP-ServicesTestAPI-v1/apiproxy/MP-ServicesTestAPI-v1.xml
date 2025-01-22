@@ -1,13 +1,13 @@
-<APIProxy revision="4" name="MP-ServicesTestAPI-v1">
+<APIProxy revision="1" name="MP-ServicesTestAPI-v1">
     <DisplayName></DisplayName>
     <Description></Description>
-    <CreatedAt>1732779044028</CreatedAt>
-    <LastModifiedAt>1732779044028</LastModifiedAt>
+    <CreatedAt>1737436350489</CreatedAt>
+    <LastModifiedAt>1737436350489</LastModifiedAt>
     <BasePaths>/v1/test/services</BasePaths>
     <Policies>
+        <Policy>AM-SetTarget</Policy>
         <Policy>EV-ExtractName</Policy>
         <Policy>KVM-GetVariables</Policy>
-        <Policy>AM-SetTarget</Policy>
     </Policies>
     <ProxyEndpoints>
         <ProxyEndpoint>default</ProxyEndpoint>
