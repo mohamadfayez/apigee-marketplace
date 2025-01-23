@@ -25,16 +25,18 @@ export class AppService {
   auth;
   currentSiteData: Site = {
     id: "default",
-    name: "Apigee Marketplace",
+    name: "",
     nameTop: "-12px",
     nameLeft: "4px",
-    logoUrl: "/loop.svg",
+    logoUrl: "",
     logoWidth: "36px",
     owner: "",
     categories: [],
     products: [],
     bqtables: [],
-    googleCloudProjectId: PUBLIC_PROJECT_ID
+    googleCloudProjectId: PUBLIC_PROJECT_ID,
+    heroImageUrl: "/products_banner.png",
+    heroGradientStyle: ""
   };
   sites: Site[] = [];
   configData: {roles: string[], slas: SLA[], ratePlans: MonetizationRatePlan[]} | undefined = undefined;

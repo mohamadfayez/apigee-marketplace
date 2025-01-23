@@ -9,7 +9,7 @@
       <Parameter ref="entityName"/>
       <Parameter>mock</Parameter>
     </Key>
-    <Value ref="request.content"/>
+    <Value ref="data.mock"/>
   </Put>
   <Scope>environment</Scope>
 </KeyValueMapOperations>

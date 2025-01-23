@@ -12,6 +12,14 @@
         <Name>EV-ExtractName</Name>
       </Step>
       <Step>
+        <Name>KVM-GetData</Name>
+        <Condition>request.verb = "PUT" AND entityId != undefined</Condition>
+      </Step>
+      <Step>
+        <Name>JS-SetData</Name>
+        <Condition>request.verb = "PUT"</Condition>
+      </Step>
+      <Step>
         <Condition>request.verb = "PUT"</Condition>
         <Name>KVM-UpdateData</Name>
       </Step>
