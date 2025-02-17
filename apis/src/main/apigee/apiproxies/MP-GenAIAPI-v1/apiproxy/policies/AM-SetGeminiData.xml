@@ -10,7 +10,7 @@
             "role": "USER",
             "parts": [
               {
-                "text": "{genai.prompt}"
+                "text": "{genai.systemprompt} {genai.prompt}"
               }
             ]
           }

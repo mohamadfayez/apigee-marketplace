@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<AssignMessage continueOnError="false" enabled="true" name="AM-SetSystemPrompt">
+  <DisplayName>AM-SetModelConfig</DisplayName>
+  <Properties/>
+  <AssignVariable>
+    <Name>genai.systempromptname</Name>
+    <Template>{genai.model}-systemprompt</Template>
+  </AssignVariable>
+  <AssignVariable>
+    <Name>genai.modelname</Name>
+    <Template>{genai.model}-model</Template>
+  </AssignVariable>
+  <IgnoreUnresolvedVariables>true</IgnoreUnresolvedVariables>
+  <AssignTo createNew="false" transport="http" type="request"/>
+</AssignMessage>

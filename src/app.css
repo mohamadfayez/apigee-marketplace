@@ -159,6 +159,7 @@ button {
   position: relative;
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   margin-top: 24px;
   max-width: 524px;
   width: 100%;

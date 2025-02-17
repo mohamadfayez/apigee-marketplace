@@ -84,7 +84,7 @@
     
     {#if currentUser}
 
-      {#if currentUser.roles.includes("publisher") || currentUser.roles.includes("admin")}
+      {#if currentUser.roles && (currentUser.roles.includes("publisher") || currentUser.roles.includes("admin"))}
         <button style="position: relative; top: -14px; left: -28px;" on:click={goToPublish} class="rounded_button_outlined">+ New product</button>
       {:else}
         <button style="position: relative; top: -14px; left: -28px;" on:click={goToAccount} class="rounded_button_outlined">My account</button>

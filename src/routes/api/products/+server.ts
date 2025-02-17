@@ -47,6 +47,7 @@ export const POST: RequestHandler = async ({ params, url, request }) => {
 
   let newProduct: DataProduct = await request.json();
   let proxyName: string = newProduct.source.startsWith("BigQuery") ? "MP-DataAPI-v1" : "MP-ServicesAPI-v1";
+  if (newProduct.source === DataSourceTypes.AIModel) proxyName = "MP-GenAIAPI-v1";
   let callPath: string = newProduct.source.startsWith("BigQuery") ? "/data" : "/services";
 
   newProduct.specUrl = `/api/products/${newProduct.id}/spec?site=${site}`;
@@ -80,6 +81,12 @@ export const POST: RequestHandler = async ({ params, url, request }) => {
     // await apiHubCreateDeployment(newProduct);
     // await apiHubCreateVersion(newProduct);
     // await apiHubCreateVersionSpec(newProduct);
+  } else if (newProduct.source === DataSourceTypes.AIModel) {
+    setKVMEntry("marketplace-kvm", newProduct.entity + "-model", newProduct.query);
+    setKVMEntry("marketplace-kvm", newProduct.entity + "-systemprompt", newProduct.queryAdditionalInfo);
+    // create and set product
+    createProduct("marketplace_" + newProduct.id, "Marketplace " + newProduct.name, "/v1/genai/" + newProduct.entity, proxyName);
+    newProduct.apigeeProductId = "marketplace_" + newProduct.id;
   }
 
   // create monetization rate plan for product, if set

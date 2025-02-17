@@ -1,11 +1,18 @@
 # Apigee Data Marketplace Sample
 This project offers a sample marketplace frontend application for Apigee to offer publishing & subscription user flows for data, AI & API products. This is only a demo to show what is possible using the **Headless API Distribution** engine in Apigee (supporting any type of frontend framework). In this case the marketplace app uses [SvelteKit](https://svelte.dev/) as the frontend framework.
 
+## Prerequisites
+1. A [**GCP project**](https://console.cloud.google.com/) with Apigee X deployed (subscription, paygo, or trial). [This script](https://github.com/api-integration-samples/apigee-integration-quickstart) will create a project & Apigee X instance in one go.
+2. Configure [**Identity Platform**](https://console.cloud.google.com/customer-identity). Add the Google & Email/Password providers, then use **Application Setup Details > apiKey and authDomain** in the below steps in the `.1.env.PROJECT_ID.sh` file.
+3. Install the [Apintegrate](https://github.com/apintegrate/apintegrate) CLI tool in your shell for Apigee deployments.
+4. If you plan on using Gen AI models in the marketplace, optionally enable these third-party models:
+- [Llama 3.3](https://console.cloud.google.com/vertex-ai/publishers/meta/model-garden/llama3-3)
+- [Mistral Nemo](https://console.cloud.google.com/vertex-ai/publishers/mistralai/model-garden/mistral-nemo)
+
 ## Deployment
-1. First make sure you have a GCP project with Apigee X already deployed (either pay-as-you-go, subscription or a trial). Also make sure Identity Platform is configured for a web app and that you have a web app API key, authorized domain, and OAuth ID from the GCP credentials console.
-2. Clone this repository and run `./.0.init.sh PROJECT_ID` with your GCP project id. This will create a `.1.env.PROJECT_ID.sh` environment variables file.
-3. Edit the file `.1.env.PROJECT_ID.sh` with all variables, including Apigee info and Identity Platform IDs.
-4. Follow these instructions to deploy.
+1. Clone this repository and run `./.0.init.sh PROJECT_ID` with your GCP project id. This will create a `.1.env.PROJECT_ID.sh` environment variables file.
+2. Edit the file `.1.env.PROJECT_ID.sh` and set the variables, including Apigee project info and Identity Platform IDs. Set **INTERNAL_DOMAINS** to the domains of users who should be considered internal (can publish data & APIs, all others can just subscribe and consume), and add your email account as **ADMIN_EMAIL**.
+4. Follow the following instructions to deploy.
 
 ```sh
 # set env variables file (change PROJECT_ID to your project id)

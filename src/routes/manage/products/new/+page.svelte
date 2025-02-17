@@ -82,7 +82,7 @@
         product.imageUrl = "/loop.svg";
       } else if (product.source.startsWith("BigQuery")) {
         product.imageUrl = "/data.svg";
-      } else if (product.source === DataSourceTypes.GenAITest) {
+      } else if (product.source === DataSourceTypes.GenAITest || product.source === DataSourceTypes.AIModel) {
         product.imageUrl = "/genai.svg";
       } else if (product.source === DataSourceTypes.ApiHub) {
         product.imageUrl = "/hub.svg";

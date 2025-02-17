@@ -110,5 +110,56 @@ cp .env .env.$PROJECT_ID.env
 echo "Creating storage bucket..."
 gcloud storage buckets create gs://$BUCKET_NAME --location=eu --project $PROJECT_ID
 
-echo "Creating Apigee KVM..."
+echo "Creating Apigee KVM and default model keys..."
 apigeecli kvms create -e $APIGEE_ENV -n marketplace-kvm -o $PROJECT_ID -t $(gcloud auth print-access-token)
+apigeecli kvms entries create -m marketplace-kvm -k gemini-model -l "publishers/google/models/gemini-2.0-flash-001" -e $APIGEE_ENV -o $PROJECT_ID -t $(gcloud auth print-access-token)
+apigeecli kvms entries create -m marketplace-kvm -k gemini-thinking-model -l "publishers/google/models/gemini-2.0-flash-thinking-exp-01-21" -e $APIGEE_ENV -o $PROJECT_ID -t $(gcloud auth print-access-token)
+apigeecli kvms entries create -m marketplace-kvm -k llama-model -l "publishers/meta/models/llama-3.3-70b-instruct-maas" -e $APIGEE_ENV -o $PROJECT_ID -t $(gcloud auth print-access-token)
+apigeecli kvms entries create -m marketplace-kvm -k mistral-model -l "publishers/mistralai/models/mistral-nemo@2407" -e $APIGEE_ENV -o $PROJECT_ID -t $(gcloud auth print-access-token)
+
+echo "Creating Apigee data collectors..."
+apigeecli datacollectors create -n dc_genai_model_name -d "Name of the Gen AI model" -p STRING -o $PROJECT_ID -t $(gcloud auth print-access-token)
+apigeecli datacollectors create -n dc_genai_prompt_tokens -d "Gen AI model prompt token count" -p INTEGER -o $PROJECT_ID -t $(gcloud auth print-access-token)
+apigeecli datacollectors create -n dc_genai_completion_tokens -d "Gen AI model completion token count" -p INTEGER -o $PROJECT_ID -t $(gcloud auth print-access-token)
+apigeecli datacollectors create -n dc_genai_total_tokens -d "Gen AI model total token count" -p INTEGER -o $PROJECT_ID -t $(gcloud auth print-access-token)
+
+echo "Creating Apigee custom LLM report..."
+curl -X POST "https://apigee.googleapis.com/v1/organizations/$PROJECT_ID/reports" \
+-H "Authorization: Bearer $(gcloud auth print-access-token)" \
+-H 'Content-Type: application/json; charset=utf-8' \
+--data-binary @- << EOF
+
+{
+  "displayName": "LLM Token Counts",
+  "metrics": [
+    {
+      "name": "dc_genai_prompt_tokens",
+      "function": "sum"
+    },
+    {
+      "name": "dc_genai_completion_tokens",
+      "function": "sum"
+    },
+    {
+      "name": "dc_genai_total_tokens",
+      "function": "sum"
+    }
+  ],
+  "dimensions": [
+    "dc_genai_model_name",
+    "developer_app",
+    "developer"
+  ],
+  "properties": [
+    {
+      "value": [
+        {
+          "value": "Token counts for all LLMs used in the organization."
+        }
+      ]
+    }
+  ],
+  "chartType": "line",
+  "organization": "apigee-tlab5"
+}
+EOF

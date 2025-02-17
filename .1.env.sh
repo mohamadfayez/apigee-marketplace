@@ -13,7 +13,8 @@ export OAUTH_CLIENT_ID=
 export BUCKET_NAME=marketplace-
 
 # Set Apigee variables
-export APIGEE_ENV=
+export APIGEE_ENV=dev
+# Host just the host name, without https:// (e.g. 34-149-70-69.nip.io)
 export APIGEE_ENVGROUP_HOST=
 export APIGEE_APIHUB_REGION=europe-west1
 

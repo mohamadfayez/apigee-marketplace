@@ -649,7 +649,7 @@
               encodeURI(product.samplePayload)}
             class="rounded_button_outlined"
             download={product.entity + ".json"}
-            style="margin-left: 26px; max-height: 16px; font-size: 12px"
+            style="margin-left: 26px; max-height: 16px; font-size: 14px"
             >Download</a
           >
         </div>

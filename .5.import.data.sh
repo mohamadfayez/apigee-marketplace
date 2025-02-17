@@ -30,6 +30,9 @@ curl -i -X POST "https://firestore.googleapis.com/v1/projects/$PROJECT_ID/databa
           "logoWidth": {
             "stringValue": "36px"
           },
+          "heroImageUrl": {
+            "stringValue": "/banner.png"
+          },          
           "owner": {
             "stringValue": "$ADMIN_EMAIL"
           },
@@ -37,13 +40,112 @@ curl -i -X POST "https://firestore.googleapis.com/v1/projects/$PROJECT_ID/databa
             "arrayValue": {
               "values": [
                 {
-                  "stringValue": "ESG - Environmental"
+                  "stringValue": "CRM - Customer Orders"
                 },
                 {
-                  "stringValue": "ESG - Social"
+                  "stringValue": "CRM - Sales Automation"
                 },
                 {
-                  "stringValue": "ESG - Governance"
+                  "stringValue": "CRM - Marketing Automation"
+                },
+                {
+                  "stringValue": "ERP - Financials"
+                },
+                {
+                  "stringValue": "ERP - Inventory Management"
+                },
+                {
+                  "stringValue": "ERP - Supply Chain"
+                },
+                {
+                  "stringValue": "HR - Employee Functions"
+                },
+                {
+                  "stringValue": "HR - Recruitment"
+                },
+                {
+                  "stringValue": "HR - Performance Management"
+                },
+                {
+                  "stringValue": "E-commerce - Product Catalog"
+                },
+                {
+                  "stringValue": "E-commerce - Order Management"
+                },
+                {
+                  "stringValue": "E-commerce - Payment Processing"
+                },
+                {
+                  "stringValue": "CMS - Content Delivery"
+                },
+                {
+                  "stringValue": "CMS - Digital Asset Management"
+                },
+                {
+                  "stringValue": "CMS - Headless CMS"
+                },
+                {
+                  "stringValue": "Data Analytics - Business Intelligence"
+                },
+                {
+                  "stringValue": "Data Analytics - Data Warehousing"
+                },
+                {
+                  "stringValue": "Data Analytics - Predictive Analytics"
+                },
+                {
+                  "stringValue": "Communication & Collaboration - Messaging"
+                },
+                {
+                  "stringValue": "Communication & Collaboration - Video Conferencing"
+                },
+                {
+                  "stringValue": "Communication & Collaboration - Document Sharing"
+                },
+                {
+                  "stringValue": "Security & Identity - Authentication"
+                },
+                {
+                  "stringValue": "Security & Identity - Access Control"
+                },
+                {
+                  "stringValue": "Security & Identity - Fraud Detection"
+                },
+                {
+                  "stringValue": "Logistics & Shipping - Shipping Tracking"
+                },
+                {
+                  "stringValue": "Logistics & Shipping - Route Optimization"
+                },
+                {
+                  "stringValue": "Logistics & Shipping - Warehouse Management"
+                },
+                {
+                  "stringValue": "Marketing & Advertising - Social Media"
+                },
+                {
+                  "stringValue": "Marketing & Advertising - Advertising Platforms"
+                },
+                {
+                  "stringValue": "Marketing & Advertising - Customer Engagement"
+                },
+                {
+                  "stringValue": "Legal & Compliance - Document Management"
+                },
+                {
+                  "stringValue": "Legal & Compliance - Compliance Tracking"
+                },
+                {
+                  "stringValue": "Legal & Compliance - E-Signature"
+                },
+                {
+                  "stringValue": "Mapping & Location Services - Geocoding"
+                },
+                {
+                  "stringValue": "Mapping & Location Services - Route Planning"
+                },
+                {
+                  "stringValue": "Mapping & Location Services - Location Tracking"
                 }
               ]
             }

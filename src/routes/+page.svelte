@@ -106,7 +106,7 @@
 
 <div class="landing_main_panel">
     <div id="overview" class="landing_heading">
-        Let's achieve more with our data assets
+        Let's achieve more with our data & AI assets
     </div>
     <div class="landing_content">
         <div>
@@ -121,7 +121,7 @@
     </div>
     <div class="landing_content_gray">
       <div class="landing_sub_heading">
-        Our mission is data access that works for everyone
+        Our mission is data & AI collaboration at scale
       </div>
       <div class="landing_content_divided">
           <div class="landing_content_half">

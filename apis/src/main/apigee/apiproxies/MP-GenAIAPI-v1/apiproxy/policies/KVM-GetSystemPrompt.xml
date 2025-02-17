@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<KeyValueMapOperations continueOnError="false" enabled="true" name="KVM-GetSystemPrompt" mapIdentifier="marketplace-kvm">
+  <DisplayName>KVM-GetModelConfig</DisplayName>
+  <Properties/>
+  <ExclusiveCache>false</ExclusiveCache>
+  <ExpiryTimeInSecs>300</ExpiryTimeInSecs>
+  <Get assignTo="genai.systemprompt" index="1">
+    <Key>
+      <Parameter ref="genai.systempromptname"/>
+    </Key>
+  </Get>
+  <Get assignTo="genai.techmodel" index="1">
+    <Key>
+      <Parameter ref="genai.modelname"/>
+    </Key>
+  </Get>
+  <Scope>environment</Scope>
+</KeyValueMapOperations>

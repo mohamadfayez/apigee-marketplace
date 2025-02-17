@@ -33,12 +33,12 @@
 
 <div class="landing_main_panel">
   <div id="overview" class="landing_heading">
-    Our mission is data collaboration that works for everyone
+    Our mission is data & AI collaboration at scale
   </div>
 
   <div class="landing_content_white" in:fade>
     <div class="landing_content">
-      Exchanging & sharing data should be fast, easy and secure. It should also be easy for anyone to publish or consume data, just like saving and sharing any other type of digital content. Let's work together to make data sharing simple.
+      Exchanging & sharing data & AI models should be fast, easy and secure. It should also be easy for anyone to publish or consume data, just like saving and sharing any other type of digital content. Let's work together to make data sharing simple.
     </div>
     <div class="landing_content_divided">
         <div class="landing_content_half">

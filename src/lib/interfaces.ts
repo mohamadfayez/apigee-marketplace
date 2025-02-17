@@ -81,6 +81,7 @@ export class DataProduct {
   source: string;
   entity: string;
   query: string;
+  queryAdditionalInfo: string = "";
   path: string = "";
   pathVerbs: string[] = [];
   sla: SLA = new SLA("no_sla_5k3j", "no_sla_5k3j")
@@ -412,6 +413,7 @@ export enum ProductProtocols {
 export enum DataSourceTypes {
   BigQuery = "BigQuery",
   BigQueryTable = "BigQueryTable",
+  AIModel = "AI Model",
   GenAITest = "GenAITest",
   AI = "Vertex AI",
   ApigeeProduct = "Apigee API Product",

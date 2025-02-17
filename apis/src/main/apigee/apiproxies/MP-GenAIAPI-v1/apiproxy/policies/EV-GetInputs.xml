@@ -8,6 +8,9 @@
       <JSONPath>$.prompt</JSONPath>
     </Variable>
   </JSONPayload>
+  <URIPath>
+    <Pattern ignoreCase="false">/{model}</Pattern>
+  </URIPath>
   <Source clearPayload="false">request</Source>
   <VariablePrefix>genai</VariablePrefix>
 </ExtractVariables>

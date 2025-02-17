@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<TargetEndpoint name="Mistral">
+<TargetEndpoint name="Gemini Llama">
   <Description/>
   <FaultRules/>
   <PreFlow name="PreFlow">
     <Request>
       <Step>
-        <Name>AM-SetMistralData</Name>
+        <Name>AM-SetGeminiData</Name>
       </Step>
     </Request>
     <Response/>
@@ -14,16 +14,14 @@
     <Request/>
     <Response>
       <Step>
-        <Name>EV-GetMistralTokens</Name>
-      </Step>
-      <Step>
-        <Name>JS-SetMistralResponse</Name>
+        <Name>JS-SetGeminiResponse</Name>
       </Step>
     </Response>
   </PostFlow>
   <Flows/>
   <HTTPTargetConnection>
     <Properties/>
+    <URL>https://us-central1-aiplatform.googleapis.com/v1/projects/{organization.name}/locations/us-central1/{genai.techmodel}:generateContent</URL>
     <Authentication>
       <GoogleAccessToken>
         <Scopes>
@@ -31,6 +29,5 @@
         </Scopes>
       </GoogleAccessToken>
     </Authentication>
-    <URL>https://us-central1-aiplatform.googleapis.com/v1/projects/{organization.name}/locations/us-central1/{genai.techmodel}:rawPredict</URL>
   </HTTPTargetConnection>
 </TargetEndpoint>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ResponseCache continueOnError="false" enabled="true" name="RC-CheckCache">
+  <DisplayName>RC-CheckCache</DisplayName>
+  <CacheKey>
+    <Prefix/>
+    <KeyFragment ref="request.uri" type="string"/>
+    <KeyFragment ref="genai.prompt" type="string"/>
+  </CacheKey>
+  <Scope>Exclusive</Scope>
+  <ExpirySettings>
+    <ExpiryDate/>
+    <TimeOfDay/>
+    <TimeoutInSeconds ref="">28800</TimeoutInSeconds>
+  </ExpirySettings>
+  <SkipCacheLookup/>
+  <SkipCachePopulation/>
+</ResponseCache>

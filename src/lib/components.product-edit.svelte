@@ -155,6 +155,10 @@
   }
 
   function onSourceChange() {
+    
+    specLoading = false;
+    payloadLoading = false;
+
     if (product.source === DataSourceTypes.BigQueryTable) {
       initialLoad();
     } else if (product.source === DataSourceTypes.ApigeeProduct) {
@@ -170,6 +174,22 @@
           }
         }
       }
+    } else if (product.source === DataSourceTypes.AIModel) {
+      product.name = "Gemini API";
+      product.description = "Gemini API for the organization.";
+      product.query = "publishers/google/models/gemini-2.0-flash-001";
+      product.entity = "gemini";
+      product.samplePayload = `
+{
+   "model" : "publishers/google/models/gemini-2.0-flash-001",
+   "prompt" : "why is the sky blue?",
+   "response" : "The sky appears blue primarily due to a phenomenon called **Rayleigh scattering**.",
+   "usage" : {
+      "completion_tokens" : 412,
+      "prompt_tokens" : 6,
+      "total_tokens" : 418
+   }
+}`;
     } else {
       product.name = "";
       product.description = "";
@@ -179,10 +199,14 @@
       product.specContents = "";
     }
 
-    payloadEditor.set({text: ""});
+    payloadEditor.set({text: product.samplePayload});
     payloadEditor.refresh();
-    specEditor.set({text: ""});
-    specEditor.refresh();
+    if (product.source === DataSourceTypes.AIModel) {
+      setAiSpec();
+    } else {
+      specEditor.set({text: ""});
+      specEditor.refresh();
+    }
   }
 
   function onQueryChange(e: any) {
@@ -235,6 +259,30 @@
       specEditor.set({text: ""});
       specEditor.refresh();
     }
+  }
+
+  function onAiModelChange(e: any) {
+    if (product.query.includes("flash-thinking")) {
+      product.name = "Gemini Thinking API";
+      product.entity = "gemini-thinking";
+    }
+    else if (product.query.includes("gemini")) {
+      product.name = "Gemini API";
+      product.entity = "gemini";
+    }
+    else if (product.query.includes("llama")) {
+      product.name = "Llama API";
+      product.entity = "llama";
+    }
+    else if (product.query.includes("mistral")) {
+      product.name = "Mistral API";
+      product.entity = "mistral";
+    }
+
+    product.description = product.name + " for the organization.";
+
+    setAiPayload();
+    setAiSpec();
   }
 
   function onGenAiTestChange(e: any) {
@@ -321,15 +369,17 @@
             ).then((response) => {
               if (response.status === 200) {
                 response.json().then((payload: any) => {
-                  payloadLoading = false;
-                  product.samplePayload = JSON.stringify(payload);
-                  samplePayloadData = payload;
-                  let payloadContent = {
-                    json: payload,
-                  };
-                  payloadEditor.set(payloadContent);
-                  payloadEditor.refresh();
-                  refreshSpec();
+                  if (payloadLoading) {
+                    payloadLoading = false;
+                    product.samplePayload = JSON.stringify(payload);
+                    samplePayloadData = payload;
+                    let payloadContent = {
+                      json: payload,
+                    };
+                    payloadEditor.set(payloadContent);
+                    payloadEditor.refresh();
+                    refreshSpec();
+                  }
                   resolve();
                 });
               } else {
@@ -352,52 +402,59 @@
             );
           }
         });
+      } else if (product.source === DataSourceTypes.AIModel) {
+        setAiPayload();
       }
     });
   }
 
   function refreshSpec() {
 
-    let editorValue = payloadEditor.get();
-    if (editorValue && editorValue.text)
-      product.samplePayload = editorValue.text;
-
-    if (product.samplePayload) {
-      specLoading = true;
-
-      // set prompt
-      if (product.source === DataSourceTypes.ApigeeProduct)
-        product.specPrompt = specApiProductPrompt;
-      else
-        product.specPrompt = specPrompt;
-      
-        fetch("/api/products/generate/spec", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(product),
-      })
-        .then((response) => {
-          return response.json();
-        })
-        .then((newProduct: DataProduct) => {
-          // product.specPrompt = newProduct.specPrompt;
-          product.specContents = newProduct.specContents;
-          let specContent = {
-            text: newProduct.specContents,
-          };
-          specEditor.set(specContent);
-          specEditor.refresh();
-          specLoading = false;
-        });
+    if (product.source === DataSourceTypes.AIModel) {
+      setAiSpec();
     } else {
-      appService.ShowDialog(
-        "A sample payload is needed to generate an API spec. Please either load or enter a payload into the 'Payload' field.",
-        "OK",
-        DialogType.Ok,
-        [],
-      );
+      let editorValue = payloadEditor.get();
+      if (editorValue && editorValue.text)
+        product.samplePayload = editorValue.text;
+
+      if (product.samplePayload) {
+        specLoading = true;
+
+        // set prompt
+        if (product.source === DataSourceTypes.ApigeeProduct)
+          product.specPrompt = specApiProductPrompt;
+        else
+          product.specPrompt = specPrompt;
+        
+          fetch("/api/products/generate/spec", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(product),
+        })
+          .then((response) => {
+            return response.json();
+          })
+          .then((newProduct: DataProduct) => {
+            if (specLoading) {
+              product.specContents = newProduct.specContents;
+              let specContent = {
+                text: newProduct.specContents,
+              };
+              specEditor.set(specContent);
+              specEditor.refresh();
+              specLoading = false;
+            }
+          });
+      } else {
+        appService.ShowDialog(
+          "A sample payload is needed to generate an API spec. Please either load or enter a payload into the 'Payload' field.",
+          "OK",
+          DialogType.Ok,
+          [],
+        );
+      }
     }
   }
 
@@ -411,6 +468,120 @@
       product.specContents = updatedContent.text;
     else if (updatedContent && updatedContent.json)
       product.specContents = JSON.stringify(updatedContent.json);
+  }
+
+  function setAiPayload() {
+    product.samplePayload = `
+{
+   "model" : "${product.query}",
+   "prompt" : "why is the sky blue?",
+   "response" : "The sky appears blue primarily due to a phenomenon called **Rayleigh scattering**.",
+   "usage" : {
+      "completion_tokens" : 412,
+      "prompt_tokens" : 6,
+      "total_tokens" : 418
+   }
+}`;
+    payloadEditor.set({text: product.samplePayload});
+    payloadEditor.refresh();
+  }
+
+  function setAiSpec() {
+    product.specContents = `
+
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "${product.name}",
+    "version": "1.0.0",
+    "description": "This API allows you to interact with the ${product.name} language model.  All requests require an API key in the 'x-api-key' header."
+  },
+  "servers": [
+    {
+      "url": "https://34-149-70-69.nip.io",
+      "description": "${product.name} Server"
+    }
+  ],
+  "paths": {
+    "/v1/genai/${product.entity}": {
+      "post": {
+        "summary": "Create a new ${product.name} response",
+        "description": "Creates a new ${product.name} response.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GenAiRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "${product.name} response created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenAiRequest"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "apiKeyAuth": []
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "GenAiRequest": {
+        "type": "object",
+        "properties": {
+          "model": {
+            "type": "string"
+          },
+          "prompt": {
+            "type": "string"
+          },
+          "response": {
+            "type": "string"
+          },
+          "usage": {
+            "type": "object",
+            "properties": {
+              "completion_tokens": {
+                "type": "integer"
+              },
+              "prompt_tokens": {
+                "type": "integer"
+              },
+              "total_tokens": {
+                "type": "integer"
+              }
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "apiKeyAuth": {
+        "type": "apiKey",
+        "name": "x-api-key",
+        "in": "header"
+      }
+    }
+  }
+}`;
+    let specContent = {
+      text: product.specContents,
+    };
+    specEditor.set(specContent);
+    specEditor.refresh();
   }
 </script>
 
@@ -448,6 +619,7 @@
         >
           <option value={DataSourceTypes.BigQueryTable}>BigQuery table</option>
           <option value={DataSourceTypes.BigQuery}>BigQuery query</option>
+          <option value={DataSourceTypes.AIModel}>AI Model</option>
           <option value={DataSourceTypes.GenAITest}>Gen AI test data</option>
           <option value={DataSourceTypes.ApigeeProduct}>{DataSourceTypes.ApigeeProduct}</option>
           <option value={DataSourceTypes.ApiHub}>{DataSourceTypes.ApiHub}</option>
@@ -499,6 +671,22 @@
         <label for="query" class="input_field_placeholder">
           BigQuery query
         </label>
+      {:else if product.source === DataSourceTypes.AIModel}
+        <div style="width: 100%; margin-bottom: 10px;">Base model:</div>
+        <div class="select_dropdown" style="width: 270px;">
+          <select
+            name="aimodel"
+            id="aimodel"
+            bind:value={product.query}
+            on:change={onAiModelChange}
+          >
+            <option value="publishers/google/models/gemini-2.0-flash-001">Gemini 2.0 Flash</option>
+            <option value="publishers/google/models/gemini-2.0-flash-thinking-exp-01-21">Gemini 2.0 Flash Thinking</option>
+            <option value="publishers/google/models/gemini-2.0-pro-exp-02-05" selected>Gemini 2.0 Pro</option>
+            <option value="publishers/meta/models/llama-3.3-70b-instruct-maas">Llama 3.3</option>
+            <option value="mistralnemo">Mistral Nemo</option>
+          </select>
+        </div>
       {:else if product.source === DataSourceTypes.ApiHub}
         <div style="width: 380px; height: 300px;">
           <CatTableSelect linkColumnName="Name" update={()=> {}} headers={["Name", "Version", "Created on", "Updated on"]} categories={{
@@ -608,12 +796,28 @@
       </label>
     </div>
 
+    <!-- GEN AI SYSTEM PROMPT-->
+    {#if product.source === DataSourceTypes.AIModel}
+      <div class="input_field_panel">
+        <textarea
+          name="systemprompt"
+          id="systemprompt"
+          required
+          class="input_field"
+          bind:value={product.queryAdditionalInfo}
+          rows="5"
+        ></textarea>
+        <label for="systemprompt" class="input_field_placeholder">
+          System prompt
+        </label>
+      </div>
+    {/if}
+
     <!-- ENTITY NAME -->
 
-    {#if product.source.startsWith("BigQuery") || product.source === DataSourceTypes.GenAITest || product.source === DataSourceTypes.API}
+    {#if product.source.startsWith("BigQuery") || product.source === DataSourceTypes.GenAITest || product.source === DataSourceTypes.API || product.source === DataSourceTypes.AIModel}
       <div class="info_box">
-        Choose a technical entity name that makes it easy to recognize and
-        reference the data objects in any protocol.
+        Choose a technical entity name that makes it easy to recognize the path and type of data.
       </div>
 
       <div class="input_field_panel">

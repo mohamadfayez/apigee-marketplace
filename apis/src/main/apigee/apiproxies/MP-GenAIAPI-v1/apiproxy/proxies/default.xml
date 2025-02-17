@@ -18,8 +18,21 @@
         <Name>EV-GetInputs</Name>
       </Step>
       <Step>
+        <Name>AM-SetSystemPrompt</Name>
+      </Step>
+      <Step>
+        <Name>KVM-GetSystemPrompt</Name>
+      </Step>
+      <Step>
         <Condition>genai.prompt == null</Condition>
         <Name>RF-ValidateInputs</Name>
+      </Step>
+      <Step>
+        <Condition>genai.techmodel == null</Condition>
+        <Name>AM-SetDefaultModel</Name>
+      </Step>
+      <Step>
+        <Name>RC-CheckCache</Name>
       </Step>
     </Request>
     <Response/>
@@ -30,6 +43,12 @@
       <Step>
         <Name>AM-SetCors</Name>
       </Step>
+      <Step>
+        <Name>DC-TokenCounts</Name>
+      </Step>
+      <Step>
+        <Name>RC-CheckCache</Name>
+      </Step>
     </Response>
   </PostFlow>
   <Flows>
@@ -39,12 +58,11 @@
     <Properties/>
     <VirtualHost>default</VirtualHost>
   </HTTPProxyConnection>
-  <RouteRule name="gemini">
-    <Condition>proxy.pathsuffix MatchesPath "/gemini"</Condition>
-    <TargetEndpoint>Gemini</TargetEndpoint>
-  </RouteRule>
   <RouteRule name="mistral">
     <Condition>proxy.pathsuffix MatchesPath "/mistral"</Condition>
     <TargetEndpoint>Mistral</TargetEndpoint>
+  </RouteRule>
+  <RouteRule name="gemini">
+    <TargetEndpoint>Gemini Llama</TargetEndpoint>
   </RouteRule>
 </ProxyEndpoint>

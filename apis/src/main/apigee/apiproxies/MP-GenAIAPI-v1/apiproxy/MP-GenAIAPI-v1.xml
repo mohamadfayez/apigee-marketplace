@@ -1,8 +1,8 @@
-<APIProxy revision="1" name="MP-GenAIAPI-v1">
+<APIProxy revision="17" name="MP-GenAIAPI-v1">
     <DisplayName></DisplayName>
     <Description>This API provides Gen AI services.</Description>
-    <CreatedAt>1737436346971</CreatedAt>
-    <LastModifiedAt>1737452147335</LastModifiedAt>
+    <CreatedAt>1739791221806</CreatedAt>
+    <LastModifiedAt>1739791221806</LastModifiedAt>
     <BasePaths>/v1/genai</BasePaths>
     <Policies>
         <Policy>AM-RemoveKey</Policy>
@@ -16,6 +16,11 @@
         <Policy>RF-ReturnCors</Policy>
         <Policy>RF-ValidateInputs</Policy>
         <Policy>VA-VerifyKey</Policy>
+        <Policy>KVM-GetSystemPrompt</Policy>
+        <Policy>AM-SetSystemPrompt</Policy>
+        <Policy>AM-SetDefaultModel</Policy>
+        <Policy>DC-TokenCounts</Policy>
+        <Policy>RC-CheckCache</Policy>
     </Policies>
     <ProxyEndpoints>
         <ProxyEndpoint>default</ProxyEndpoint>
@@ -25,7 +30,7 @@
         <Resource>jsc://mistral-functions.js</Resource>
     </Resources>
     <TargetEndpoints>
-        <TargetEndpoint>Gemini</TargetEndpoint>
+        <TargetEndpoint>Gemini Llama</TargetEndpoint>
         <TargetEndpoint>Mistral</TargetEndpoint>
     </TargetEndpoints>
 </APIProxy>

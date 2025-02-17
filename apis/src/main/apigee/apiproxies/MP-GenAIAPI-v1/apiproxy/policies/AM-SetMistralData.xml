@@ -10,7 +10,7 @@
         "messages": [
           {
             "role": "user",
-            "content": "{genai.prompt}"
+            "content": "{genai.systemprompt} {genai.prompt}"
           }
         ]
       }
