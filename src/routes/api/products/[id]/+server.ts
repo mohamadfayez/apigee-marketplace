@@ -2,7 +2,7 @@ import type { DataProduct, MonetizationRatePlan } from "$lib/interfaces";
 import { Firestore } from "@google-cloud/firestore";
 import { error, json, type NumericRange, type RequestHandler } from "@sveltejs/kit";
 import { GoogleAuth } from "google-auth-library";
-import { PUBLIC_PROJECT_ID, PUBLIC_APIGEE_ENV } from '$env/static/public';
+import { PUBLIC_PROJECT_ID, PUBLIC_APIGEE_ENV, PUBLIC_APIHUB_REGION } from '$env/static/public';
 
 const auth = new GoogleAuth({
   scopes: 'https://www.googleapis.com/auth/cloud-platform'
@@ -88,8 +88,10 @@ export const DELETE: RequestHandler = async({ params, url, request}) => {
 
   await document.delete();
 
-  // Now delete API product
-  deleteAPIProduct(id);
+  // Now delete Api & Api Hub products
+  deleteApiProduct(id);
+  deleteApiHubProduct(id);
+
 
   if (resultProduct) {
 	  return json(resultProduct);
@@ -98,9 +100,24 @@ export const DELETE: RequestHandler = async({ params, url, request}) => {
     error(404, "Product not found.");
 }
 
-function deleteAPIProduct(id: string) {
+function deleteApiProduct(id: string) {
   auth.getAccessToken().then((token) => {
     fetch(`https://apigee.googleapis.com/v1/organizations/${PUBLIC_PROJECT_ID}/apiproducts/${id}`, {
+      method: "DELETE",
+      headers: {
+        "Authorization": `Bearer ${token}`
+      }
+    }).then((response) => {
+      return response.json();
+    }).catch((error) => {
+      console.error(error);
+    });
+  });
+}
+
+function deleteApiHubProduct(id: string) {
+  auth.getAccessToken().then((token) => {
+    fetch(`https://apihub.googleapis.com/v1/projects/${PUBLIC_PROJECT_ID}/locations/${PUBLIC_APIHUB_REGION}/apis/${id}?force=true`, {
       method: "DELETE",
       headers: {
         "Authorization": `Bearer ${token}`

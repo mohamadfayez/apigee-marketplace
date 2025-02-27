@@ -425,28 +425,28 @@
           product.specPrompt = specApiProductPrompt;
         else
           product.specPrompt = specPrompt;
-        
-          fetch("/api/products/generate/spec", {
+
+        fetch("/api/products/generate/spec", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify(product),
         })
-          .then((response) => {
-            return response.json();
-          })
-          .then((newProduct: DataProduct) => {
-            if (specLoading) {
-              product.specContents = newProduct.specContents;
-              let specContent = {
-                text: newProduct.specContents,
-              };
-              specEditor.set(specContent);
-              specEditor.refresh();
-              specLoading = false;
-            }
-          });
+        .then((response) => {
+          return response.json();
+        })
+        .then((newProduct: DataProduct) => {
+          if (specLoading) {
+            product.specContents = newProduct.specContents;
+            let specContent = {
+              text: newProduct.specContents,
+            };
+            specEditor.set(specContent);
+            specEditor.refresh();
+            specLoading = false;
+          }
+        });
       } else {
         appService.ShowDialog(
           "A sample payload is needed to generate an API spec. Please either load or enter a payload into the 'Payload' field.",
@@ -523,7 +523,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/GenAiRequest"
+                  "$ref": "#/components/schemas/GenAiResponse"
                 }
               }
             }
@@ -542,26 +542,41 @@
       "GenAiRequest": {
         "type": "object",
         "properties": {
+          "prompt": {
+            "type": "string",
+            "example": "why is the sky blue?"
+          }
+        }
+      },
+      "GenAiResponse": {
+        "type": "object",
+        "properties": {
           "model": {
-            "type": "string"
+            "type": "string",
+            "example": "publishers/google/models/gemini-2.0-flash-001"
           },
           "prompt": {
-            "type": "string"
+            "type": "string",
+            "example": "why is the sky blue?"
           },
           "response": {
-            "type": "string"
+            "type": "string",
+            "example": "The sky appears blue primarily due to a phenomenon called **Rayleigh scattering**."
           },
           "usage": {
             "type": "object",
             "properties": {
               "completion_tokens": {
-                "type": "integer"
+                "type": "integer",
+                "example": 12
               },
               "prompt_tokens": {
-                "type": "integer"
+                "type": "integer",
+                "example": 6
               },
               "total_tokens": {
-                "type": "integer"
+                "type": "integer",
+                "example": 18
               }
             }
           }

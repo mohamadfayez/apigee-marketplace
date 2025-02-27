@@ -1,21 +1,28 @@
 <script lang="ts">
   import { appService } from "$lib/app-service";
-  import { DialogType, DialogResult, type SLA, DataGenJob } from "$lib/interfaces";
+  import { DialogType, DialogResult, type SLA, DataGenJob, DataProduct } from "$lib/interfaces";
   import MenuLeftAdmin from "$lib/components-menus-left/menus-left.admin.svelte";
   import { onMount } from "svelte";
   import { error } from "@sveltejs/kit";
-    import { fade, fly, scale, slide } from "svelte/transition";
+  import { fade, fly, scale, slide } from "svelte/transition";
 
   let job: DataGenJob = new DataGenJob();
   let processing: boolean = false;
 
   job.userName = appService.currentUser?.firstName + " " + appService.currentUser?.lastName;
   job.userEmail = appService.currentUser?.email ?? "";
+  job.site = appService.currentSiteData.id;
+  job.categories = appService.currentSiteData.categories;
 
   onMount(() => {
     document.addEventListener("userUpdated", () => {
       job.userName = appService.currentUser?.firstName + " " + appService.currentUser?.lastName;
       job.userEmail = appService.currentUser?.email ?? "";
+    });
+
+    document.addEventListener("siteUpdated", () => {
+      job.site = appService.currentSiteData.id;
+      job.categories = appService.currentSiteData.categories;
     });
   });
 
@@ -25,6 +32,12 @@
       method: "POST",
       body: JSON.stringify(job)
     });
+
+    let generatedProducs: DataProduct[] = await response.json();
+    if (generatedProducs && generatedProducs.length > 0) {
+      appService.products = appService.products?.concat(generatedProducs);
+      appService.GoTo("/home");
+    }
     processing = false;
     appService.ShowSnackbar("Data successfully generated.")
   }
@@ -42,6 +55,8 @@
 
       <div class="right_content">
 
+        <div style="margin-left: 8px; padding-bottom: 10px;">AI DataGen will generate test data for the number of apis and for the given topic entered below. The api definitions will be added to the marketplace for this site, as well as to Apigee & API Hub.</div>
+
         {#if !processing}
           <div transition:fly>
             <div class="input_field_panel">
@@ -52,26 +67,11 @@
             </div>
         
             <div class="input_field_panel">
-              <input class="input_field" required type="text" name="limit" id="limit" bind:value={job.categoryCount} autocomplete="off" title="none" />
-              <label for="description" class='input_field_placeholder'>
-                Number of Categories to generate
-              </label>
-            </div>
-
-            <div class="input_field_panel">
               <input class="input_field" required type="text" name="limit" id="limit" bind:value={job.apiCount} autocomplete="off" title="none" />
               <label for="description" class='input_field_placeholder'>
                 Number of APIs to generate
               </label>
             </div>
-
-            <div class="input_field_panel">
-              <input class="input_field" required type="text" name="limit" id="limit" bind:value={job.versionCount} autocomplete="off" title="none" />
-              <label for="description" class='input_field_placeholder'>
-                Number of Versions per API to generate
-              </label>
-            </div>
-
 
             <div class="form_controls">
               <button type="button" on:click={submit} class="rounded_button_filled">Submit</button>

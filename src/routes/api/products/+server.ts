@@ -3,17 +3,26 @@ import type { RequestHandler } from './$types';
 import { Firestore } from '@google-cloud/firestore';
 import { DataProduct, StorageConfig, User, DataSourceTypes, ProductProtocols, MonetizationRatePlan } from '$lib/interfaces';
 import { GoogleAuth } from 'google-auth-library';
-import { PUBLIC_PROJECT_ID, PUBLIC_API_HOST, PUBLIC_APIGEE_ENV, PUBLIC_APIHUB_REGION } from '$env/static/public';
+import { PUBLIC_PROJECT_ID, PUBLIC_API_HOST, PUBLIC_APIGEE_ENV, PUBLIC_APIHUB_REGION, PUBLIC_SITE_URL } from '$env/static/public';
 
 const auth = new GoogleAuth({
   scopes: 'https://www.googleapis.com/auth/cloud-platform'
 });
 
 const firestore = new Firestore();
-let marketplaceHost: string = import.meta.env.VITE_ORIGIN;
-if (!marketplaceHost) marketplaceHost = "https://marketplace.apigee.com"
 let apigeeHubLocation: string = PUBLIC_APIHUB_REGION;
 if (!apigeeHubLocation) apigeeHubLocation = "europe-west1";
+
+// load Api Hub data and attributes
+class ApiHubAttribute {id: string = ""; displayName: string = ""; description: string = "";};
+let targetUsers: ApiHubAttribute[] = await getApiHubAttribute("system-target-user");
+let businessUnits: ApiHubAttribute[] = await getApiHubAttribute("system-business-unit");
+let teams: ApiHubAttribute[] = await getApiHubAttribute("system-team");
+let maturityLevels: ApiHubAttribute[] = await getApiHubAttribute("system-maturity-level");
+let regions: ApiHubAttribute[] = await getApiHubAttribute("regions");
+let gdprValues: ApiHubAttribute[] = await getApiHubAttribute("gdpr-relevance");
+let businessTypes: ApiHubAttribute[] = await getApiHubAttribute("business-type");
+let deploymentEnvironments: ApiHubAttribute[] = await getApiHubAttribute("system-environment");
 
 export const GET: RequestHandler = async ({ url }) => {
   const email = url.searchParams.get('email') ?? '';
@@ -77,10 +86,6 @@ export const POST: RequestHandler = async ({ params, url, request }) => {
     createProduct("marketplace_" + newProduct.id, "Marketplace " + newProduct.name, "/" + newProduct.entity, proxyName);
     newProduct.apigeeProductId = "marketplace_" + newProduct.id;
 
-    // await apiHubRegister(newProduct);
-    // await apiHubCreateDeployment(newProduct);
-    // await apiHubCreateVersion(newProduct);
-    // await apiHubCreateVersionSpec(newProduct);
   } else if (newProduct.source === DataSourceTypes.AIModel) {
     setKVMEntry("marketplace-kvm", newProduct.entity + "-model", newProduct.query);
     setKVMEntry("marketplace-kvm", newProduct.entity + "-systemprompt", newProduct.queryAdditionalInfo);
@@ -122,6 +127,11 @@ export const POST: RequestHandler = async ({ params, url, request }) => {
   let newDoc = firestore.doc(colName + "/" + newProduct.id);
   newDoc.set(newProduct);
 
+  await apiHubRegister(newProduct);
+  await apiHubCreateDeployment(newProduct);
+  await apiHubCreateVersion(newProduct);
+  await apiHubCreateVersionSpec(newProduct);
+
   return json(newProduct);
 }
 
@@ -149,6 +159,15 @@ async function createMonetizationPlanForProduct(product: DataProduct) {
 }
 
 async function apiHubRegister(product: DataProduct) {
+  let regionIndex1 = Math.floor(Math.random() * (regions.length - 1));
+  let regionIndex2 = regionIndex1 + 1;
+  if (regionIndex2 >= regions.length) regionIndex2 = 0;
+  let regionIndex3 = regionIndex2 + 1;
+  if (regionIndex3 >= regions.length) regionIndex3 = 0;
+  let usersIndex1 = Math.floor(Math.random() * (targetUsers.length - 1));
+  let usersIndex2 = usersIndex1++;
+  if (usersIndex2 >= targetUsers.length) usersIndex2 = 0;
+
   let token = await auth.getAccessToken();
   // First let's register the API
   let hubUrl = `https://apihub.googleapis.com/v1/projects/${PUBLIC_PROJECT_ID}/locations/${apigeeHubLocation}/apis?api_id=${product.id}`;
@@ -162,53 +181,132 @@ async function apiHubRegister(product: DataProduct) {
       display_name: product.name,
       description: product.description,
       documentation: {
-        externalUri: marketplaceHost + "/products/" + product.id
+        externalUri: PUBLIC_SITE_URL + "/products/" + product.name + "?site=" + product.site
       },
       owner: {
         displayName: product.ownerName,
         email: product.ownerEmail
+      },
+      targetUser: {
+        attribute: "projects/$PROJECT_ID/locations/$REGION/attributes/system-target-user",
+        enumValues: {
+          values: [
+            targetUsers[usersIndex1],
+            targetUsers[usersIndex2]
+          ]
+        }
+      },
+      team: {
+        attribute: "projects/$PROJECT_ID/locations/$REGION/attributes/system-team",
+        enumValues: {
+          values: [
+            teams[Math.floor(Math.random() * (teams.length - 1))]
+          ]
+        }
+      },
+      businessUnit: {
+        attribute: "projects/$PROJECT_ID/locations/$REGION/attributes/system-business-unit",
+        enumValues: {
+          values: [
+            businessUnits[Math.floor(Math.random() * (businessUnits.length - 1))]
+          ]
+        }
+      },
+      maturityLevel: {
+        attribute: "projects/$PROJECT_ID/locations/$REGION/attributes/system-maturity-level",
+        enumValues: {
+          values: [
+            maturityLevels[Math.floor(Math.random() * (maturityLevels.length - 1))]
+          ]
+        }
+      },
+      apiStyle: {
+        attribute: "projects/$PROJECT_ID/locations/$REGION/attributes/system-api-style",
+        enumValues: {
+          values: [
+            {
+              id: "rest",
+              displayName: "REST"	
+            }
+          ]
+        }
+      },
+      attributes: {
+        "projects/$PROJECT_ID/locations/$REGION/attributes/business-type": {
+          enumValues: {
+            values: [
+              businessTypes[Math.floor(Math.random() * (businessTypes.length - 1))]
+            ]
+          }
+        },
+        "projects/$PROJECT_ID/locations/$REGION/attributes/regions": {
+          enumValues: {
+            values: [
+              regions[regionIndex1],
+              regions[regionIndex2],
+              regions[regionIndex3]
+            ]
+          }
+        },
+        "projects/$PROJECT_ID/locations/$REGION/attributes/gdpr-relevance": {
+          enumValues: {
+            values: [
+              gdprValues[Math.floor(Math.random() * (gdprValues.length - 1))]
+            ]
+          }
+        }
       }
     })
   });
 
-  let result: any = await response.json();
+  let result: Response = await response;
+  if (result.status > 299) {
+    let payload: any = await response.json();
+    console.error("Error registering API in API Hub - " + result.status + " - " + result.statusText);
+    console.error(JSON.stringify(payload));
+  }
 }
 
 async function apiHubCreateDeployment(product: DataProduct) {
   let token = await auth.getAccessToken();
   // Now create deployment
   let hubUrl = `https://apihub.googleapis.com/v1/projects/${PUBLIC_PROJECT_ID}/locations/${apigeeHubLocation}/deployments?deploymentId=${product.id}`;
+
+  let newBody = JSON.stringify({
+    "displayName": product.name,
+    "description": product.description,
+    "documentation": {
+     "externalUri": PUBLIC_SITE_URL + "/products/" + product.id + "?site=" + product.site
+    },
+    "deploymentType": {
+     "attribute": `projects/${PUBLIC_PROJECT_ID}/locations/${PUBLIC_APIHUB_REGION}/attributes/system-deployment-type`,
+     "enumValues": {
+      "values": [
+       {
+        "id": "apigee",
+        "displayName": "Apigee",
+        "description": "Apigee",
+        "immutable": true
+       }
+      ]
+     }
+    },
+    "resourceUri": "https://console.cloud.google.com/apigee/proxies/MP-GenAIAPI-v1/overview",
+    "endpoints": [
+     PUBLIC_API_HOST + "/v1/genai/" + product.entity
+    ],
+    "apiVersions": [
+     "1"
+    ]
+   });
+
   let response = await fetch(hubUrl, {
     method: "POST",
     headers: {
       "Authorization": `Bearer ${token}`,
       "Content-Type": "application/json"
     },
-    body: JSON.stringify({
-      name: `projects/${PUBLIC_PROJECT_ID}/locations/${apigeeHubLocation}/deployments/${product.id}`,
-      displayName: product.name,
-      description: product.description,
-      documentation: {
-        externalUri: marketplaceHost + "/products/" + product.id
-      },
-      deploymentType: {
-        attribute: "projects/apigee-test74/locations/europe-west1/attributes/system-deployment-type",
-        enumValues: {
-          values: [
-            {
-              id: "apigee",
-              displayName: "Apigee",
-              description: "Apigee",
-              immutable: true
-            }
-          ]
-        }
-      },
-      resourceUri: "https://console.cloud.google.com/apigee/proxies/MP-DataAPI-v1/overview?product_id=" + product.id,
-      endpoints: [
-        `https://${PUBLIC_API_HOST}/v1/data/${product.entity}`
-      ]
-    })
+    body: newBody
   });
 
   let result = await response.json();
@@ -216,24 +314,26 @@ async function apiHubCreateDeployment(product: DataProduct) {
 
 async function apiHubCreateVersion(product: DataProduct) {
   let token = await auth.getAccessToken();
-  // Now create new version
   let hubUrl = `https://apihub.googleapis.com/v1/projects/${PUBLIC_PROJECT_ID}/locations/${apigeeHubLocation}/apis/${product.id}/versions?version_id=${product.id}`;
+
+  let newBody = JSON.stringify({
+    "displayName": product.name,
+    "description": product.description,
+    "documentation": {
+      "externalUri": PUBLIC_SITE_URL + "/products/" + product.id + "?site=" + product.site
+    },
+    "deployments": [
+      `projects/${PUBLIC_PROJECT_ID}/locations/${PUBLIC_APIHUB_REGION}/deployments/${product.id}`
+    ]
+  });
+
   let response = await fetch(hubUrl, {
     method: "POST",
     headers: {
       "Authorization": `Bearer ${token}`,
       "Content-Type": "application/json"
     },
-    body: JSON.stringify({
-      display_name: product.name,
-      description: product.description,
-      documentation: {
-        externalUri: marketplaceHost + "/products/" + product.id
-      },
-      deployments: [
-        `projects/${PUBLIC_PROJECT_ID}/locations/${apigeeHubLocation}/deployments/${product.id}`
-      ]
-    })
+    body: newBody
   });
 
   let result = await response.json();
@@ -243,33 +343,37 @@ async function apiHubCreateVersionSpec(product: DataProduct) {
   let token = await auth.getAccessToken();
   // Now create spec
   let hubUrl = `https://apihub.googleapis.com/v1/projects/${PUBLIC_PROJECT_ID}/locations/${apigeeHubLocation}/apis/${product.id}/versions/${product.id}/specs?specId=${product.id}`;
+  let newBody = JSON.stringify({
+    "displayName": product.name,
+    "specType": {
+    "attribute": "",
+    "enumValues": {
+     "values": [
+      {
+       "id": "openapi",
+       "displayName": "OpenAPI Spec",
+       "description": "OpenAPI Spec",
+       "immutable": true
+      }
+     ]
+    }
+    },
+    "contents": {
+      "mimeType": "application/json",
+      "contents": btoa(product.specContents)
+    },
+    "documentation": {
+      "externalUri": PUBLIC_SITE_URL + "/products/" + product.id + "?site=" + product.site
+    }
+  });
+
   let response = await fetch(hubUrl, {
     method: "POST",
     headers: {
       "Authorization": `Bearer ${token}`,
       "Content-Type": "application/json"
     },
-    body: JSON.stringify({
-      name: `projects/${PUBLIC_PROJECT_ID}/locations/${apigeeHubLocation}/apis/${product.id}/versions/${product.id}/specs/${product.id}`,
-      displayName: product.name,
-      specType: {
-        attribute: `projects/${PUBLIC_PROJECT_ID}/locations/${apigeeHubLocation}/attributes/system-spec-type`,
-        enumValues: {
-          values: [
-            {
-              id: "openapi",
-              displayName: "OpenAPI Spec",
-              description: "OpenAPI Spec",
-              immutable: true
-            }
-          ]
-        }
-      },
-      contents: {
-        contents: btoa(product.specContents),
-        mimeType: "application/json"
-      }
-    })
+    body: newBody
   });
 
   let result = await response.json();
@@ -358,6 +462,27 @@ function createProduct(name: string, displayName: string, path: string, proxyNam
     });
   });
 }
+
+async function getApiHubAttribute(name: string): Promise<ApiHubAttribute[]> {
+  let attributes: ApiHubAttribute[] = [];
+  let token = await auth.getAccessToken();
+  let hubUrl = `https://apihub.googleapis.com/v1/projects/${PUBLIC_PROJECT_ID}/locations/${PUBLIC_APIHUB_REGION}/attributes/${name}`;
+
+  let response = await fetch(hubUrl, {
+    method: "GET",
+    headers: {
+      "Authorization": `Bearer ${token}`
+    }
+  });
+
+  if (response.status === 200) {
+    let result = await response.json();
+    attributes = result.allowedValues;
+  }
+
+  return attributes;
+}
+
 
 // function createAPITemplate(product: DataProduct): ApigeeTemplateInput {
 //   let result: ApigeeTemplateInput = {

@@ -64,6 +64,7 @@ export class DataProduct {
   ownerName: string = "";
   name: string;
   description: string;
+  site: string = "";
   imageUrl: string = "/data_icon.png";
   specUrl: string = "https://raw.githubusercontent.com/tyayers/apigee-data-marketplace/main/specs/esg-analytics.yaml";
   specContents: string = "";
@@ -363,6 +364,7 @@ export class Site {
   bqtables: {name: string, table: string, entity: string}[] = [];
   heroImageUrl: string = "/products_banner.png";
   heroGradientStyle: string = "";
+  heroBackgroundPosition: string = "";
 }
 
 export enum DialogType {
@@ -423,11 +425,10 @@ export enum DataSourceTypes {
 
 export class DataGenJob {
   name: string = "";
-  target: string = "APIHUB";
   topic: string = "financial services investment banking";
   apiCount: number = 40;
-  versionCount: number = 3;
-  categoryCount: number = 15;
   userName: string = "";
   userEmail: string = "";
+  site: string = "";
+  categories: string[] = [];
 }

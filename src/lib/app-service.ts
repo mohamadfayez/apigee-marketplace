@@ -36,6 +36,7 @@ export class AppService {
     bqtables: [],
     googleCloudProjectId: PUBLIC_PROJECT_ID,
     heroImageUrl: "/products_banner.png",
+    heroBackgroundPosition: "",
     heroGradientStyle: ""
   };
   sites: Site[] = [];

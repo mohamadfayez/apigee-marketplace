@@ -51,19 +51,18 @@ export const GET: RequestHandler = async ({ url }) => {
 export const POST: RequestHandler = async({ params, url, request}) => {
 
   let newProduct: DataProduct = await request.json();
+  let genAiResponse: string = "";
 
   if (newProduct.protocols.includes("API") && (newProduct.source.startsWith("BigQuery") || newProduct.source === "API")) {
     // Set KVM entry for the data proxy to BigQuery
     await setKVMEntry("marketplace-kvm", newProduct.entity, newProduct.query);
   } else if (newProduct.source === DataSourceTypes.GenAITest) {
-    let genAiResponse = await generatePayloadGemini(`Generate a sample JSON payload for ${newProduct.query} with at least 10 records and 20 properties per record. Only return pure JSON. `);
+    genAiResponse = await generatePayloadGemini(`Generate a sample JSON payload for ${newProduct.query} with at least 10 records and 20 properties per record. Only return pure JSON. `);
     genAiResponse = genAiResponse.replace("```json", "").replace("```", "").replaceAll("\n", "");
     await setKVMEntry("marketplace-kvm", newProduct.entity + "__mock", genAiResponse);
   }
 
-	return json({
-    result: "OK"
-  });
+	return json(JSON.parse(genAiResponse));
 }
 
 async function setKVMEntry(KVMName: string, keyName: string, keyValue: string) {

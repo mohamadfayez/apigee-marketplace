@@ -7,10 +7,12 @@
   import { appService } from "$lib/app-service";
   import { PUBLIC_PROJECT_ID } from '$env/static/public';
 
-  let site: Site = {id: generateRandomString(4), name: "", nameTop: "-12px", nameLeft: "4px", logoUrl: "/loop.svg", logoWidth: "36px", owner: appService.currentUser?.email ? appService.currentUser?.email : "", categories: [], products: [], bqtables: [], googleCloudProjectId: PUBLIC_PROJECT_ID, heroImageUrl: "/products_banner.png", heroGradientStyle: ""};
+  let site: Site = {id: generateRandomString(4), name: "", nameTop: "-12px", nameLeft: "4px", logoUrl: "/loop.svg", logoWidth: "36px", owner: appService.currentUser?.email ? appService.currentUser?.email : "", categories: appService.currentSiteData.categories, products: [], bqtables: [], googleCloudProjectId: PUBLIC_PROJECT_ID, heroImageUrl: "/products_banner.png", heroGradientStyle: "", heroBackgroundPosition: ""};
 
   onMount(() => {
-    
+    document.addEventListener("siteUpdated", () => {
+      site.categories = appService.currentSiteData.categories;
+    });
   });
 
   function back() {
@@ -33,7 +35,7 @@
     }).then((data: Site) => {
       appService.sites.push(data);
       document.dispatchEvent(new Event('siteUpdated'));
-      appService.GoTo("/manage/sites");
+      appService.GoTo("/home?site=" + data.id);
     }).catch((error) => {
       console.error(error);
     });

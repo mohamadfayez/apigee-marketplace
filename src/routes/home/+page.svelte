@@ -67,23 +67,25 @@
           }
             
           for (let category of prod.categories) {
-            let pieces = category.split(" - ");
-            if (!productCategories[prod.name]) {
-              productCategories[prod.name] = [];
-            }
-            productCategories[prod.name].push(category);
-            if (! productCategories[prod.name].includes(pieces[0])) productCategories[prod.name].push(pieces[0]);
+            if (category && category.includes(" - ")) {
+              let pieces = category.split(" - ");
+              if (!productCategories[prod.name]) {
+                productCategories[prod.name] = [];
+              }
+              productCategories[prod.name].push(category);
+              if (! productCategories[prod.name].includes(pieces[0])) productCategories[prod.name].push(pieces[0]);
 
-            if (! catProducts[pieces[0]]) catProducts[pieces[0]] = [];
-            if (! catProducts[pieces[0]].includes(prod.name)) catProducts[pieces[0]].push(prod.name);
-            if (! catSubProducts[category]) catSubProducts[category] = [];
-            catSubProducts[category].push(prod.name);
+              if (! catProducts[pieces[0]]) catProducts[pieces[0]] = [];
+              if (! catProducts[pieces[0]].includes(prod.name)) catProducts[pieces[0]].push(prod.name);
+              if (! catSubProducts[category]) catSubProducts[category] = [];
+              catSubProducts[category].push(prod.name);
 
-            if (! categories[pieces[0]])
-              categories[pieces[0]] = [];
+              if (! categories[pieces[0]])
+                categories[pieces[0]] = [];
 
-            if (!categories[pieces[0]].includes(category)) {
-              categories[pieces[0]].push(category)
+              if (!categories[pieces[0]].includes(category)) {
+                categories[pieces[0]].push(category)
+              }
             }
           }
         }
@@ -219,7 +221,7 @@
 
 {#if !loading}
   <div class="home_content">
-    <div class="banner" in:fade style={"background-image: url(" + appService.currentSiteData.heroImageUrl + "); "}>
+    <div class="banner" in:fade style={"background-image: url(" + appService.currentSiteData.heroImageUrl + "); background-position: " + appService.currentSiteData.heroBackgroundPosition + ";"}>
       <div class="banner_gradient" style={appService.currentSiteData.heroGradientStyle}>
       </div>
       <div class="banner_title">{"Welcome to " + appService.siteName}
@@ -312,6 +314,7 @@
     position: relative;
     height: 445px;    
     top: -145px;
+    opacity: .8;
   }
 
   .banner_title {
@@ -322,6 +325,10 @@
     font-size: xx-large;
     position: relative;
     top: -445px;
+    border-radius: 12px;
+    background: rgb(255, 255, 255, .8);
+    backdrop-filter: blur(10px);
+    padding: 22px;
   }
 
   .banner_subtitle {

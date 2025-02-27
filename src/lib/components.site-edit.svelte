@@ -138,19 +138,26 @@
 
 <div class="input_field_panel">
   <!-- svelte-ignore a11y-autofocus -->
+  <input class="input_field" type="text" name="heroImagePosition" id="heroImagePosition" required bind:value={site.heroBackgroundPosition} autocomplete="off" title="none" />
+  <label for="heroImagePosition" class='input_field_placeholder'>
+    Hero image position (top, bottom, center...)
+  </label>
+</div>
+
+<!-- <div class="input_field_panel">
   <input class="input_field" type="text" name="heroGradientStyle" id="heroGradientStyle" required bind:value={site.heroGradientStyle} autocomplete="off" title="none" />
   <label for="heroGradientStyle" class='input_field_placeholder'>
     Hero gradient style
   </label>
 </div>
 
-<button class="rounded_button_outlined" on:click={setExampleGradient}>Set example gradient</button>
+<button class="rounded_button_outlined" on:click={setExampleGradient}>Set example gradient</button> -->
 
 <h4>Hero preview</h4>
 
 <div style="margin-top: 22px; margin-left: 8px; width: 100%;">
-  <div style={"height: 445px; width: 80%; position: absolute; " + site.heroGradientStyle}></div>
-  <div style={"width: 80%; height: 445px; background-size: cover; background-image: url(" + site.heroImageUrl + "); "}
+  <div style={"height: 300px; width: 80%; position: absolute; " + site.heroGradientStyle}></div>
+  <div style={"width: 80%; height: 300px; background-size: cover; background-image: url(" + site.heroImageUrl + "); background-position: " + site.heroBackgroundPosition + ";"}
   />
 </div>
 

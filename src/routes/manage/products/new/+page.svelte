@@ -92,6 +92,8 @@
       if (newProduct.categories.length == 0)
         newProduct.categories.push("Uncategorized");
 
+      newProduct.site = appService.currentSiteData.id;
+
       fetch("/api/products?site=" + appService.currentSiteData.id, {
         method: "POST",
         headers: {

@@ -3,6 +3,7 @@ export PROJECT_ID=
 export REGION=europe-west1
 export SERVICE_NAME=apigee-marketplace
 export SITE_NAME="Apigee Marketplace"
+export SITE_URL="https://marketplace.googee.cloud"
 
 # Set Identity Platform & Firebase variables
 export FIREBASE_APIKEY=

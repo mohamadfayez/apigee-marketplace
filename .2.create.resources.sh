@@ -97,6 +97,7 @@ echo "Setting web app variables..."
 rm .env 1>/dev/null 2>/dev/null
 touch .env
 echo $"PUBLIC_SITE_NAME=$SITE_NAME" >> .env
+echo $"PUBLIC_SITE_URL=$SITE_URL" >> .env
 echo $"PUBLIC_API_HOST=$APIGEE_ENVGROUP_HOST" >> .env
 echo $"PUBLIC_PROJECT_ID=$PROJECT_ID" >> .env
 echo $"PUBLIC_APIGEE_ENV=$APIGEE_ENV" >> .env

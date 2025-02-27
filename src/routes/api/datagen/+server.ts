@@ -1,19 +1,17 @@
-import { PUBLIC_PROJECT_ID, PUBLIC_APIHUB_REGION } from "$env/static/public";
-import { appService } from "$lib/app-service";
-import type { DataGenJob } from "$lib/interfaces";
+import { PUBLIC_PROJECT_ID, PUBLIC_APIHUB_REGION, PUBLIC_SITE_URL } from "$env/static/public";
+import { DataProduct, type DataGenJob } from "$lib/interfaces";
 import { Firestore } from "@google-cloud/firestore";
 import { VertexAI } from "@google-cloud/vertexai";
 import { error, json, type RequestHandler } from "@sveltejs/kit";
 import { GoogleAuth } from "google-auth-library";
-
-let marketplaceHost: string = import.meta.env.VITE_ORIGIN;
+import { generateRandomString } from "$lib/utils";
 
 const auth = new GoogleAuth({
   scopes: 'https://www.googleapis.com/auth/cloud-platform'
 });
 
 const vertex_ai = new VertexAI({project: PUBLIC_PROJECT_ID, location: 'us-central1'});
-const model = 'gemini-1.5-flash-002';
+const model = 'gemini-2.0-flash-001';
 const generativeModel = vertex_ai.preview.getGenerativeModel({
   model: model,
   generationConfig: {
@@ -24,490 +22,103 @@ const generativeModel = vertex_ai.preview.getGenerativeModel({
   safetySettings: [],
 });
 
-// Create a new client
 const firestore = new Firestore();
 
-export const POST: RequestHandler = async({ params, url, request}) => {
+class ApiHubAttribute {id: string = ""; displayName: string = ""; description: string = "";};
+let targetUsers: ApiHubAttribute[] = [];
+let businessUnits: ApiHubAttribute[] = [];
+let teams: ApiHubAttribute[] = [];
+let maturityLevels: ApiHubAttribute[] = [];
+let regions: ApiHubAttribute[] = [];
+let gdprValues: ApiHubAttribute[] = [];
+let businessTypes: ApiHubAttribute[] = [];
+let deploymentEnvironments: ApiHubAttribute[] = [];
+
+// make sure data is loaded from Api Hub
+if (targetUsers.length === 0) targetUsers = await getApiHubAttribute("system-target-user");
+if (businessUnits.length === 0) businessUnits = await getApiHubAttribute("system-business-unit");
+if (teams.length === 0) teams = await getApiHubAttribute("system-team");
+if (maturityLevels.length === 0) maturityLevels = await getApiHubAttribute("system-maturity-level");
+if (regions.length === 0) regions = await getApiHubAttribute("regions");
+if (gdprValues.length === 0) gdprValues = await getApiHubAttribute("gdpr-relevance");
+if (businessTypes.length === 0) businessTypes = await getApiHubAttribute("business-type");
+if (deploymentEnvironments.length === 0) deploymentEnvironments = await getApiHubAttribute("system-environment");
+
+export const POST: RequestHandler = async({ params, url, request, fetch}) => {
 
   const col = url.searchParams.get('col') ?? '';
   let dataGen: DataGenJob = await request.json();
 
-  // first init api hub categories
-  await initApiHubCategories();
-
-  // generate & create categories
-  let categoryPrompt = `Generate ${dataGen.categoryCount} one-word category names for API domains for the topic ${dataGen.topic}. The category names should be returned in a JSON string array.`;
-  let categoryNames: string = await generatePayloadGemini(categoryPrompt);
-  let categories: string[] = JSON.parse(categoryNames);
-  // get category objects
-  let categoryObjects = await createApiHubAttribute("category", "Category", categories);
-  categoryPrompt = `Generate ${dataGen.categoryCount} generic sub-category names for API domains for the topic ${dataGen.topic}. The sub-category names should be returned in a JSON string array.`;
-  let subCategoryNames: string = await generatePayloadGemini(categoryPrompt);
-  let subCategories: string[] = JSON.parse(subCategoryNames);
-  // get subcategory objects
-  let subCategoryObjects = await createApiHubAttribute("subcategory", "Sub Category", subCategories);
+  // generate unique base path topics
+  let basePaths: string[] = JSON.parse(await generatePayloadGemini(`Generate a string array list in JSON of ${dataGen.apiCount} unique two word descriptions in lower case connected by dash that describe typical API topics in the ${dataGen.topic} industry.`));
 
   // generate APIs
-  for (let i=0; i<dataGen.apiCount; i++) {
-    let category = categoryObjects[Math.floor(Math.random() * (categoryObjects.length - 1))];
-    let subCategory = subCategoryObjects[Math.floor(Math.random() * (subCategoryObjects.length - 1))];
-    let apiPrompt = `Generate an API definition for the ${dataGen.target} industry and in the category ${category.displayName}. The API definition should have a name property that is only lower-case letters and dashes, a display name property called displayName, a slightly amusing description property that is 1-3 sentences, and an Open API specification in the openapi property with CRUD operations on the path ${category.id} and API key authentication through a header x-api-key. The Open API specication should have good documentation on how to use the API. The result should be returned as a JSON object with the properties described.`;
+  let apiResults: DataProduct[] = [];
+  for (let i=0; i<basePaths.length; i++) {
+    let apiPrompt = `Generate a random but realistic API definition for the ${dataGen.topic} industry and the topic ${basePaths[i]}. The API definition should be a JSON object that has a name property that is only lower-case letters and dashes, a display name property called displayName, and a slightly amusing description property that is 1 sentence long.`;
     let apiDefinitionContent = await generatePayloadGemini(apiPrompt);
     let apiDefinition: {name: string, displayName: string, description: string, basePath: string, openapi: any} = JSON.parse(apiDefinitionContent);
-    await createApiHubApi(dataGen, apiDefinition, category, subCategory);
+    apiDefinition.name += "-" + generateRandomString(4);
+    
+    apiPrompt = `Return just the index as number of these category objects that best matches for an API named "${apiDefinition.displayName}". ${JSON.stringify(dataGen.categories)}`;
+    let categoryIndex = parseInt(await generatePayloadGemini(apiPrompt));
 
-    // create versions
-    for (let v=0; v<dataGen.versionCount; v++) {
-      // create deployment
-      await createApiHubApiDeployment(dataGen, apiDefinition, v);
-      await createApiHubApiVersion(dataGen, apiDefinition, v);
-      await createApiHubApiVersionSpec(dataGen, apiDefinition, v);
-    }
-  }
+    let categories = [dataGen.categories[categoryIndex]];
+    let newProduct: DataProduct = new DataProduct(apiDefinition.name, dataGen.userEmail, dataGen.userName, apiDefinition.displayName, apiDefinition.description, "Published", "GenAITest", basePaths[i], dataGen.topic + " " + basePaths[i], new Date().toLocaleString(), ["API"], ["internal", "partner", "external"], categories);
 
-  return json({});
-}
-
-async function initApiHubCategories(): Promise<void> {
-  let token = await auth.getAccessToken();
-
-  let url = `https://apihub.googleapis.com/v1/projects/${PUBLIC_PROJECT_ID}/locations/${PUBLIC_APIHUB_REGION}/attributes/system-deployment-type?updateMask=allowedValues`;
-  
-  // first update deployment types
-  let response = await fetch(url, {
-    method: "PATCH",
-    headers: {
-      "Authorization": `Bearer ${token}`,
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      "name": `projects/${PUBLIC_PROJECT_ID}/locations/${PUBLIC_APIHUB_REGION}/attributes/system-deployment-type`,
-      "displayName": "Deployment Type",
-      "description": "Deployment Type attribute",
-      "definitionType": "SYSTEM_DEFINED",
-      "scope": "DEPLOYMENT",
-      "dataType": "ENUM",
-      "allowedValues": [
-        {
-          "id": "apigee",
-          "displayName": "Apigee",
-          "description": "Apigee",
-          "immutable": true
-        },
-        {
-          "id": "apigee-hybrid",
-          "displayName": "Apigee Hybrid",
-          "description": "Apigee Hybrid",
-          "immutable": true
-        },
-        {
-          "id": "apigee-edge-private",
-          "displayName": "Apigee Edge Private Cloud",
-          "description": "Apigee Edge Private Cloud",
-          "immutable": true
-        },
-        {
-          "id": "apigee-edge-public",
-          "displayName": "Apigee Edge Public Cloud",
-          "description": "Apigee Edge Public Cloud",
-          "immutable": true
-        },
-        {
-          "id": "mock-server",
-          "displayName": "Mock server",
-          "description": "Mock server",
-          "immutable": true
-        },
-        {
-          "id": "cloud-api-gateway",
-          "displayName": "Cloud API Gateway",
-          "description": "Cloud API Gateway",
-          "immutable": true
-        },
-        {
-          "id": "cloud-endpoints",
-          "displayName": "Cloud Endpoints",
-          "description": "Cloud Endpoints",
-          "immutable": true
-        },
-        {
-          "id": "unmanaged",
-          "displayName": "Unmanaged",
-          "description": "Unmanaged",
-          "immutable": true
-        },
-        {
-          "id": "others",
-          "displayName": "Others",
-          "description": "Others",
-          "immutable": true
-        },
-        {
-          "id": "aws-api-gateway",
-          "displayName": "AWS API Gateway",
-          "description": "AWS API Gateway",
-          "immutable": false
-        },
-        {
-          "id": "azure-api-management",
-          "displayName": "Azure API Management",
-          "description": "Azure API Management",
-          "immutable": false
-        },
-      ],
-      "cardinality": 1,
-      "mandatory": true
-    })
-  });
-
-  if (response.status > 299) {
-    console.log(`API Hub system-deployment-type update failed with code ${response.status}: ${response.statusText} `);
-  }
-
-  url = `https://apihub.googleapis.com/v1/projects/${PUBLIC_PROJECT_ID}/locations/${PUBLIC_APIHUB_REGION}/attributes/system-business-unit?updateMask=allowedValues`;
-  
-  // now update business units 
-  response = await fetch(url, {
-    method: "PATCH",
-    headers: {
-      "Authorization": `Bearer ${token}`,
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      "name": `projects/${PUBLIC_PROJECT_ID}/locations/${PUBLIC_APIHUB_REGION}/attributes/system-business-unit`,
-      "displayName": "Business Unit",
-      "description": "Business unit attribute",
-      "definitionType": "SYSTEM_DEFINED",
-      "scope": "API",
-      "dataType": "ENUM",
-      "allowedValues": [
-        {
-          "id": "example-business-unit",
-          "displayName": "Personal Risk Management",
-          "description": "Personal Risk Management"
-        },
-        {
-          "id": "commercial-insurance-solutions",
-          "displayName": "Commercial Insurance Solutions",
-          "description": "Commercial Insurance Solutions"
-        },
-        {
-          "id": "life-and-legacy-planning",
-          "displayName": "Life & Legacy Planning",
-          "description": "Life & Legacy Planning"
-        },
-        {
-          "id": "group-benefits-and-wellness",
-          "displayName": "Group Benefits & Wellness",
-          "description": "Group Benefits & Wellness"
-        },
-        {
-          "id": "claims-resolution-center",
-          "displayName": "Claims Resolution Center",
-          "description": "Claims Resolution Center"
-        },
-        {
-          "id": "risk-assessment-and-underwriting",
-          "displayName": "Risk Assessment & Underwriting",
-          "description": "Risk Assessment & Underwriting"
-        },
-        {
-          "id": "investment-and-asset-management",
-          "displayName": "Investment & Asset Management",
-          "description": "Investment & Asset Management"
-        },
-        {
-          "id": "customer-care-and-support",
-          "displayName": "Customer Care & Support",
-          "description": "Customer Care & Support"
-        },
-        {
-          "id": "digital-innovation-and-technology",
-          "displayName": "Digital Innovation & Technology",
-          "description": "Digital Innovation & Technology"
-        },
-        {
-          "id": "strategic-partnerships-and-alliances",
-          "displayName": "Strategic Partnerships & Alliances",
-          "description": "Strategic Partnerships & Alliances"
-        }
-      ],
-      "cardinality": 1
-    })
-  });
-
-  if (response.status > 299) {
-    console.log(`API Hub system-business-unit update failed with code ${response.status}: ${response.statusText} `);
-  }
-
-  url = `https://apihub.googleapis.com/v1/projects/${PUBLIC_PROJECT_ID}/locations/${PUBLIC_APIHUB_REGION}/attributes/system-team?updateMask=allowedValues`;
-  
-  // now update example teams 
-  response = await fetch(url, {
-    method: "PATCH",
-    headers: {
-      "Authorization": `Bearer ${token}`,
-      "Content-Type": "application/json; charset=utf-8"
-    },
-    body: JSON.stringify({
-      "name": `projects/${PUBLIC_PROJECT_ID}/locations/${PUBLIC_APIHUB_REGION}/attributes/system-team`,
-      "displayName": "Team",
-      "description": "Team attribute",
-      "definitionType": "SYSTEM_DEFINED",
-      "scope": "API",
-      "dataType": "ENUM",
-      "allowedValues": [
-        {
-          "id": "example-team",
-          "displayName": "Policy Services Team",
-          "description": "Policy Services Team"
-        },
-        {
-          "id": "claims-response-unit",
-          "displayName": "Claims Response Unit",
-          "description": "Claims Response Unit"
-        },
-        {
-          "id": "underwriting-solutions-group",
-          "displayName": "Underwriting Solutions Group",
-          "description": "Underwriting Solutions Group"
-        },
-        {
-          "id": "the-navigators",
-          "displayName": "The Navigators",
-          "description": "The Navigators"
-        },
-        {
-          "id": "the-risk-wranglers",
-          "displayName": "The Risk Wranglers",
-          "description": "The Risk Wranglers"
-        },
-        {
-          "id": "the-safety-net",
-          "displayName": "The Safety Net",
-          "description": "The Safety Net"
-        },
-        {
-          "id": "the-horizon-team",
-          "displayName": "The Horizon Team",
-          "description": "The Horizon Team"
-        },
-        {
-          "id": "the-phoenix-group",
-          "displayName": "The Phoenix Group",
-          "description": "The Phoenix Group"
-        }
-      ],
-      "cardinality": 1
-    })
-  });
-
-  if (response.status > 299) {
-    console.log(`API Hub system-team update failed with code ${response.status}: ${response.statusText} `);
-  }
-
-  url = `https://apihub.googleapis.com/v1/projects/${PUBLIC_PROJECT_ID}/locations/${PUBLIC_APIHUB_REGION}/attributes?attributeId=gdpr-relevance`;
-  
-  // now create gdpr relevance attribute 
-  response = await fetch(url, {
-    method: "POST",
-    headers: {
-      "Authorization": `Bearer ${token}`,
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      "name": `projects/${PUBLIC_PROJECT_ID}/locations/${PUBLIC_APIHUB_REGION}/attributes/gdpr-relevance`,
-      "displayName": "GDPR Relevance",
-      "description": "How relevant the API is for GDPR data protection audits & concerns.",
-      "scope": "API",
-      "dataType": "ENUM",
-      "allowedValues": [
-        {
-          "id": "high",
-          "displayName": "HIGH",
-          "description": "Highly relevant."
-        },
-        {
-          "id": "partial",
-          "displayName": "PARTIAL",
-          "description": "Partially relevant."
-        },
-        {
-          "id": "none",
-          "displayName": "NONE",
-          "description": "Not at all relevant."
-        }
-      ],
-      "cardinality": 1
-    })
-  });
-
-  if (response.status > 299) {
-    console.log(`API Hub gdpr-relevance update failed with code ${response.status}: ${response.statusText} `);
-  }
-
-  url = `https://apihub.googleapis.com/v1/projects/${PUBLIC_PROJECT_ID}/locations/${PUBLIC_APIHUB_REGION}/attributes?attributeId=business-type`;
-  
-  // now create business type
-  response = await fetch(url, {
-    method: "POST",
-    headers: {
-      "Authorization": `Bearer ${token}`,
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      "name": `projects/${PUBLIC_PROJECT_ID}/locations/${PUBLIC_APIHUB_REGION}/attributes/business-type`,
-      "displayName": "Business Type",
-      "description": "The type of API for different categories of business operations.",
-      "scope": "API",
-      "dataType": "ENUM",
-      "allowedValues": [
-        {
-          "id": "payments",
-          "displayName": "PAYMENTS",
-          "description": "Payment processing APIs."
-        },
-        {
-          "id": "insurance",
-          "displayName": "INSURANCE",
-          "description": "Insurance related APIs."
-        },
-        {
-          "id": "risk",
-          "displayName": "RISK",
-          "description": "Risk related APIs."
-        },
-        {
-          "id": "claims",
-          "displayName": "CLAIMS",
-          "description": "Claims related APIs."
-        },
-        {
-          "id": "investment",
-          "displayName": "INVESTMENT",
-          "description": "Investment related APIs."
-        }
-      ],
-      "cardinality": 1
-    })
-  });
-
-  if (response.status > 299) {
-    console.log(`API Hub business-type update failed with code ${response.status}: ${response.statusText} `);
-  }
-
-  url = `https://apihub.googleapis.com/v1/projects/${PUBLIC_PROJECT_ID}/locations/${PUBLIC_APIHUB_REGION}/attributes?attributeId=regions`;
-  
-  // now create region
-  response = await fetch(url, {
-    method: "POST",
-    headers: {
-      "Authorization": `Bearer ${token}`,
-      "Content-Type": "application/json; charset=utf-8"
-    },
-    body: JSON.stringify({
-      "name": `projects/${PUBLIC_PROJECT_ID}/locations/${PUBLIC_APIHUB_REGION}/attributes/regions`,
-      "displayName": "Regions",
-      "description": "The regions that the API is active in.",
-      "scope": "API",
-      "dataType": "ENUM",
-      "allowedValues": [
-        {
-          "id": "northam",
-          "displayName": "NORTHAM",
-          "description": "North America"
-        },
-        {
-          "id": "southam",
-          "displayName": "SOUTHAM",
-          "description": "South America"
-        },
-        {
-          "id": "europe",
-          "displayName": "EUROPE",
-          "description": "Europe"
-        },
-        {
-          "id": "asia",
-          "displayName": "ASIA",
-          "description": "Asia"
-        },
-        {
-          "id": "africa",
-          "displayName": "AFRICA",
-          "description": "Africa"
-        },
-        {
-          "id": "australia",
-          "displayName": "AUSTRALIA",
-          "description": "Australia"
-        }
-      ],
-      "cardinality": 20
-    })
-  });
-
-  if (response.status > 299) {
-    console.log(`API Hub regions update failed with code ${response.status}: ${response.statusText} `);
-  }
-
-  return;
-}
-
-async function createApiHubAttribute(attributeId: string, attributeDisplayName: string, values: string[]): Promise<{ id: string; displayName: string; description: string; }[]> {
-  let token = await auth.getAccessToken();
-  let newValues: {id: string, displayName: string, description: string}[] = [];
-  for (let val of values) {
-    newValues.push({
-      id: val.toLowerCase().replaceAll(" ", "-").replaceAll("&", "and").replaceAll("(", "").replaceAll(")", ""),
-      displayName: val,
-      description: val
-    });
-  }
-  let url = `https://apihub.googleapis.com/v1/projects/${PUBLIC_PROJECT_ID}/locations/${PUBLIC_APIHUB_REGION}/attributes?attributeId=${attributeId}`;
-  let response = await fetch(url, {
-    method: "POST",
-    headers: {
-      "Authorization": `Bearer ${token}`,
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      name: `projects/${PUBLIC_PROJECT_ID}/locations/${PUBLIC_APIHUB_REGION}/attributes/${attributeId}`,
-      displayName: attributeDisplayName,
-      description: `The ${attributeId} of the API.`,
-      scope: "API",
-      dataType: "ENUM",
-      allowedValues: newValues,
-      cardinality: 1
-    })
-  });
-
-  if (response.status === 409) {
-    // already exists, so let's just fetch the existing data then...
-    url = `https://apihub.googleapis.com/v1/projects/${PUBLIC_PROJECT_ID}/locations/${PUBLIC_APIHUB_REGION}/attributes/${attributeId}`;
-
-    response = await fetch(url, {
+    let genPayloadResponse = await fetch("/api/products/generate", {
+      method: "POST",
       headers: {
-        "Authorization": `Bearer ${token}`
-      }
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(newProduct),
+    });
+
+    if (genPayloadResponse.status === 200) newProduct.samplePayload = JSON.stringify(await genPayloadResponse.json());
+
+    let genSpecResponse = await fetch("/api/products/generate/spec", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(newProduct),
+    });
+
+    let specContents: string = "";
+    if (genSpecResponse.status === 200) {
+      let newProd = await genSpecResponse.json() as DataProduct;
+      if (newProd && newProd.specContents) specContents = newProd.specContents;
+    }
+
+    newProduct.specContents = specContents;
+
+    let response = await fetch("/api/products?site=" + dataGen.site, {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: JSON.stringify(newProduct),
     });
 
     if (response.status === 200) {
-      let data = await response.json();
-      if (data.allowedValues) {
-        newValues = data.allowedValues;
-      }
+      let product = await response.json();
+      apiResults.push(product);
     } else {
-      console.log("Could not get attribute " + attributeId + " - status - " + response.status.toString());
+      console.error(`Could not create generated product ${apiDefinition.name} with status ${response.status} and message ${response.statusText}`);
     }
-  } else if (response.status !== 201) {
-    console.log("Could not create attribute " + attributeId + " - status - " + response.status.toString());
+
+    // await createApiHubApi(dataGen, apiDefinition);
+
+    // // create versions
+    // await createApiHubApiDeployment(dataGen, apiDefinition, 0);
+    // await createApiHubApiVersion(dataGen, apiDefinition, 0);
+    // await createApiHubApiVersionSpec(dataGen, apiDefinition, 0);
   }
 
-  return newValues;
+  return json(apiResults);
 }
 
-async function createApiHubApi(job: DataGenJob, api: {name: string, displayName: string,  description: string, basePath: String, openapi: string}, category: {id: string, displayName: string, description: string}, subCategory: {id: string, displayName: string, description: string}) {
+async function createApiHubApi(job: DataGenJob, api: {name: string, displayName: string,  description: string, basePath: String, openapi: string}) {
   let token = await auth.getAccessToken();
   let hubUrl = `https://apihub.googleapis.com/v1/projects/${PUBLIC_PROJECT_ID}/locations/${PUBLIC_APIHUB_REGION}/apis?api_id=${api.name}`;
 
@@ -520,109 +131,102 @@ async function createApiHubApi(job: DataGenJob, api: {name: string, displayName:
   let usersIndex2 = usersIndex1++;
   if (usersIndex2 >= targetUsers.length) usersIndex2 = 0;
 
+  let newBody = JSON.stringify({
+    display_name: api.displayName,
+    description: api.description,
+    documentation: {
+      externalUri: PUBLIC_SITE_URL + "/products/" + api.name + "?site=" + job.site
+    },
+    owner: {
+      displayName: job.userName,
+      email: job.userEmail
+    },
+    targetUser: {
+      attribute: "projects/$PROJECT_ID/locations/$REGION/attributes/system-target-user",
+      enumValues: {
+        values: [
+          targetUsers[usersIndex1],
+          targetUsers[usersIndex2]
+        ]
+      }
+    },
+    team: {
+      attribute: "projects/$PROJECT_ID/locations/$REGION/attributes/system-team",
+      enumValues: {
+        values: [
+          teams[Math.floor(Math.random() * (teams.length - 1))]
+        ]
+      }
+    },
+    businessUnit: {
+      attribute: "projects/$PROJECT_ID/locations/$REGION/attributes/system-business-unit",
+      enumValues: {
+        values: [
+          businessUnits[Math.floor(Math.random() * (businessUnits.length - 1))]
+        ]
+      }
+    },
+    maturityLevel: {
+      attribute: "projects/$PROJECT_ID/locations/$REGION/attributes/system-maturity-level",
+      enumValues: {
+        values: [
+          maturityLevels[Math.floor(Math.random() * (maturityLevels.length - 1))]
+        ]
+      }
+    },
+    apiStyle: {
+      attribute: "projects/$PROJECT_ID/locations/$REGION/attributes/system-api-style",
+      enumValues: {
+        values: [
+          {
+            id: "rest",
+            displayName: "REST"	
+          }
+        ]
+      }
+    },
+    attributes: {
+      "projects/$PROJECT_ID/locations/$REGION/attributes/business-type": {
+        enumValues: {
+          values: [
+            businessTypes[Math.floor(Math.random() * (businessTypes.length - 1))]
+          ]
+        }
+      },
+      "projects/$PROJECT_ID/locations/$REGION/attributes/regions": {
+        enumValues: {
+          values: [
+            regions[regionIndex1],
+            regions[regionIndex2],
+            regions[regionIndex3]
+          ]
+        }
+      },
+      "projects/$PROJECT_ID/locations/$REGION/attributes/gdpr-relevance": {
+        enumValues: {
+          values: [
+            gdprValues[Math.floor(Math.random() * (gdprValues.length - 1))]
+          ]
+        }
+      }
+    }
+  });
+
   let response = await fetch(hubUrl, {
     method: "POST",
     headers: {
       "Authorization": `Bearer ${token}`,
       "Content-Type": "application/json"
     },
-    body: JSON.stringify({
-      display_name: api.displayName,
-      description: api.description,
-      documentation: {
-        externalUri: marketplaceHost + "/products/" + api.name
-      },
-      owner: {
-        displayName: job.userName,
-        email: job.userEmail
-      },
-      targetUser: {
-        attribute: "projects/$PROJECT_ID/locations/$REGION/attributes/system-target-user",
-        enumValues: {
-          values: [
-            targetUsers[usersIndex1],
-            targetUsers[usersIndex2]
-          ]
-        }
-      },
-      team: {
-        attribute: "projects/$PROJECT_ID/locations/$REGION/attributes/system-team",
-        enumValues: {
-          values: [
-            teams[Math.floor(Math.random() * (teams.length - 1))]
-          ]
-        }
-      },
-      businessUnit: {
-        attribute: "projects/$PROJECT_ID/locations/$REGION/attributes/system-business-unit",
-        enumValues: {
-          values: [
-            businessUnits[Math.floor(Math.random() * (businessUnits.length - 1))]
-          ]
-        }
-      },
-      maturityLevel: {
-        attribute: "projects/$PROJECT_ID/locations/$REGION/attributes/system-maturity-level",
-        enumValues: {
-          values: [
-            maturityLevel[Math.floor(Math.random() * (maturityLevel.length - 1))]
-          ]
-        }
-      },
-      apiStyle: {
-        attribute: "projects/$PROJECT_ID/locations/$REGION/attributes/system-api-style",
-        enumValues: {
-          values: [
-            {
-              id: "rest",
-              displayName: "REST"	
-            }
-          ]
-        }
-      },
-      attributes: {
-        "projects/$PROJECT_ID/locations/$REGION/attributes/business-type": {
-          enumValues: {
-            values: [
-              businessTypes[Math.floor(Math.random() * (businessTypes.length - 1))]
-            ]
-          }
-        },
-        "projects/$PROJECT_ID/locations/$REGION/attributes/category": {
-          enumValues: {
-            values: [
-              category
-            ]
-          }
-        },
-        "projects/$PROJECT_ID/locations/$REGION/attributes/subcategory": {
-          enumValues: {
-            values: [
-              subCategory
-            ]
-          }
-        },
-        "projects/$PROJECT_ID/locations/$REGION/attributes/regions": {
-          enumValues: {
-            values: [
-              regions[regionIndex1],
-              regions[regionIndex2],
-              regions[regionIndex3]
-            ]
-          }
-        },
-        "projects/$PROJECT_ID/locations/$REGION/attributes/gdpr-relevance": {
-          enumValues: {
-            values: [
-              gdprValues[Math.floor(Math.random() * (gdprValues.length - 1))]
-            ]
-          }
-        }
-      }
-    })
+    body: newBody
   });
 
-  let result: any = await response.json();
+  let result: any = await response;
+  if (result.status > 299) {
+    console.log(`Error generating API for ${api.name} with status ${result.status} and message ${result.statusText}`);
+  }
+
+  return;
 }
 
 async function createApiHubApiDeployment(job: DataGenJob, api: {name: string, displayName: string,  description: string, basePath: String, openapi: string}, index: number) {
@@ -639,7 +243,7 @@ async function createApiHubApiDeployment(job: DataGenJob, api: {name: string, di
       "displayName": api.displayName + " v" + index.toString(),
       "description": api.description,
       "documentation": {
-       "externalUri": "https://apigee-marketplace.apintegrate.cloud/" + api.name + "-" + index.toString()
+       "externalUri": PUBLIC_SITE_URL + "/products/" + api.name + "?site=" + job.site
       },
       "deploymentType": {
        "attribute": `projects/${PUBLIC_PROJECT_ID}/locations/${PUBLIC_APIHUB_REGION}/attributes/system-deployment-type`,
@@ -686,7 +290,7 @@ async function createApiHubApiVersion(job: DataGenJob, api: {name: string, displ
       "displayName": api.displayName + " v" + index.toString(),
       "description": api.description,
       "documentation": {
-        "externalUri": "https://apigee-marketplace.apintegrate.cloud/" + api.name + "-" + index.toString()
+        "externalUri": PUBLIC_SITE_URL + "/products/" + api.name + "?site=" + job.site
       },
       "deployments": [
         `projects/${PUBLIC_PROJECT_ID}/locations/${PUBLIC_APIHUB_REGION}/deployments/${api.name + "-" + index.toString()}`
@@ -732,7 +336,7 @@ async function createApiHubApiVersionSpec(job: DataGenJob, api: {name: string, d
         "contents": btoa(api.openapi)
       },
       "documentation": {
-        "externalUri": "https://apigee-marketplace.apintegrate.cloud/" + api.name
+        "externalUri": PUBLIC_SITE_URL + "/products/" + api.name + "?site=" + job.site
       }
     })
   });
@@ -760,250 +364,23 @@ async function generatePayloadGemini(prompt: string): Promise<string> {
   return result;
 }
 
-const targetUsers = [
-  {
-    "id": "team",
-    "displayName": "Team",
-    "description": "Team target user",
-    "immutable": true
-  },
-  {
-    "id": "internal",
-    "displayName": "Internal",
-    "description": "Internal target user",
-    "immutable": true
-  },
-  {
-    "id": "partner",
-    "displayName": "Partner",
-    "description": "Partner target user",
-    "immutable": true
-  },
-  {
-    "id": "public",
-    "displayName": "Public",
-    "description": "Public target user",
-    "immutable": true
-  }
-];
+async function getApiHubAttribute(name: string): Promise<ApiHubAttribute[]> {
+  let attributes: ApiHubAttribute[] = [];
+  let token = await auth.getAccessToken();
+  let hubUrl = `https://apihub.googleapis.com/v1/projects/${PUBLIC_PROJECT_ID}/locations/${PUBLIC_APIHUB_REGION}/attributes/${name}`;
 
-const teams = [
-  {
-    "id": "example-team",
-    "displayName": "Policy Services Team",
-    "description": "Policy Services Team"
-  },
-  {
-    "id": "claims-response-unit",
-    "displayName": "Claims Response Unit",
-    "description": "Claims Response Unit"
-  },
-  {
-    "id": "underwriting-solutions-group",
-    "displayName": "Underwriting Solutions Group",
-    "description": "Underwriting Solutions Group"
-  },
-  {
-    "id": "the-navigators",
-    "displayName": "The Navigators",
-    "description": "The Navigators"
-  },
-  {
-    "id": "the-risk-wranglers",
-    "displayName": "The Risk Wranglers",
-    "description": "The Risk Wranglers"
-  },
-  {
-    "id": "the-safety-net",
-    "displayName": "The Safety Net",
-    "description": "The Safety Net"
-  },
-  {
-    "id": "the-horizon-team",
-    "displayName": "The Horizon Team",
-    "description": "The Horizon Team"
-  },
-  {
-    "id": "the-phoenix-group",
-    "displayName": "The Phoenix Group",
-    "description": "The Phoenix Group"
-  }
-];
+  let response = await fetch(hubUrl, {
+    method: "GET",
+    headers: {
+      "Authorization": `Bearer ${token}`
+    }
+  });
 
-const businessUnits = [
-  {
-    "id": "example-business-unit",
-    "displayName": "Personal Risk Management",
-    "description": "Personal Risk Management"
-  },
-  {
-    "id": "commercial-insurance-solutions",
-    "displayName": "Commercial Insurance Solutions",
-    "description": "Commercial Insurance Solutions"
-  },
-  {
-    "id": "life-and-legacy-planning",
-    "displayName": "Life & Legacy Planning",
-    "description": "Life & Legacy Planning"
-  },
-  {
-    "id": "group-benefits-and-wellness",
-    "displayName": "Group Benefits & Wellness",
-    "description": "Group Benefits & Wellness"
-  },
-  {
-    "id": "claims-resolution-center",
-    "displayName": "Claims Resolution Center",
-    "description": "Claims Resolution Center"
-  },
-  {
-    "id": "risk-assessment-and-underwriting",
-    "displayName": "Risk Assessment & Underwriting",
-    "description": "Risk Assessment & Underwriting"
-  },
-  {
-    "id": "investment-and-asset-management",
-    "displayName": "Investment & Asset Management",
-    "description": "Investment & Asset Management"
-  },
-  {
-    "id": "customer-care-and-support",
-    "displayName": "Customer Care & Support",
-    "description": "Customer Care & Support"
-  },
-  {
-    "id": "digital-innovation-and-technology",
-    "displayName": "Digital Innovation & Technology",
-    "description": "Digital Innovation & Technology"
-  },
-  {
-    "id": "strategic-partnerships-and-alliances",
-    "displayName": "Strategic Partnerships & Alliances",
-    "description": "Strategic Partnerships & Alliances"
+  if (response.status === 200) {
+    let result = await response.json();
+    attributes = result.allowedValues;
   }
-];
 
-const maturityLevel = [
-  {
-    "id": "level-1",
-    "displayName": "Level 1",
-    "description": "Level 1"
-  },
-  {
-    "id": "level-2",
-    "displayName": "Level 2",
-    "description": "Level 2"
-  },
-  {
-    "id": "level-3",
-    "displayName": "Level 3",
-    "description": "Level 3"
-  }
-];
+  return attributes;
+}
 
-const businessTypes = [
-  {
-    "id": "payments",
-    "displayName": "PAYMENTS",
-    "description": "Payment processing APIs."
-  },
-  {
-    "id": "insurance",
-    "displayName": "INSURANCE",
-    "description": "Insurance related APIs."
-  },
-  {
-    "id": "risk",
-    "displayName": "RISK",
-    "description": "Risk related APIs."
-  },
-  {
-    "id": "claims",
-    "displayName": "CLAIMS",
-    "description": "Claims related APIs."
-  },
-  {
-    "id": "investment",
-    "displayName": "INVESTMENT",
-    "description": "Investment related APIs."
-  }
-];
-
-const regions = [
-  {
-    "id": "northam",
-    "displayName": "NORTHAM",
-    "description": "North America"
-  },
-  {
-    "id": "southam",
-    "displayName": "SOUTHAM",
-    "description": "South America"
-  },
-  {
-    "id": "europe",
-    "displayName": "EUROPE",
-    "description": "Europe"
-  },
-  {
-    "id": "asia",
-    "displayName": "ASIA",
-    "description": "Asia"
-  },
-  {
-    "id": "africa",
-    "displayName": "AFRICA",
-    "description": "Africa"
-  },
-  {
-    "id": "australia",
-    "displayName": "AUSTRALIA",
-    "description": "Australia"
-  }
-]
-
-const gdprValues = [
-  {
-    "id": "high",
-    "displayName": "HIGH",
-    "description": "Highly relevant."
-  },
-  {
-    "id": "partial",
-    "displayName": "PARTIAL",
-    "description": "Partially relevant."
-  },
-  {
-    "id": "none",
-    "displayName": "NONE",
-    "description": "Not at all relevant."
-  }
-];
-
-let systemEnvironments = [
-  {
-    "id": "development",
-    "displayName": "Development",
-    "description": "Development"
-  },
-  {
-    "id": "test",
-    "displayName": "Test",
-    "description": "Test"
-  },
-  {
-    "id": "staging",
-    "displayName": "Staging",
-    "description": "Staging"
-  },
-  {
-    "id": "pre-prod",
-    "displayName": "Pre-Production",
-    "description": "Pre-Production"
-  },
-  {
-    "id": "prod",
-    "displayName": "Production",
-    "description": "Production"
-  }
-];
