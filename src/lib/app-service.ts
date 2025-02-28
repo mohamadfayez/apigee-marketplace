@@ -12,7 +12,7 @@ import {
 } from "firebase/auth";
 import type { User as FirebaseUser} from "firebase/auth";
 import { initializeApp } from "firebase/app";
-import { SLA, User, Developer, ApiApps, DataProduct, Site, DialogResult, DialogType, MonetizationRatePlan } from "./interfaces";
+import { SLA, User, Developer, ApiApps, DataProduct, Site, DialogResult, DialogType, MonetizationRatePlan, DataGenJob } from "./interfaces";
 import {PUBLIC_FIREBASE_APIKEY, PUBLIC_FIREBASE_AUTHDOMAIN, PUBLIC_PROJECT_ID, PUBLIC_SITE_NAME} from '$env/static/public';
 
 export class AppService {
@@ -48,6 +48,7 @@ export class AppService {
   apiApps: ApiApps | undefined = undefined;
   reloadFlag: boolean = false;
   products: DataProduct[] | undefined = undefined;
+  dataGenJob: DataGenJob | undefined = undefined;
   googleAccessToken: string = "";
   testMode: boolean = false;
 

@@ -92,6 +92,35 @@
       });
   }
 
+  function onDeleteAll() {
+    appService
+      .ShowDialog(
+        "Are you sure you want to delete ALL products on this site?",
+        "Delete",
+        DialogType.OkCancel, []
+      )
+      .then((result) => {
+        if (result.result === DialogType.Ok) {
+
+          let idArray: string[] = products ? products.map(a => a.id) : [];
+
+          fetch(`/api/products?site=${appService.currentSiteData.id}`, {
+            method: "DELETE",
+            headers: {
+              "content-type": "application/json",
+            },
+            body: JSON.stringify(idArray)
+          }).then(() => {
+            if (appService && appService.products) {
+              appService.products = [];
+              products = appService.products;
+              productsTableConfig.data = products;
+            }
+          });
+        }
+      });
+  }
+
 </script>
 
 <div class="left_menu_page">
@@ -100,11 +129,18 @@
   <div class="left_menu_page_right">
     <div>
       <div class="left_menu_page_right_header">
-        <span>Products</span><a
+        <span>Products</span>
+        <a
           href={`/manage/products/new?site=${appService.currentSiteData.id}`}
           class="text_button left_menu_page_right_header_button"
           >+ Add product</a
         >
+        <!-- svelte-ignore a11y-click-events-have-key-events -->
+        <!-- svelte-ignore a11y-no-static-element-interactions -->
+        <!-- svelte-ignore a11y-missing-attribute -->
+        <button on:click|stopPropagation={onDeleteAll}
+        class="text_button left_menu_page_right_header_button" style="margin-left: 0px;"
+        >⌫ Delete all</button>
       </div>
 
       <div class="left_menu_page_right_content">

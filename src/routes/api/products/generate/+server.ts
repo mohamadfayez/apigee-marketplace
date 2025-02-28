@@ -62,7 +62,10 @@ export const POST: RequestHandler = async({ params, url, request}) => {
     await setKVMEntry("marketplace-kvm", newProduct.entity + "__mock", genAiResponse);
   }
 
-	return json(JSON.parse(genAiResponse));
+  let response = {};
+  if (genAiResponse) response = JSON.parse(genAiResponse);
+
+	return json(response);
 }
 
 async function setKVMEntry(KVMName: string, keyName: string, keyValue: string) {

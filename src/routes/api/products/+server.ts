@@ -1,5 +1,4 @@
-import { json } from '@sveltejs/kit';
-import type { RequestHandler } from './$types';
+import { error, json, type NumericRange, type RequestHandler } from "@sveltejs/kit";
 import { Firestore } from '@google-cloud/firestore';
 import { DataProduct, StorageConfig, User, DataSourceTypes, ProductProtocols, MonetizationRatePlan } from '$lib/interfaces';
 import { GoogleAuth } from 'google-auth-library';
@@ -135,6 +134,62 @@ export const POST: RequestHandler = async ({ params, url, request }) => {
   return json(newProduct);
 }
 
+export const DELETE: RequestHandler = async({ params, url, request}) => {
+  const site = url.searchParams.get('site') ?? '';
+  let colName = "apigee-marketplace-sites/default/products";
+  if (site) 
+    colName = "apigee-marketplace-sites/" + site + "/products";
+
+  let idList: string[] = await request.json();
+
+  let resultProduct: DataProduct | undefined = undefined;
+
+  for (let id of idList) {
+    const document = firestore.doc(colName + '/' + id);
+    await document.delete();
+  }
+
+  deleteProducts(idList);
+  return json({});
+}
+
+async function deleteProducts(idList: string[]) {
+  for(let id of idList) {
+    deleteApiProduct(id);
+    deleteApiHubProduct(id);
+  }
+}
+
+function deleteApiProduct(id: string) {
+  auth.getAccessToken().then((token) => {
+    fetch(`https://apigee.googleapis.com/v1/organizations/${PUBLIC_PROJECT_ID}/apiproducts/${id}`, {
+      method: "DELETE",
+      headers: {
+        "Authorization": `Bearer ${token}`
+      }
+    }).then((response) => {
+      return response.json();
+    }).catch((error) => {
+      console.error(error);
+    });
+  });
+}
+
+function deleteApiHubProduct(id: string) {
+  auth.getAccessToken().then((token) => {
+    fetch(`https://apihub.googleapis.com/v1/projects/${PUBLIC_PROJECT_ID}/locations/${PUBLIC_APIHUB_REGION}/apis/${id}?force=true`, {
+      method: "DELETE",
+      headers: {
+        "Authorization": `Bearer ${token}`
+      }
+    }).then((response) => {
+      return response.json();
+    }).catch((error) => {
+      console.error(error);
+    });
+  });
+}
+
 async function createMonetizationPlanForProduct(product: DataProduct) {
   let newPlan: MonetizationRatePlan = JSON.parse(JSON.stringify(product.monetizationData))
   delete newPlan.name;
@@ -181,7 +236,7 @@ async function apiHubRegister(product: DataProduct) {
       display_name: product.name,
       description: product.description,
       documentation: {
-        externalUri: PUBLIC_SITE_URL + "/products/" + product.name + "?site=" + product.site
+        externalUri: PUBLIC_SITE_URL + "/products/" + product.id + "?site=" + product.site
       },
       owner: {
         displayName: product.ownerName,
@@ -270,7 +325,7 @@ async function apiHubRegister(product: DataProduct) {
 async function apiHubCreateDeployment(product: DataProduct) {
   let token = await auth.getAccessToken();
   // Now create deployment
-  let hubUrl = `https://apihub.googleapis.com/v1/projects/${PUBLIC_PROJECT_ID}/locations/${apigeeHubLocation}/deployments?deploymentId=${product.id}`;
+  let hubUrl = `https://apihub.googleapis.com/v1/projects/${PUBLIC_PROJECT_ID}/locations/${apigeeHubLocation}/deployments?deploymentId=${product.id + "_1"}`;
 
   let newBody = JSON.stringify({
     "displayName": product.name,
@@ -291,9 +346,9 @@ async function apiHubCreateDeployment(product: DataProduct) {
       ]
      }
     },
-    "resourceUri": "https://console.cloud.google.com/apigee/proxies/MP-GenAIAPI-v1/overview",
+    "resourceUri": "https://console.cloud.google.com/apigee/proxies/MP-GenAIAPI-v1/overview?product=" + product.id + "_1",
     "endpoints": [
-     PUBLIC_API_HOST + "/v1/genai/" + product.entity
+     "https://" + PUBLIC_API_HOST + "/v1/genai/" + product.entity
     ],
     "apiVersions": [
      "1"
@@ -309,12 +364,17 @@ async function apiHubCreateDeployment(product: DataProduct) {
     body: newBody
   });
 
-  let result = await response.json();
+  let result: Response = await response;
+  if (result.status > 299) {
+    let payload: any = await response.json();
+    console.error("Error registering deployment in API Hub - " + result.status + " - " + result.statusText);
+    console.error(JSON.stringify(payload));
+  }
 }
 
 async function apiHubCreateVersion(product: DataProduct) {
   let token = await auth.getAccessToken();
-  let hubUrl = `https://apihub.googleapis.com/v1/projects/${PUBLIC_PROJECT_ID}/locations/${apigeeHubLocation}/apis/${product.id}/versions?version_id=${product.id}`;
+  let hubUrl = `https://apihub.googleapis.com/v1/projects/${PUBLIC_PROJECT_ID}/locations/${apigeeHubLocation}/apis/${product.id}/versions?version_id=${product.id + "_1"}`;
 
   let newBody = JSON.stringify({
     "displayName": product.name,
@@ -323,7 +383,7 @@ async function apiHubCreateVersion(product: DataProduct) {
       "externalUri": PUBLIC_SITE_URL + "/products/" + product.id + "?site=" + product.site
     },
     "deployments": [
-      `projects/${PUBLIC_PROJECT_ID}/locations/${PUBLIC_APIHUB_REGION}/deployments/${product.id}`
+      `projects/${PUBLIC_PROJECT_ID}/locations/${PUBLIC_APIHUB_REGION}/deployments/${product.id + "_1"}`
     ]
   });
 
@@ -336,13 +396,18 @@ async function apiHubCreateVersion(product: DataProduct) {
     body: newBody
   });
 
-  let result = await response.json();
+  let result: Response = await response;
+  if (result.status > 299) {
+    let payload: any = await response.json();
+    console.error("Error registering version in API Hub - " + result.status + " - " + result.statusText);
+    console.error(JSON.stringify(payload));
+  }
 }
 
 async function apiHubCreateVersionSpec(product: DataProduct) {
   let token = await auth.getAccessToken();
   // Now create spec
-  let hubUrl = `https://apihub.googleapis.com/v1/projects/${PUBLIC_PROJECT_ID}/locations/${apigeeHubLocation}/apis/${product.id}/versions/${product.id}/specs?specId=${product.id}`;
+  let hubUrl = `https://apihub.googleapis.com/v1/projects/${PUBLIC_PROJECT_ID}/locations/${apigeeHubLocation}/apis/${product.id}/versions/${product.id + "_1"}/specs?specId=${product.id + "_1"}`;
   let newBody = JSON.stringify({
     "displayName": product.name,
     "specType": {
@@ -376,7 +441,12 @@ async function apiHubCreateVersionSpec(product: DataProduct) {
     body: newBody
   });
 
-  let result = await response.json();
+  let result: Response = await response;
+  if (result.status > 299) {
+    let payload: any = await response.json();
+    console.error("Error registering version spec in API Hub - " + result.status + " - " + result.statusText);
+    console.error(JSON.stringify(payload));
+  }
 }
 
 function generateSpec(name: string, path: string, payload: string): Promise<string> {
@@ -482,226 +552,3 @@ async function getApiHubAttribute(name: string): Promise<ApiHubAttribute[]> {
 
   return attributes;
 }
-
-
-// function createAPITemplate(product: DataProduct): ApigeeTemplateInput {
-//   let result: ApigeeTemplateInput = {
-//     name: product.name.replace(" ", "-"),
-//     profile: "default",
-//     endpoints: [
-//       {
-//         name: "default",
-//         basePath: "/data/" + product.entity,
-//         target: {
-//           name: "default",
-//           url: "https://bigquery.googleapis.com/bigquery/v2/projects/{organization.name}/queries",
-//           googleAccessToken: {
-//             scopes: [
-//               "https://www.googleapis.com/auth/bigquery"
-//             ],
-//             headerName: ""
-//           }
-//         },
-//         parameters: {},
-//         extensionSteps: [
-//           {
-//             name: "EV-ExtractName",
-//             flowRunPoints: [{
-//               name: "preRequest",
-//               runPoints: [RunPoint.preRequest]
-//             }],
-//             properties: {
-//               "ExtractVariables": {
-//                 "_attributes": {
-//                   name: "EV-ExtractName",
-//                   "enabled": true
-//                 },
-//                 "DisplayName": "EV-ExtractName",
-//                 "URIPath": {
-//                   "Pattern": "/{entityName}"
-//                 }
-//               }
-//             }
-//           },    
-//           {
-//             name: "AM-SetDataVariables",
-//             type: "AssignMessage",
-//             flowRunPoints: [{
-//               name: "preRequest",
-//               runPoints: [RunPoint.preRequest]
-//             }],
-//             properties: {
-//               assignVariables: [
-//                 {
-//                   name: product.entity,
-//                   value: "table::" + product.query
-//                 }
-//               ]
-//             }
-//           },
-//           {
-//             name: "RS-JavascriptFiles",
-//             type: "resourceFiles",
-//             flowRunPoints: [],
-//             properties: {
-//               files: {
-//                 "jsc/bigquery_pretarget.js": "https://raw.githubusercontent.com/tyayers/apigee-js-modules/main/src/bigquery_apigee_pretarget.js",
-//                 "jsc/bigquery_posttarget.js": "https://raw.githubusercontent.com/tyayers/apigee-js-modules/main/src/bigquery_apigee_posttarget.js",
-//                 "jsc/bigquery_functions.js": "https://raw.githubusercontent.com/tyayers/apigee-js-modules/main/src/bigquery_functions.js"
-//               },
-//             }
-//           },
-//           {
-//             name: "JS-RunPreTarget-Script",
-//             flowRunPoints: [{
-//               name: "preTarget",
-//               runPoints: [RunPoint.preTarget]
-//             }],
-//             properties: {
-//               "Javascript": {
-//                 "_attributes": {
-//                   "name": "JS-RunPreTarget-Script"
-//                 },
-//                 "DisplayName": "JS-RunPreTarget-Script",
-//                 "Properties": {},
-//                 "ResourceURL": "jsc://bigquery_pretarget.js",
-//                 "IncludeURL": "jsc://bigquery_functions.js"
-//               }
-//             }
-//           },
-//           {
-//             name: "JS-RunPostTarget-Script",
-//             flowRunPoints: [{
-//               name: "postTarget",
-//               runPoints: [RunPoint.postTarget]
-//             }],
-//             properties: {
-//               "Javascript": {
-//                 "_attributes": {
-//                   name: "JS-RunPostTarget-Script"
-//                 },
-//                 "DisplayName": "JS-RunPostTarget-Script",
-//                 "Properties": {},
-//                 "ResourceURL": "jsc://bigquery_posttarget.js",
-//                 "IncludeURL": "jsc://bigquery_functions.js"
-//               }
-//             }
-//           }
-//         ]
-//       }
-//     ]
-//   }
-
-//   return result;
-// }
-
-// function createBigQueryTemplate(product: DataProduct): ApigeeTemplateInput {
-//   let result: ApigeeTemplateInput = {
-//     name: product.name.replace(" ", "-"),
-//     profile: "default",
-//     endpoints: [
-//       {
-//         name: "default",
-//         basePath: "/data/" + product.entity,
-//         target: {
-//           name: "default",
-//           url: "https://bigquery.googleapis.com/bigquery/v2/projects/{organization.name}/queries",
-//           googleAccessToken: {
-//             scopes: [
-//               "https://www.googleapis.com/auth/bigquery"
-//             ],
-//             headerName: ""
-//           }
-//         },
-//         parameters: {},
-//         extensionSteps: [
-//           {
-//             name: "EV-ExtractName",
-//             flowRunPoints: [{
-//               name: "preRequest",
-//               runPoints: [RunPoint.preRequest]
-//             }],
-//             properties: {
-//               "ExtractVariables": {
-//                 "_attributes": {
-//                   name: "EV-ExtractName",
-//                   "enabled": true
-//                 },
-//                 "DisplayName": "EV-ExtractName",
-//                 "URIPath": {
-//                   "Pattern": "/{entityName}"
-//                 }
-//               }
-//             }
-//           },    
-//           {
-//             name: "AM-SetDataVariables",
-//             type: "AssignMessage",
-//             flowRunPoints: [{
-//               name: "preRequest",
-//               runPoints: [RunPoint.preRequest]
-//             }],
-//             properties: {
-//               assignVariables: [
-//                 {
-//                   name: product.entity,
-//                   value: "table::" + product.query
-//                 }
-//               ]
-//             }
-//           },
-//           {
-//             name: "RS-JavascriptFiles",
-//             type: "resourceFiles",
-//             flowRunPoints: [],
-//             properties: {
-//               files: {
-//                 "jsc/bigquery_pretarget.js": "https://raw.githubusercontent.com/tyayers/apigee-js-modules/main/src/bigquery_apigee_pretarget.js",
-//                 "jsc/bigquery_posttarget.js": "https://raw.githubusercontent.com/tyayers/apigee-js-modules/main/src/bigquery_apigee_posttarget.js",
-//                 "jsc/bigquery_functions.js": "https://raw.githubusercontent.com/tyayers/apigee-js-modules/main/src/bigquery_functions.js"
-//               },
-//             }
-//           },
-//           {
-//             name: "JS-RunPreTarget-Script",
-//             flowRunPoints: [{
-//               name: "preTarget",
-//               runPoints: [RunPoint.preTarget]
-//             }],
-//             properties: {
-//               "Javascript": {
-//                 "_attributes": {
-//                   "name": "JS-RunPreTarget-Script"
-//                 },
-//                 "DisplayName": "JS-RunPreTarget-Script",
-//                 "Properties": {},
-//                 "ResourceURL": "jsc://bigquery_pretarget.js",
-//                 "IncludeURL": "jsc://bigquery_functions.js"
-//               }
-//             }
-//           },
-//           {
-//             name: "JS-RunPostTarget-Script",
-//             flowRunPoints: [{
-//               name: "postTarget",
-//               runPoints: [RunPoint.postTarget]
-//             }],
-//             properties: {
-//               "Javascript": {
-//                 "_attributes": {
-//                   name: "JS-RunPostTarget-Script"
-//                 },
-//                 "DisplayName": "JS-RunPostTarget-Script",
-//                 "Properties": {},
-//                 "ResourceURL": "jsc://bigquery_posttarget.js",
-//                 "IncludeURL": "jsc://bigquery_functions.js"
-//               }
-//             }
-//           }
-//         ]
-//       }
-//     ]
-//   }
-
-//   return result;
-// }

@@ -24,6 +24,12 @@
       job.site = appService.currentSiteData.id;
       job.categories = appService.currentSiteData.categories;
     });
+
+    if (appService.dataGenJob) {
+      job = appService.dataGenJob;
+      processing = true;
+      monitorJob();
+    }
   });
 
   async function submit() {
@@ -33,13 +39,31 @@
       body: JSON.stringify(job)
     });
 
-    let generatedProducs: DataProduct[] = await response.json();
-    if (generatedProducs && generatedProducs.length > 0) {
-      appService.products = appService.products?.concat(generatedProducs);
-      appService.GoTo("/home");
+    let newJob: DataGenJob = await response.json();
+    appService.dataGenJob = newJob;
+    monitorJob();
+  }
+
+  async function monitorJob() {
+    if (appService.dataGenJob) {
+      const processingResponse = await fetch('/api/datagen?id=' + appService.dataGenJob.id);
+      if (processingResponse && processingResponse.body) {
+        const reader = processingResponse.body.pipeThrough(new TextDecoderStream()).getReader();
+        while (true) {
+          const { value, done } = await reader.read();
+          if (done) break;
+          job = JSON.parse(value);
+        }
+      }
+
+      if (job && job.products.length > 0) {
+        appService.products = appService.products?.concat(job.products);
+        appService.GoTo("/home");
+      }
+      appService.dataGenJob = undefined;
+      processing = false;
+      appService.ShowSnackbar("Data successfully generated.");
     }
-    processing = false;
-    appService.ShowSnackbar("Data successfully generated.")
   }
 
 </script>
@@ -55,7 +79,7 @@
 
       <div class="right_content">
 
-        <div style="margin-left: 8px; padding-bottom: 10px;">AI DataGen will generate test data for the number of apis and for the given topic entered below. The api definitions will be added to the marketplace for this site, as well as to Apigee & API Hub.</div>
+        <div style="margin-left: 8px; padding-bottom: 10px;">AI DataGen will generate test data for the number of apis and for the given topic entered. The api definitions will be added to the marketplace for this site, as well as to Apigee & API Hub.</div>
 
         {#if !processing}
           <div transition:fly>
@@ -78,11 +102,21 @@
             </div>
           </div>
         {:else}
-          <div in:fade class="lds-ring">
+          <div in:fade class="lds-ring" style="width: 100%;">
             <div></div>
             <div></div>
             <div></div>
             <div></div>
+          </div>
+          <div style="margin-bottom: 20px;">
+            Created {job.products.length} item(s) of {job.apiCount}.
+          </div>
+          <div>
+            {#if job.products && job.products.length > 0}
+              {#each job.products as product}
+                <div>Item: {product.name}</div>
+              {/each}
+            {/if}
           </div>
         {/if}
       </div>
