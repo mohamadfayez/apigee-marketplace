@@ -434,10 +434,10 @@
     margin-top: 9px;
   }
 
-  .ring_lower div {
+  /* .ring_lower div {
     position: absolute;
     top: 11vh;
     margin-left: 45vw;
-  }
+  } */
 
 </style>

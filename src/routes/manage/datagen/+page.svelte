@@ -36,6 +36,9 @@
     processing = true;
     let response = await fetch("/api/datagen", {
       method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
       body: JSON.stringify(job)
     });
 
@@ -102,16 +105,14 @@
             </div>
           </div>
         {:else}
-          <div in:fade class="lds-ring" style="width: 100%;">
+          <div in:fade class="lds-ring">
             <div></div>
             <div></div>
             <div></div>
             <div></div>
           </div>
-          <div style="margin-bottom: 20px;">
+          <div style="margin-bottom: 20px; margin-left: 8px;">
             Created {job.products.length} item(s) of {job.apiCount}.
-          </div>
-          <div>
             {#if job.products && job.products.length > 0}
               {#each job.products as product}
                 <div>Item: {product.name}</div>

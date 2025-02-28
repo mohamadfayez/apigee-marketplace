@@ -680,7 +680,7 @@
           <h3 style="position: relative; top: -4px; left: 6px;">
             API Documentation
           </h3>
-          <button class="rounded_button_outlined" on:click={downloadSpec} style="margin-left: 26px; font-size: 12px; height: 38px;">Download</button>
+          <button class="rounded_button_outlined" on:click={downloadSpec} style="margin-left: 26px; font-size: 14px; height: 38px;">Download</button>
         </div>
 
         <div style="position: absolute; right: 10px; top: 24px;">

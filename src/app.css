@@ -337,16 +337,19 @@ button {
 /* Spinner Loader */
 
 .lds-ring {
-  display: inline-block;
-  position: relative;
-  width: 80px;
+  /* display: inline-block;
+  position: relative; */
+
+  position: absolute;
+  width: 100%;
+  text-align: center;
   height: 80px;
 }
 .lds-ring div {
   box-sizing: border-box;
-  position:fixed;
-  left: 49%;
-  top: 20%;
+  position:absolute;
+  left: 48%;
+  top: 42%;
   width: 32px;
   height: 32px;
   margin: 8px;
