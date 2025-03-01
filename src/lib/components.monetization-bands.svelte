@@ -15,9 +15,11 @@
     let previousBand = rates[rates.length - 1];
 
     if (previousBand.end == "-1" || previousBand.end == "0" || previousBand.end == "") {
+      let currentNano = (parseInt(previousBand.fee.nanos) - 1).toString();
+      if (currentNano.length === 1) currentNano = "0" + currentNano;
       previousBand.end = (parseInt(previousBand.start) + 100).toString();
       newBand.start = (parseInt(previousBand.end) + 1).toString();
-      newBand.fee = {currencyCode: "USD", units: "0", nanos: (100 - rates.length * 10).toString()};
+      newBand.fee = {currencyCode: "USD", units: previousBand.fee.units, nanos: currentNano};
     } else {
       let previosEnd = parseInt(previousBand.end);
       newBand.start = (previosEnd + 1).toString();

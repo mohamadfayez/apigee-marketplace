@@ -23,15 +23,18 @@
     "",
     "",
     "Published",
-    "BigQueryTable",
+    DataSourceTypes.AIModel,
     "",
-    "",
+    "publishers/google/models/gemini-2.0-flash-001",
     "",
     ["API"],
     ["internal", "partner", "external"],
     [],
   );
 
+  if (appService.configData && appService.configData.slas.length > 0) product.sla = appService.configData.slas[0];
+  if (appService.configData && appService.configData.ratePlans.length > 0) product.monetizationId = appService.configData.ratePlans[0].name ? appService.configData.ratePlans[0].name : "";
+  if (appService.currentSiteData && appService.currentSiteData.categories.length > 0) product.categories.push(appService.currentSiteData.categories[0]);
   if (
     appService.currentSiteData &&
     appService.currentSiteData.bqtables.length > 0

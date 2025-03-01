@@ -3,11 +3,11 @@
   import { onMount } from "svelte";
   import MenuLeftAdmin from '$lib/components-menus-left/menus-left.admin.svelte';
   import SiteEdit from '$lib/components.site-edit.svelte';
-  import { generateRandomString } from "$lib/utils";
+  import { generateRandomString, defaultCategories, bqtables } from "$lib/utils";
   import { appService } from "$lib/app-service";
   import { PUBLIC_PROJECT_ID } from '$env/static/public';
 
-  let site: Site = {id: generateRandomString(4), name: "", nameTop: "-12px", nameLeft: "4px", logoUrl: "/loop.svg", logoWidth: "36px", owner: appService.currentUser?.email ? appService.currentUser?.email : "", categories: appService.currentSiteData.categories, products: [], bqtables: [], googleCloudProjectId: PUBLIC_PROJECT_ID, heroImageUrl: "/products_banner.png", heroGradientStyle: "", heroBackgroundPosition: ""};
+  let site: Site = {id: generateRandomString(4), name: "", nameTop: "-12px", nameLeft: "4px", logoUrl: "/loop.svg", logoWidth: "36px", owner: appService.currentUser?.email ? appService.currentUser?.email : "", categories: defaultCategories, products: [], bqtables: bqtables, googleCloudProjectId: PUBLIC_PROJECT_ID, heroImageUrl: "/products_banner.png", heroGradientStyle: "", heroBackgroundPosition: ""};
 
   onMount(() => {
     document.addEventListener("siteUpdated", () => {
@@ -51,7 +51,7 @@
           <button class="back_button" on:click={back}>
             <svg data-icon-name="arrowBackIcon" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path fill-rule="evenodd" d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20z"></path></svg>
           </button>            
-          <span>Create Site</span>
+          <span>Create Hub</span>
       </div>
 
       <div class="right_content">

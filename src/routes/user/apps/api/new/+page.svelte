@@ -65,9 +65,7 @@
         appService.ShowSnackbar("Subscription created.");
         appService.GetUserApps();
 
-        history.back();
-        // if (product_input) appService.GoTo("/products/" + product_input);
-        // else appService.GoTo("/user/apps/api/" + name);
+        back();
       } else {
         appService.ShowDialog("That app name has already been taken, please use a different name.", "Ok", DialogType.Ok, []);
       }
@@ -75,9 +73,11 @@
   }
 
   function back() {
-    history.back();
-    // if (product_input) appService.GoTo("/products/" + product_input);
-    // else appService.GoTo("/user/apps/api");
+    // history.back();
+    if (product_input) 
+      appService.GoTo("/products/" + product_input);
+    else 
+      appService.GoTo("/home");
   }
 </script>
 

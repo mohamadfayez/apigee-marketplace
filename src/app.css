@@ -341,7 +341,7 @@ button {
   position: relative; */
 
   position: absolute;
-  width: 100%;
+  width: 99%;
   text-align: center;
   height: 80px;
 }

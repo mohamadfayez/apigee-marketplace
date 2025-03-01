@@ -371,6 +371,19 @@
           >
         {:else}
           {#if product?.protocols.includes("API") || product?.protocols.includes("Event")}
+            {#if appSubscriptions.length > 0}
+              <div class="product_overview_description" style="margin-bottom: 4px;">
+                Your subscriptions:
+                {#each appSubscriptions as sub, i}
+                  <a
+                    class="sub_link"
+                    style="background: #eeeeee; padding: 5px;"
+                    href={"/user/apps/api/" + sub}>{sub}</a
+                  >
+                {/each}
+              </div>
+            {/if}
+  
             <a
               href={"/user/apps/api/new?product=" + product?.apigeeProductId}
               class="rounded_button_filled">Subscribe API</a
@@ -419,19 +432,6 @@
           >
         {/if}
       </div>
-
-      {#if appSubscriptions.length > 0}
-        <div class="product_overview_description">
-          Existing subscriptions:
-          {#each appSubscriptions as sub, i}
-            <a
-              class="sub_link"
-              style="background: #eeeeee; padding: 5px;"
-              href={"/user/apps/api/" + sub}>{sub}</a
-            >
-          {/each}
-        </div>
-      {/if}
     </div>
   </div>
 

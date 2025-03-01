@@ -69,10 +69,10 @@
   <div class="left_menu_page_right">
     <div>
       <div class="left_menu_page_right_header">
-        <span>Sites</span><a
+        <span>Hubs</span><a
           href={`/manage/sites/new?site=${appService.currentSiteData.id}`}
           class="text_button left_menu_page_right_header_button"
-          style="margin-left: 18px;">+ Add site</a
+          style="margin-left: 18px;">+ Add hub</a
         >
       </div>
 

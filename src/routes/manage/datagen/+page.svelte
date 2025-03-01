@@ -61,7 +61,7 @@
 
       if (job && job.products.length > 0) {
         appService.products = appService.products?.concat(job.products);
-        appService.GoTo("/home");
+        appService.GoTo("/home", true);
       }
       appService.dataGenJob = undefined;
       processing = false;

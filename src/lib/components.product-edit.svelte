@@ -142,6 +142,8 @@
       product.description = "";
       // load sample data
       refreshPayload();
+    } else if (product.source === DataSourceTypes.AIModel) {
+      onSourceChange();
     }
   }
 
@@ -160,6 +162,7 @@
     payloadLoading = false;
 
     if (product.source === DataSourceTypes.BigQueryTable) {
+      product.query = "";
       initialLoad();
     } else if (product.source === DataSourceTypes.ApigeeProduct) {
       if (apigeeApiProducts.length > 0) {
@@ -285,10 +288,20 @@
     setAiSpec();
   }
 
+  function onSystemPromptChange(e: any) {
+    let pieces = product.queryAdditionalInfo.split(" ");
+    if (pieces.length > 1) {
+      product.entity = pieces[pieces.length - 2] + "-" + pieces[pieces.length - 1].replace(".", "");
+      setAiSpec();
+    }
+  }
+
   function onGenAiTestChange(e: any) {
     let pieces = product.query.split(" ");
-    if (pieces.length > 1)
+    if (pieces.length > 1 && pieces[1].toLowerCase() != "data")
       product.entity = pieces[0].toLowerCase() + "-" + pieces[1].toLowerCase() +  "-data";
+    else if (pieces.length > 1)
+      product.entity = pieces[0].toLowerCase() + "-" + pieces[1].toLowerCase();
     else if (pieces.length > 0)
       product.entity = pieces[0].toLowerCase() + "-data";
     
@@ -636,8 +649,8 @@
           <option value={DataSourceTypes.BigQuery}>BigQuery query</option>
           <option value={DataSourceTypes.AIModel}>AI Model</option>
           <option value={DataSourceTypes.GenAITest}>Gen AI test data</option>
-          <option value={DataSourceTypes.ApigeeProduct}>{DataSourceTypes.ApigeeProduct}</option>
-          <option value={DataSourceTypes.ApiHub}>{DataSourceTypes.ApiHub}</option>
+          <!-- <option value={DataSourceTypes.ApigeeProduct}>{DataSourceTypes.ApigeeProduct}</option>
+          <option value={DataSourceTypes.ApiHub}>{DataSourceTypes.ApiHub}</option> -->
           <option value={DataSourceTypes.API}>API endpoint</option>
         </select>
       </div>
@@ -820,6 +833,7 @@
           required
           class="input_field"
           bind:value={product.queryAdditionalInfo}
+          on:blur={onSystemPromptChange}
           rows="5"
         ></textarea>
         <label for="systemprompt" class="input_field_placeholder">

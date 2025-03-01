@@ -162,7 +162,22 @@ curl -i -X POST "https://firestore.googleapis.com/v1/projects/$PROJECT_ID/databa
                   "mapValue": {
                     "fields": {
                       "name": {
-                        "stringValue": "Austin bike trips"
+                        "stringValue": "DeepMind Alphafold"
+                      },
+                      "table": {
+                        "stringValue": "bigquery-public-data.deepmind_alphafold.metadata"
+                      },
+                      "entity": {
+                        "stringValue": "alphafold-metadata"
+                      }
+                    }
+                  }
+                },
+                {
+                  "mapValue": {
+                    "fields": {
+                      "name": {
+                        "stringValue": "Austin Bike Trips"
                       },
                       "table": {
                         "stringValue": "bigquery-public-data.austin_bikeshare.bikeshare_trips"
@@ -177,13 +192,163 @@ curl -i -X POST "https://firestore.googleapis.com/v1/projects/$PROJECT_ID/databa
                   "mapValue": {
                     "fields": {
                       "name": {
-                        "stringValue": "BBC News full text"
+                        "stringValue": "London Bike Trips"
+                      },
+                      "table": {
+                        "stringValue": "bigquery-public-data.london_bicycles.cycle_hire"
+                      },
+                      "entity": {
+                        "stringValue": "london-bike-trips"
+                      }
+                    }
+                  }
+                },
+                {
+                  "mapValue": {
+                    "fields": {
+                      "name": {
+                        "stringValue": "New York City Bike Trips"
+                      },
+                      "table": {
+                        "stringValue": "bigquery-public-data.new_york_citibike.citibike_trips"
+                      },
+                      "entity": {
+                        "stringValue": "new-york-bike-trips"
+                      }
+                    }
+                  }
+                },
+                {
+                  "mapValue": {
+                    "fields": {
+                      "name": {
+                        "stringValue": "New York City Subway Trips"
+                      },
+                      "table": {
+                        "stringValue": "bigquery-public-data.new_york_subway.trips"
+                      },
+                      "entity": {
+                        "stringValue": "new-york-subway-trips"
+                      }
+                    }
+                  }
+                },
+                {
+                  "mapValue": {
+                    "fields": {
+                      "name": {
+                        "stringValue": "Chicago Taxi Trips"
+                      },
+                      "table": {
+                        "stringValue": "bigquery-public-data.chicago_taxi_trips.taxi_trips"
+                      },
+                      "entity": {
+                        "stringValue": "chicago-taxi-trips"
+                      }
+                    }
+                  }
+                },
+                {
+                  "mapValue": {
+                    "fields": {
+                      "name": {
+                        "stringValue": "BBC News Full Text"
                       },
                       "table": {
                         "stringValue": "bigquery-public-data.bbc_news.fulltext"
                       },
                       "entity": {
                         "stringValue": "news-text"
+                      }
+                    }
+                  }
+                },
+                {
+                  "mapValue": {
+                    "fields": {
+                      "name": {
+                        "stringValue": "Bitcoin Transactions"
+                      },
+                      "table": {
+                        "stringValue": "bigquery-public-data.crypto_bitcoin.transactions"
+                      },
+                      "entity": {
+                        "stringValue": "bitcoin-transactions"
+                      }
+                    }
+                  }
+                },
+                {
+                  "mapValue": {
+                    "fields": {
+                      "name": {
+                        "stringValue": "Ethereum Transactions"
+                      },
+                      "table": {
+                        "stringValue": "bigquery-public-data.crypto_ethereum.transactions"
+                      },
+                      "entity": {
+                        "stringValue": "ethereum-transactions"
+                      }
+                    }
+                  }
+                },
+                {
+                  "mapValue": {
+                    "fields": {
+                      "name": {
+                        "stringValue": "Github Commits"
+                      },
+                      "table": {
+                        "stringValue": "bigquery-public-data.github_repos.commits"
+                      },
+                      "entity": {
+                        "stringValue": "github-commits"
+                      }
+                    }
+                  }
+                },
+                {
+                  "mapValue": {
+                    "fields": {
+                      "name": {
+                        "stringValue": "NOAA Hurricane Data"
+                      },
+                      "table": {
+                        "stringValue": "bigquery-public-data.noaa_hurricanes.hurricanes"
+                      },
+                      "entity": {
+                        "stringValue": "noaa-hurricanes"
+                      }
+                    }
+                  }
+                },
+                {
+                  "mapValue": {
+                    "fields": {
+                      "name": {
+                        "stringValue": "NOAA Lightning Data"
+                      },
+                      "table": {
+                        "stringValue": "bigquery-public-data.noaa_lightning.lightning_strikes"
+                      },
+                      "entity": {
+                        "stringValue": "noaa-lightning-strikes"
+                      }
+                    }
+                  }
+                },
+                {
+                  "mapValue": {
+                    "fields": {
+                      "name": {
+                        "stringValue": "Google Maps Project Sunroof"
+                      },
+                      "table": {
+                        "stringValue": "bigquery-public-data.sunroof_solar.solar_potential_by_postal_code"
+                      },
+                      "entity": {
+                        "stringValue": "maps-sunroof"
                       }
                     }
                   }
@@ -198,6 +363,570 @@ curl -i -X POST "https://firestore.googleapis.com/v1/projects/$PROJECT_ID/databa
       "update": {
         "name": "projects/$PROJECT_ID/databases/(default)/documents/apigee-marketplace-config/default",
         "fields": {
+          "ratePlans": {
+            "arrayValue": {
+              "values": [
+                {
+                  "mapValue": {
+                    "fields": {
+                      "name": {
+                        "stringValue": "Bronze_Plan_5hb46"
+                      },
+                      "apiproduct": {
+                        "stringValue": ""
+                      },
+                      "displayName": {
+                        "stringValue": "Bronze Plan"
+                      },
+                      "description": {
+                        "stringValue": "Bronze rate plan"
+                      },
+                      "billingPeriod": {
+                        "stringValue": "MONTHLY"
+                      },
+                      "paymentFundingModel": {
+                        "stringValue": "POSTPAID"
+                      },
+                      "currencyCode": {
+                        "stringValue": "USD"
+                      },
+                      "setupFee": {
+                        "mapValue": {
+                          "fields": {
+                            "currencyCode": {
+                              "stringValue": "USD"
+                            },
+                            "units": {
+                              "stringValue": "500"
+                            },
+                            "nanos": {
+                              "stringValue": "0"
+                            }
+                          }
+                        }
+                      },
+                      "fixedRecurringFee": {
+                        "mapValue": {
+                          "fields": {
+                            "currencyCode": {
+                              "stringValue": "USD"
+                            },
+                            "units": {
+                              "stringValue": "0"
+                            },
+                            "nanos": {
+                              "stringValue": "0"
+                            }
+                          }
+                        }
+                      },
+                      "fixedFeeFrequency": {
+                        "integerValue": "1"
+                      },
+                      "consumptionPricingType": {
+                        "stringValue": "BANDED"
+                      },
+                      "consumptionPricingRates": {
+                        "arrayValue": {
+                          "values": [
+                            {
+                              "mapValue": {
+                                "fields": {
+                                  "start": {
+                                    "stringValue": "0"
+                                  },
+                                  "end": {
+                                    "stringValue": "100"
+                                  },
+                                  "fee": {
+                                    "mapValue": {
+                                      "fields": {
+                                        "currencyCode": {
+                                          "stringValue": "USD"
+                                        },
+                                        "units": {
+                                          "stringValue": "0"
+                                        },
+                                        "nanos": {
+                                          "stringValue": "10"
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            {
+                              "mapValue": {
+                                "fields": {
+                                  "start": {
+                                    "stringValue": "101"
+                                  },
+                                  "end": {
+                                    "stringValue": "201"
+                                  },
+                                  "fee": {
+                                    "mapValue": {
+                                      "fields": {
+                                        "currencyCode": {
+                                          "stringValue": "USD"
+                                        },
+                                        "units": {
+                                          "stringValue": "0"
+                                        },
+                                        "nanos": {
+                                          "stringValue": "09"
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            {
+                              "mapValue": {
+                                "fields": {
+                                  "start": {
+                                    "stringValue": "202"
+                                  },
+                                  "end": {
+                                    "stringValue": "302"
+                                  },
+                                  "fee": {
+                                    "mapValue": {
+                                      "fields": {
+                                        "currencyCode": {
+                                          "stringValue": "USD"
+                                        },
+                                        "units": {
+                                          "stringValue": "0"
+                                        },
+                                        "nanos": {
+                                          "stringValue": "08"
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            {
+                              "mapValue": {
+                                "fields": {
+                                  "start": {
+                                    "stringValue": "303"
+                                  },
+                                  "end": {
+                                    "stringValue": "0"
+                                  },
+                                  "fee": {
+                                    "mapValue": {
+                                      "fields": {
+                                        "currencyCode": {
+                                          "stringValue": "USD"
+                                        },
+                                        "units": {
+                                          "stringValue": "0"
+                                        },
+                                        "nanos": {
+                                          "stringValue": "07"
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      "state": {
+                        "stringValue": "PUBLISHED"
+                      },
+                      "startTime": {
+                        "integerValue": "1740835753347"
+                      },
+                      "endTime": {
+                        "integerValue": "0"
+                      }
+                    }
+                  }
+                },
+                {
+                  "mapValue": {
+                    "fields": {
+                      "name": {
+                        "stringValue": "Silver_Plan_b7ehc"
+                      },
+                      "apiproduct": {
+                        "stringValue": ""
+                      },
+                      "displayName": {
+                        "stringValue": "Silver Plan"
+                      },
+                      "description": {
+                        "stringValue": "Silver rate plan"
+                      },
+                      "billingPeriod": {
+                        "stringValue": "MONTHLY"
+                      },
+                      "paymentFundingModel": {
+                        "stringValue": "POSTPAID"
+                      },
+                      "currencyCode": {
+                        "stringValue": "USD"
+                      },
+                      "setupFee": {
+                        "mapValue": {
+                          "fields": {
+                            "currencyCode": {
+                              "stringValue": "USD"
+                            },
+                            "units": {
+                              "stringValue": "500"
+                            },
+                            "nanos": {
+                              "stringValue": "0"
+                            }
+                          }
+                        }
+                      },
+                      "fixedRecurringFee": {
+                        "mapValue": {
+                          "fields": {
+                            "currencyCode": {
+                              "stringValue": "USD"
+                            },
+                            "units": {
+                              "stringValue": "500"
+                            },
+                            "nanos": {
+                              "stringValue": "0"
+                            }
+                          }
+                        }
+                      },
+                      "fixedFeeFrequency": {
+                        "stringValue": "1"
+                      },
+                      "consumptionPricingType": {
+                        "stringValue": "BANDED"
+                      },
+                      "consumptionPricingRates": {
+                        "arrayValue": {
+                          "values": [
+                            {
+                              "mapValue": {
+                                "fields": {
+                                  "start": {
+                                    "stringValue": "0"
+                                  },
+                                  "end": {
+                                    "stringValue": "100"
+                                  },
+                                  "fee": {
+                                    "mapValue": {
+                                      "fields": {
+                                        "currencyCode": {
+                                          "stringValue": "USD"
+                                        },
+                                        "units": {
+                                          "stringValue": "0"
+                                        },
+                                        "nanos": {
+                                          "stringValue": "08"
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            {
+                              "mapValue": {
+                                "fields": {
+                                  "start": {
+                                    "stringValue": "101"
+                                  },
+                                  "end": {
+                                    "stringValue": "201"
+                                  },
+                                  "fee": {
+                                    "mapValue": {
+                                      "fields": {
+                                        "currencyCode": {
+                                          "stringValue": "USD"
+                                        },
+                                        "units": {
+                                          "stringValue": "0"
+                                        },
+                                        "nanos": {
+                                          "stringValue": "07"
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            {
+                              "mapValue": {
+                                "fields": {
+                                  "start": {
+                                    "stringValue": "202"
+                                  },
+                                  "end": {
+                                    "stringValue": "302"
+                                  },
+                                  "fee": {
+                                    "mapValue": {
+                                      "fields": {
+                                        "currencyCode": {
+                                          "stringValue": "USD"
+                                        },
+                                        "units": {
+                                          "stringValue": "0"
+                                        },
+                                        "nanos": {
+                                          "stringValue": "06"
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            {
+                              "mapValue": {
+                                "fields": {
+                                  "start": {
+                                    "stringValue": "303"
+                                  },
+                                  "end": {
+                                    "stringValue": "0"
+                                  },
+                                  "fee": {
+                                    "mapValue": {
+                                      "fields": {
+                                        "currencyCode": {
+                                          "stringValue": "USD"
+                                        },
+                                        "units": {
+                                          "stringValue": "0"
+                                        },
+                                        "nanos": {
+                                          "stringValue": "05"
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      "state": {
+                        "stringValue": "PUBLISHED"
+                      },
+                      "startTime": {
+                        "integerValue": "1740835787029"
+                      },
+                      "endTime": {
+                        "integerValue": "0"
+                      }
+                    }
+                  }
+                },
+                {
+                  "mapValue": {
+                    "fields": {
+                      "name": {
+                        "stringValue": "Gold_Plan_j60i2"
+                      },
+                      "apiproduct": {
+                        "stringValue": ""
+                      },
+                      "displayName": {
+                        "stringValue": "Gold Plan"
+                      },
+                      "description": {
+                        "stringValue": "Gold rate plan"
+                      },
+                      "billingPeriod": {
+                        "stringValue": "MONTHLY"
+                      },
+                      "paymentFundingModel": {
+                        "stringValue": "POSTPAID"
+                      },
+                      "currencyCode": {
+                        "stringValue": "USD"
+                      },
+                      "setupFee": {
+                        "mapValue": {
+                          "fields": {
+                            "currencyCode": {
+                              "stringValue": "USD"
+                            },
+                            "units": {
+                              "stringValue": "500"
+                            },
+                            "nanos": {
+                              "stringValue": "0"
+                            }
+                          }
+                        }
+                      },
+                      "fixedRecurringFee": {
+                        "mapValue": {
+                          "fields": {
+                            "currencyCode": {
+                              "stringValue": "USD"
+                            },
+                            "units": {
+                              "stringValue": "1000"
+                            },
+                            "nanos": {
+                              "stringValue": "0"
+                            }
+                          }
+                        }
+                      },
+                      "fixedFeeFrequency": {
+                        "stringValue": "1"
+                      },
+                      "consumptionPricingType": {
+                        "stringValue": "BANDED"
+                      },
+                      "consumptionPricingRates": {
+                        "arrayValue": {
+                          "values": [
+                            {
+                              "mapValue": {
+                                "fields": {
+                                  "start": {
+                                    "stringValue": "0"
+                                  },
+                                  "end": {
+                                    "stringValue": "100"
+                                  },
+                                  "fee": {
+                                    "mapValue": {
+                                      "fields": {
+                                        "currencyCode": {
+                                          "stringValue": "USD"
+                                        },
+                                        "units": {
+                                          "stringValue": "0"
+                                        },
+                                        "nanos": {
+                                          "stringValue": "05"
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            {
+                              "mapValue": {
+                                "fields": {
+                                  "start": {
+                                    "stringValue": "101"
+                                  },
+                                  "end": {
+                                    "stringValue": "201"
+                                  },
+                                  "fee": {
+                                    "mapValue": {
+                                      "fields": {
+                                        "currencyCode": {
+                                          "stringValue": "USD"
+                                        },
+                                        "units": {
+                                          "stringValue": "0"
+                                        },
+                                        "nanos": {
+                                          "stringValue": "04"
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            {
+                              "mapValue": {
+                                "fields": {
+                                  "start": {
+                                    "stringValue": "202"
+                                  },
+                                  "end": {
+                                    "stringValue": "302"
+                                  },
+                                  "fee": {
+                                    "mapValue": {
+                                      "fields": {
+                                        "currencyCode": {
+                                          "stringValue": "USD"
+                                        },
+                                        "units": {
+                                          "stringValue": "0"
+                                        },
+                                        "nanos": {
+                                          "stringValue": "03"
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            {
+                              "mapValue": {
+                                "fields": {
+                                  "start": {
+                                    "stringValue": "303"
+                                  },
+                                  "end": {
+                                    "stringValue": "0"
+                                  },
+                                  "fee": {
+                                    "mapValue": {
+                                      "fields": {
+                                        "currencyCode": {
+                                          "stringValue": "USD"
+                                        },
+                                        "units": {
+                                          "stringValue": "0"
+                                        },
+                                        "nanos": {
+                                          "stringValue": "02"
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      "state": {
+                        "stringValue": "PUBLISHED"
+                      },
+                      "startTime": {
+                        "integerValue": "1740835822901"
+                      },
+                      "endTime": {
+                        "integerValue": "0"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          },
           "roles": {
             "arrayValue": {
               "values": [
@@ -231,14 +960,14 @@ curl -i -X POST "https://firestore.googleapis.com/v1/projects/$PROJECT_ID/databa
                       "name": {
                         "stringValue": "No SLA"
                       },
-                      "description": {
-                          "stringValue": "No SLA guaranteed."
-                      },
                       "upTimeInPercent": {
-                          "stringValue": ""
+                        "stringValue": ""
                       },
                       "maxLatencyMS": {
-                          "stringValue": ""
+                        "stringValue": ""
+                      },
+                      "description": {
+                        "stringValue": "No SLA guaranteed."
                       }
                     }
                   }
@@ -246,20 +975,41 @@ curl -i -X POST "https://firestore.googleapis.com/v1/projects/$PROJECT_ID/databa
                 {
                   "mapValue": {
                     "fields": {
+                      "upTimeInPercent": {
+                        "stringValue": "99.99"
+                      },
+                      "maxLatencyMS": {
+                        "stringValue": "400"
+                      },
+                      "description": {
+                        "stringValue": "99.99% uptime SLA"
+                      },
                       "id": {
                         "stringValue": "sla_9999"
                       },
                       "name": {
                         "stringValue": "99.99% SLA"
+                      }
+                    }
+                  }
+                },
+                {
+                  "mapValue": {
+                    "fields": {
+                      "maxLatencyMS": {
+                        "stringValue": "700"
                       },
                       "description": {
-                          "stringValue": "99.99% uptime SLA"
+                        "stringValue": "99.5% SLA"
+                      },
+                      "id": {
+                        "stringValue": "99.5_sla_j3ab"
+                      },
+                      "name": {
+                        "stringValue": "99.5% SLA"
                       },
                       "upTimeInPercent": {
-                          "stringValue": "99.99"
-                      },
-                      "maxLatencyMS": {
-                          "stringValue": "400"
+                        "stringValue": "99.5"
                       }
                     }
                   }

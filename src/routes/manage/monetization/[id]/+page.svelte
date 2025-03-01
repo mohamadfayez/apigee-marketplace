@@ -37,8 +37,7 @@
   function submit() {
     let validationResult = validateMonetizationPlan();
 
-    if (validationResult) {
-      appService.configData?.ratePlans.push(plan);
+    if (validationResult && appService.configData) {
       fetch("/api/data/default?col=apigee-marketplace-config", {
         method: "PUT",
         body: JSON.stringify(appService.configData)

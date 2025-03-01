@@ -84,7 +84,7 @@
   <!-- svelte-ignore a11y-autofocus -->
   <input class="input_field" type="text" name="name" id="name" required bind:value={site.name} autocomplete="off" autofocus title="none" />
   <label for="name" class='input_field_placeholder'>
-    Site name
+    Hub name
   </label>
 </div>
 
@@ -120,8 +120,6 @@
   </label>
 </div>
 
-<h4>Header preview</h4>
-
 <div style="margin-top: 22px; margin-left: 8px;">
   <img src={site.logoUrl} alt="logo preview"
   width={site.logoWidth}/><span class="header_title_preview"
@@ -152,8 +150,6 @@
 </div>
 
 <button class="rounded_button_outlined" on:click={setExampleGradient}>Set example gradient</button> -->
-
-<h4>Hero preview</h4>
 
 <div style="margin-top: 22px; margin-left: 8px; width: 100%;">
   <div style={"height: 300px; width: 80%; position: absolute; " + site.heroGradientStyle}></div>

@@ -264,7 +264,7 @@ export class MonetizationRatePlan {
   consumptionPricingRates: MonetizationRatePlanRate[] = [{
     start: "0",
     end: "-1",
-    fee: { currencyCode: "USD", units: "1", nanos: "0" }
+    fee: { currencyCode: "USD", units: "0", nanos: "10" }
   }];
   state: string = "PUBLISHED" // can also be DRAFT
   startTime: number = 0;
@@ -289,7 +289,7 @@ export class MonetizationRatePlanMoney {
 export class MonetizationRatePlanRate {
   start: string = "0";
   end: string = "-1";
-  fee: MonetizationRatePlanMoney = { currencyCode: "USD", units: "1", nanos: "" };
+  fee: MonetizationRatePlanMoney = { currencyCode: "USD", units: "0", nanos: "10" };
 }
 
 export interface ApigeeApps {

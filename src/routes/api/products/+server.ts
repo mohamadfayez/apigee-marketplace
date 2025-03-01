@@ -54,7 +54,7 @@ export const POST: RequestHandler = async ({ params, url, request }) => {
     colName = "apigee-marketplace-sites/" + site + "/products";
 
   let newProduct: DataProduct = await request.json();
-  let proxyName: string = newProduct.source.startsWith("BigQuery") ? "MP-DataAPI-v1" : "MP-ServicesAPI-v1";
+  let proxyName: string = newProduct.source.startsWith("BigQuery") ? "MP-DataAPI-v1" : "MP-MockData-v1";
   if (newProduct.source === DataSourceTypes.AIModel) proxyName = "MP-GenAIAPI-v1";
   let callPath: string = newProduct.source.startsWith("BigQuery") ? "/data" : "/services";
 
@@ -89,7 +89,7 @@ export const POST: RequestHandler = async ({ params, url, request }) => {
     setKVMEntry("marketplace-kvm", newProduct.entity + "-model", newProduct.query);
     setKVMEntry("marketplace-kvm", newProduct.entity + "-systemprompt", newProduct.queryAdditionalInfo);
     // create and set product
-    createProduct("marketplace_" + newProduct.id, "Marketplace " + newProduct.name, "/v1/genai/" + newProduct.entity, proxyName);
+    createProduct("marketplace_" + newProduct.id, "Marketplace " + newProduct.name, "/" + newProduct.entity, proxyName);
     newProduct.apigeeProductId = "marketplace_" + newProduct.id;
   }
 
@@ -507,6 +507,12 @@ function createProduct(name: string, displayName: string, path: string, proxyNam
           displayName: displayName,
           approvalType: "auto",
           environments: [PUBLIC_APIGEE_ENV],
+          attributes: [
+            {
+              name: "access",
+              value: "public"
+            }
+          ],
           operationGroup: {
             operationConfigs: [
               {
@@ -514,7 +520,7 @@ function createProduct(name: string, displayName: string, path: string, proxyNam
                 operations: [
                   {
                     resource: path,
-                    methods: ["GET"]
+                    methods: ["GET", "POST"]
                   }
                 ]
               }

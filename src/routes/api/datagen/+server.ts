@@ -78,6 +78,7 @@ async function generateData(dataGen: DataGenJob, fetch: any) {
 
     let categories = [dataGen.categories[categoryIndex]];
     let newProduct: DataProduct = new DataProduct(apiDefinition.name, dataGen.userEmail, dataGen.userName, apiDefinition.displayName, apiDefinition.description, "Published", "GenAITest", basePaths[i], dataGen.topic + " " + basePaths[i], (new Date()).toString(), ["API"], ["internal", "partner", "external"], categories);
+    newProduct.imageUrl = "/genai.svg";
 
     let genPayloadResponse = await fetch("/api/products/generate", {
       method: "POST",

@@ -82,6 +82,8 @@ export class AppService {
             this.siteName = this.currentSiteData.name;
             document.title = this.currentSiteData.name;
             document.dispatchEvent(new Event('siteUpdated'));
+
+            //console.log(JSON.stringify(this.currentSiteData.bqtables));
           }
 
           if (!this.currentSiteData.name) {
@@ -340,8 +342,10 @@ export class AppService {
     });
   }
 
-  GoTo(path: string) {
-    goto(`${path}?site=${this.currentSiteData.id}`);
+  GoTo(path: string, reload: boolean = false) {
+    goto(`${path}?site=${this.currentSiteData.id}`).then(() => {
+      if (reload) location.reload();
+    });
   }
 
   ShowSnackbar(message: string) {
