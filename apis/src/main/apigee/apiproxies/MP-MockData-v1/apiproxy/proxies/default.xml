@@ -9,6 +9,12 @@
         <Name>RF-CheckCors</Name>
       </Step>
       <Step>
+        <Name>VA-VerifyKey</Name>
+      </Step>
+      <Step>
+        <Name>AM-RemoveKey</Name>
+      </Step>
+      <Step>
         <Name>EV-ExtractName</Name>
       </Step>
       <Step>

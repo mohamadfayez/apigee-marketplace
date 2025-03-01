@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<ResponseCache continueOnError="false" enabled="true" name="RC-CheckCache">
+<ResponseCache continueOnError="false" enabled="false" name="RC-CheckCache">
   <DisplayName>RC-CheckCache</DisplayName>
   <CacheKey>
     <Prefix/>
@@ -10,7 +10,7 @@
   <ExpirySettings>
     <ExpiryDate/>
     <TimeOfDay/>
-    <TimeoutInSeconds ref="">28800</TimeoutInSeconds>
+    <TimeoutInSeconds ref="">3600</TimeoutInSeconds>
   </ExpirySettings>
   <SkipCacheLookup/>
   <SkipCachePopulation/>

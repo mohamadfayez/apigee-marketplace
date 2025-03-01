@@ -1,8 +1,8 @@
-<APIProxy revision="17" name="MP-GenAIAPI-v1">
+<APIProxy revision="21" name="MP-GenAIAPI-v1">
     <DisplayName></DisplayName>
     <Description>This API provides Gen AI services.</Description>
-    <CreatedAt>1739791221806</CreatedAt>
-    <LastModifiedAt>1739791221806</LastModifiedAt>
+    <CreatedAt>1740838167264</CreatedAt>
+    <LastModifiedAt>1740838167264</LastModifiedAt>
     <BasePaths>/v1/genai</BasePaths>
     <Policies>
         <Policy>AM-RemoveKey</Policy>
