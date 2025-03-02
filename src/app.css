@@ -403,7 +403,7 @@ button {
   position: sticky;
   top: 6px;
   margin-left: 270px;
-  margin-right: 270px;
+  margin-right: 300px;
 }
 
 @media (width <= 1160px) {
