@@ -90,11 +90,13 @@
         <button style="position: relative; top: -14px; left: -28px;" on:click={goToAccount} class="rounded_button_outlined">My account</button>
       {/if}
 
-      <button style="position: relative; top: -4px; left: -20px; width: 44px; padding: 8px;" class="back_button" title="Sites"
+      <button style="position: relative; top: -4px; left: -20px; width: 44px; padding: 8px;" class="back_button" title="Hubs"
         on:click|stopPropagation={() => { siteMenuVisible = !siteMenuVisible; menuVisible = false; }}
         on:keydown|stopPropagation={() => { siteMenuVisible = !siteMenuVisible; menuVisible = false; }}>
         
+        <!-- windows -->
         <svg width="100%" height="100%" fill="darkslategray" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 487.295 487.295" xml:space="preserve"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <g> <path d="M356.688,130.469H55.517c-15.439,0-27.994,12.554-27.994,27.987v300.852c0,15.434,12.555,27.987,27.994,27.987h301.171 c15.434,0,27.993-12.554,27.993-27.987V158.45C384.681,143.017,372.121,130.469,356.688,130.469z M337.72,162.324 c6.62,0,11.987,5.37,11.987,11.99c0,6.629-5.373,11.996-11.987,11.996c-6.632,0-11.998-5.367-11.998-11.996 C325.722,167.694,331.088,162.324,337.72,162.324z M294.737,162.324c6.632,0,11.992,5.37,11.992,11.99 c0,6.629-5.366,11.996-11.992,11.996c-6.62,0-11.987-5.367-11.987-11.996C282.75,167.694,288.117,162.324,294.737,162.324z M352.698,455.301H59.512V216.092h293.174v239.209H352.698z M431.784,0H130.607c-15.436,0-27.988,12.552-27.988,27.987v82.302 h31.98V85.626h293.183v239.211h-10.391v31.989h14.387c15.433,0,27.993-12.561,27.993-27.987V27.981 C459.777,12.546,447.217,0,431.784,0z M369.839,55.842c-6.632,0-11.992-5.37-11.992-11.99c0-6.623,5.366-11.993,11.992-11.993 c6.62,0,11.987,5.37,11.987,11.993C381.826,50.472,376.459,55.842,369.839,55.842z M412.816,55.842 c-6.638,0-11.999-5.37-11.999-11.99c0-6.623,5.373-11.993,11.999-11.993c6.62,0,11.981,5.37,11.981,11.993 C424.81,50.472,419.437,55.842,412.816,55.842z"></path> </g> </g></svg>
+
         <!-- <svg width="100%" height="100%" viewBox="0 0 16 16" fill="darkslategray" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M0 1H5L8 3H13V5H3.7457L2.03141 11H4.11144L5.2543 7H16L14 14H0V1Z" fill="darkgray"></path> </g></svg> -->
         
         <!-- <svg width="100%" height="100%" viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false"><path fill="#333" d="M18 17v-6c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v6H4v2h16v-2h-2zm-2 0H8v-6c0-2.48 1.51-4.5 4-4.5s4 2.02 4 4.5v6zm-4 5c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2z"></path></svg> -->
@@ -138,9 +140,9 @@
       {#if siteMenuVisible}
         <!-- svelte-ignore a11y-no-static-element-interactions -->
         <!-- svelte-ignore a11y-click-events-have-key-events -->
-        <div class="menuPanel" transition:slide on:click|stopPropagation={() => {}} style="right: 76px; width: 200px; max-height: 454px;">
-          <div class="arrow" style="left: 158px;" />
-          <div class="menu" style="width: 200px;">
+        <div class="menuPanel" transition:slide on:click|stopPropagation={() => {}} style="right: 76px; width: 240px; max-height: 454px;">
+          <div class="arrow" style="left: 196px;" />
+          <div class="menu" style="width: 100%;">
             <div class="panel">
               <span style="width: 100%; text-align: center; font-size: 17px; position: relative; top: -13px; color: darkslategray;">
                 {#if currentUser.roles.includes("admin")}
