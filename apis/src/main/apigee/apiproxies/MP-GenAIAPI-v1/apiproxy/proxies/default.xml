@@ -18,13 +18,19 @@
         <Name>EV-GetInputs</Name>
       </Step>
       <Step>
+        <Name>SC-ModelArmor</Name>
+      </Step>
+      <Step>
+        <Name>EV-ModelArmor</Name>
+      </Step>
+      <Step>
         <Name>AM-SetSystemPrompt</Name>
       </Step>
       <Step>
         <Name>KVM-GetSystemPrompt</Name>
       </Step>
       <Step>
-        <Condition>genai.prompt == null</Condition>
+        <Condition>(genai.prompt == null) or (genai.maerror != null)</Condition>
         <Name>RF-ValidateInputs</Name>
       </Step>
       <Step>
@@ -33,6 +39,7 @@
       </Step>
       <Step>
         <Name>RC-CheckCache</Name>
+        <Condition>(genai.model = "gemini") or (genai.model = "llama") or (genai.model = "mistral")</Condition>
       </Step>
     </Request>
     <Response/>

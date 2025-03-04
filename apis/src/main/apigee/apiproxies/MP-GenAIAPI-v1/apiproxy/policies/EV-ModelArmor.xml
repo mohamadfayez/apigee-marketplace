@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ExtractVariables continueOnError="false" enabled="true" name="EV-ModelArmor">
+  <DisplayName>EV-ModelArmor</DisplayName>
+  <Properties/>
+  <IgnoreUnresolvedVariables>true</IgnoreUnresolvedVariables>
+  <JSONPayload>
+    <Variable name="maerror">
+      <JSONPath>$.sanitizationResult.sanitizationMetadata.errorCode</JSONPath>
+    </Variable>
+  </JSONPayload>
+  <Source clearPayload="false">maResponse</Source>
+  <VariablePrefix>genai</VariablePrefix>
+</ExtractVariables>

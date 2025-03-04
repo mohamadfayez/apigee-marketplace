@@ -12,7 +12,9 @@ gcloud services enable iamcredentials.googleapis.com --project $PROJECT_ID
 gcloud services enable run.googleapis.com --project $PROJECT_ID
 gcloud services enable cloudfunctions.googleapis.com --project $PROJECT_ID
 gcloud services enable cloudbuild.googleapis.com --project $PROJECT_ID
-
+gcloud services enable dlp.googleapis.com --project=$PROJECT_ID
+gcloud services enable modelarmor.googleapis.com --project=$PROJECT_ID
+   
 # sleep 5 seconds to let the API be initialized...
 sleep 5
 
@@ -99,6 +101,10 @@ gcloud projects add-iam-policy-binding $PROJECT_ID \
     --role="roles/cloudbuild.integrations.editor" --project $PROJECT_ID
 
 gcloud projects add-iam-policy-binding $PROJECT_ID \
+    --member="serviceAccount:mpservice@$PROJECT_ID.iam.gserviceaccount.com" \
+    --role="roles/modelarmor.user" --project $PROJECT_ID
+
+gcloud projects add-iam-policy-binding $PROJECT_ID \
     --member="user:$ADMIN_EMAIL" \
     --role="roles/integrations.suspensionResolver" --project $PROJECT_ID
 
@@ -176,3 +182,19 @@ curl -X POST "https://apigee.googleapis.com/v1/organizations/$PROJECT_ID/reports
   "organization": "apigee-tlab5"
 }
 EOF
+
+echo "Enabling Model Armor in our region..."
+gcloud config set api_endpoint_overrides/modelarmor "https://modelarmor.$MODEL_ARMOR_REGION.rep.googleapis.com/"
+gcloud model-armor templates create --location $MODEL_ARMOR_REGION marketplace-template1 \
+  --rai-settings-filters='[{ "filterType": "HATE_SPEECH", "confidenceLevel": "MEDIUM_AND_ABOVE" },{ "filterType": "HARASSMENT", "confidenceLevel": "MEDIUM_AND_ABOVE" },{ "filterType": "SEXUALLY_EXPLICIT", "confidenceLevel": "MEDIUM_AND_ABOVE" }]' \
+  --basic-config-filter-enforcement=enabled  \
+  --pi-and-jailbreak-filter-settings-enforcement=enabled \
+  --pi-and-jailbreak-filter-settings-confidence-level=LOW_AND_ABOVE \
+  --malicious-uri-filter-settings-enforcement=enabled \
+  --template-metadata-custom-llm-response-safety-error-code=798 \
+  --template-metadata-custom-llm-response-safety-error-message="LLM sensitive information detected." \
+  --template-metadata-custom-prompt-safety-error-code=799 \
+  --template-metadata-custom-prompt-safety-error-message="Prompt sensitive information detected." \
+  --template-metadata-ignore-partial-invocation-failures \
+  --template-metadata-log-operations \
+  --template-metadata-log-sanitize-operations

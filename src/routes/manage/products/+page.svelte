@@ -95,7 +95,7 @@
   function onDeleteAll() {
     appService
       .ShowDialog(
-        "Are you sure you want to delete ALL products on this site?",
+        "Are you sure you want to delete all products from this Hub? Products on other Hubs will not be deleted.",
         "Delete",
         DialogType.OkCancel, []
       )

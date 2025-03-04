@@ -113,7 +113,7 @@
             </div>
           </div>
         {:else}
-          <div in:fade class="lds-ring">
+          <div in:fade class="lds-ring" style="width: 94%;">
             <div></div>
             <div></div>
             <div></div>

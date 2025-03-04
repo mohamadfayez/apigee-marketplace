@@ -1,8 +1,8 @@
-<APIProxy revision="3" name="MP-MockData-v1">
+<APIProxy revision="5" name="MP-MockData-v1">
     <DisplayName></DisplayName>
     <Description></Description>
-    <CreatedAt>1740839493108</CreatedAt>
-    <LastModifiedAt>1740839538982</LastModifiedAt>
+    <CreatedAt>1741072368752</CreatedAt>
+    <LastModifiedAt>1741072368752</LastModifiedAt>
     <BasePaths>/v1/mock</BasePaths>
     <Policies>
         <Policy>AM-SetCors</Policy>

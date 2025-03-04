@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<ResponseCache continueOnError="false" enabled="false" name="RC-CheckCache">
+<ResponseCache continueOnError="false" enabled="true" name="RC-CheckCache">
   <DisplayName>RC-CheckCache</DisplayName>
   <CacheKey>
     <Prefix/>
