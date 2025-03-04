@@ -142,7 +142,7 @@
       product.description = "";
       // load sample data
       refreshPayload();
-    } else if (product.source === DataSourceTypes.AIModel) {
+    } else if (!product.query && product.source === DataSourceTypes.AIModel) {
       onSourceChange();
     }
   }
@@ -433,19 +433,6 @@
               [],
             );
           }
-        }).then((payload: any) => {
-          if (payloadLoading) {
-            payloadLoading = false;
-            product.samplePayload = JSON.stringify(payload);
-            samplePayloadData = payload;
-            let payloadContent = {
-              json: payload,
-            };
-            payloadEditor.set(payloadContent);
-            payloadEditor.refresh();
-            refreshSpec();
-          }
-          resolve();
         });
       } else if (product.source === DataSourceTypes.AIModel) {
         setAiPayload();
