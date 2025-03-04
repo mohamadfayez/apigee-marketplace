@@ -175,9 +175,17 @@
     nanos: string;
     currencyCode: string;
   }): string {
-    let result = fee.units ? fee.units : "0";
-    result += ".";
-    result += fee.nanos ? fee.nanos : "00";
+    let result = "";
+    let left: number = 0;
+    if (fee.units)
+      left = parseFloat(fee.units);
+    
+    if (fee.nanos) {
+      let right: number = parseFloat(fee.nanos);
+      left = left + (right / 1000000000);
+    }
+
+    result = left.toFixed(2).toString();
     result += " " + fee.currencyCode;
 
     return result;

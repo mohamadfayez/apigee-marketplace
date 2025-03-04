@@ -47,15 +47,17 @@ export class Product {
   typeArray?: string[] = [];
 }
 
-export let specPrompt: string = `Generate an OpenAPI spec in JSON format with the name {name} at the server https://{apigeeHost}. 
+export let specPrompt: string = `Generate a valid JSON OpenAPI spec with the name {name} at the server https://{apigeeHost}. 
 It should have a good description instructing the user on the basics of how to use the API, and be authorized with an API key in the x-api-key header.
 It should offer a GET and POST operations at the {path} path, as well as GET, PUT and DELETE operations for individual records.
+It should not contain any symbols or special characters beyond what is allowed in valid JSON.
 The GET operation for all records should offer query parameters for pageSize, filter, nextToken and orderBy.
 It should use the following data structure for all operations: `;
 
-export let specApiProductPrompt: string = `Generate an OpenAPI spec in JSON format with the name {name} at the server https://{apigeeHost}. 
+export let specApiProductPrompt: string = `Generate an valid JSON OpenAPI spec with the name {name} at the server https://{apigeeHost}. 
 It should have a good description instructing the user on the basics of how to use the API.
 It should offer full CRUD operations at the {path} path and be authorized with an API key in the x-api-key header.
+It should not contain any symbols or special characters beyond what is allowed in valid JSON.
 It should use the following data structure for all operations: `;
 
 export class DataProduct {
@@ -432,5 +434,6 @@ export class DataGenJob {
   userEmail: string = "";
   site: string = "";
   categories: string[] = [];
+  monetizationPlans: MonetizationRatePlan[] = [];
   products: DataProduct[] = [];
 }

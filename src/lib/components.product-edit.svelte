@@ -377,34 +377,53 @@
           body: JSON.stringify(product),
         }).then((response) => {
           if (response.status === 200) {
-            fetch(
-              `/api/products/generate?entity=${product.entity}&type=${product.source}`,
-            ).then((response) => {
-              if (response.status === 200) {
-                response.json().then((payload: any) => {
-                  if (payloadLoading) {
-                    payloadLoading = false;
-                    product.samplePayload = JSON.stringify(payload);
-                    samplePayloadData = payload;
-                    let payloadContent = {
-                      json: payload,
-                    };
-                    payloadEditor.set(payloadContent);
-                    payloadEditor.refresh();
-                    refreshSpec();
-                  }
-                  resolve();
-                });
-              } else {
-                payloadLoading = false;
-                appService.ShowDialog(
-                  "An error occurred during data generation, please try another dataset or prompt.",
-                  "Ok",
-                  DialogType.Ok,
-                  [],
-                );
-              }
-            });
+            // If this is a mock payload, we can simply continue with it.
+            if (product.source === DataSourceTypes.GenAITest) {
+              response.json().then((payload: any) => {
+                if (payloadLoading) {
+                  payloadLoading = false;
+                  product.samplePayload = JSON.stringify(payload);
+                  samplePayloadData = payload;
+                  let payloadContent = {
+                    json: payload,
+                  };
+                  payloadEditor.set(payloadContent);
+                  payloadEditor.refresh();
+                  refreshSpec();
+                }
+                resolve();
+              });
+            } else {
+              // For the other types (BQ..), we need to make a test call to get the data.
+              fetch(
+                `/api/products/generate?entity=${product.entity}&type=${product.source}`,
+              ).then((response) => {
+                if (response.status === 200) {
+                  response.json().then((payload: any) => {
+                    if (payloadLoading) {
+                      payloadLoading = false;
+                      product.samplePayload = JSON.stringify(payload);
+                      samplePayloadData = payload;
+                      let payloadContent = {
+                        json: payload,
+                      };
+                      payloadEditor.set(payloadContent);
+                      payloadEditor.refresh();
+                      refreshSpec();
+                    }
+                    resolve();
+                  });
+                } else {
+                  payloadLoading = false;
+                  appService.ShowDialog(
+                    "An error occurred during data generation, please try another dataset or prompt.",
+                    "Ok",
+                    DialogType.Ok,
+                    [],
+                  );
+                }
+              });
+            }
           } else {
             payloadLoading = false;
             appService.ShowDialog(
@@ -414,6 +433,19 @@
               [],
             );
           }
+        }).then((payload: any) => {
+          if (payloadLoading) {
+            payloadLoading = false;
+            product.samplePayload = JSON.stringify(payload);
+            samplePayloadData = payload;
+            let payloadContent = {
+              json: payload,
+            };
+            payloadEditor.set(payloadContent);
+            payloadEditor.refresh();
+            refreshSpec();
+          }
+          resolve();
         });
       } else if (product.source === DataSourceTypes.AIModel) {
         setAiPayload();

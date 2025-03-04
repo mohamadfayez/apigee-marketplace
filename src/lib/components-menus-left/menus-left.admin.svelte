@@ -134,6 +134,27 @@
       >
     </a>
     <a
+      href={`/manage/slas?site=${appService.currentSiteData.id}`}
+      class={getClassName("side_menu_button", "slas")}
+    >
+      <svg
+        style="position: relative; top: -2px"
+        class={getClassName("side_menu_button_logo", "slas")}
+        width="20px"
+        viewBox="0 0 18 18"
+        preserveAspectRatio="xMidYMid meet"
+        focusable="false"
+        ><path
+          d="M10.83 16.33h2.33v1.85h-2.33zM5.5 12.76L7.88 9.6a.55.55 0 01.37-.22.63.63 0 01.42.12l2.12 1.72 2.8-2.94a.54.54 0 01.4-.17.54.54 0 01.4.17l4.33 4.48H22V6a.74.74 0 00-.74-.74H2.74A.74.74 0 002 6v6.81z"
+          opacity=".6"
+        ></path><path
+          d="M18.48 13.87a.56.56 0 01-.4-.17L14 9.47l-2.74 2.89a.57.57 0 01-.76.05l-2.08-1.68-2.2 2.92a.56.56 0 01-.45.22H2v1.71a.75.75 0 00.74.75h18.52a.75.75 0 00.74-.75v-1.71zM9 18.18h6a.29.29 0 01.3.3.29.29 0 01-.3.3H9a.29.29 0 01-.3-.3.29.29 0 01.3-.3z"
+          opacity=".8"
+        ></path></svg
+      >
+      <span class={getClassName("side_menu_button_name", "slas")}>SLAs</span>
+    </a>
+    <a
       href={`/manage/datagen?site=${appService.currentSiteData.id}`}
       class={getClassName("side_menu_button", "datagen")}
     >
@@ -159,28 +180,7 @@
       <span class={getClassName("side_menu_button_name", "datagen")}
         >AI DataGen</span
       >
-    </a>
-    <a
-      href={`/manage/slas?site=${appService.currentSiteData.id}`}
-      class={getClassName("side_menu_button", "slas")}
-    >
-      <svg
-        style="position: relative; top: -2px"
-        class={getClassName("side_menu_button_logo", "slas")}
-        width="20px"
-        viewBox="0 0 18 18"
-        preserveAspectRatio="xMidYMid meet"
-        focusable="false"
-        ><path
-          d="M10.83 16.33h2.33v1.85h-2.33zM5.5 12.76L7.88 9.6a.55.55 0 01.37-.22.63.63 0 01.42.12l2.12 1.72 2.8-2.94a.54.54 0 01.4-.17.54.54 0 01.4.17l4.33 4.48H22V6a.74.74 0 00-.74-.74H2.74A.74.74 0 002 6v6.81z"
-          opacity=".6"
-        ></path><path
-          d="M18.48 13.87a.56.56 0 01-.4-.17L14 9.47l-2.74 2.89a.57.57 0 01-.76.05l-2.08-1.68-2.2 2.92a.56.56 0 01-.45.22H2v1.71a.75.75 0 00.74.75h18.52a.75.75 0 00.74-.75v-1.71zM9 18.18h6a.29.29 0 01.3.3.29.29 0 01-.3.3H9a.29.29 0 01-.3-.3.29.29 0 01.3-.3z"
-          opacity=".8"
-        ></path></svg
-      >
-      <span class={getClassName("side_menu_button_name", "slas")}>SLAs</span>
-    </a>
+    </a>    
     <a
       href={`/manage/sites?site=${appService.currentSiteData.id}`}
       class={getClassName("side_menu_button", "sites")}

@@ -13,6 +13,21 @@ export function logDebug(name: string, payload: string): void {
   }
 }
 
+export function tryParseJson (jsonString: string){
+  try {
+      var o = JSON.parse(jsonString);
+
+      if (o && typeof o === "object") {
+        return o;
+      }
+  }
+  catch (e) {
+    console.log(`Could not parse json.`);
+  }
+
+  return false;
+};
+
 // Generates a random string of a given length. Defaults to 6 characters.
 export const generateRandomString = (length = 6) => Math.random().toString(20).substring(2, length + 2);
 

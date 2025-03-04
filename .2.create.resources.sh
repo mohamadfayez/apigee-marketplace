@@ -44,6 +44,18 @@ gcloud projects add-iam-policy-binding $PROJECT_ID \
 
 gcloud projects add-iam-policy-binding $PROJECT_ID \
     --member="serviceAccount:mpservice@$PROJECT_ID.iam.gserviceaccount.com" \
+    --role="roles/apigee.apiAdminV2" --project $PROJECT_ID
+
+gcloud projects add-iam-policy-binding $PROJECT_ID \
+    --member="serviceAccount:mpservice@$PROJECT_ID.iam.gserviceaccount.com" \
+    --role="roles/apigee.monetizationAdmin" --project $PROJECT_ID
+
+gcloud projects add-iam-policy-binding $PROJECT_ID \
+    --member="serviceAccount:mpservice@$PROJECT_ID.iam.gserviceaccount.com" \
+    --role="roles/apihub.editor" --project $PROJECT_ID
+
+gcloud projects add-iam-policy-binding $PROJECT_ID \
+    --member="serviceAccount:mpservice@$PROJECT_ID.iam.gserviceaccount.com" \
     --role="roles/bigquery.dataViewer" --project $PROJECT_ID
 
 gcloud projects add-iam-policy-binding $PROJECT_ID \

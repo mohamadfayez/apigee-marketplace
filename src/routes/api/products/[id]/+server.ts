@@ -86,12 +86,14 @@ export const DELETE: RequestHandler = async({ params, url, request}) => {
       resultProduct = docData as DataProduct;
   }
 
+  if (resultProduct && resultProduct.apigeeMonetizationId)
+    deleteMonetizationPlanForProduct(resultProduct.apigeeMonetizationId, resultProduct.apigeeProductId);
+
   await document.delete();
 
   // Now delete Api & Api Hub products
   deleteApiProduct(id);
   deleteApiHubProduct(id);
-
 
   if (resultProduct) {
 	  return json(resultProduct);

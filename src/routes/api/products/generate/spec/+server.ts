@@ -3,6 +3,7 @@ import { json, text, type RequestHandler } from "@sveltejs/kit";
 import { GoogleAuth } from "google-auth-library";
 import { VertexAI } from "@google-cloud/vertexai";
 import { PUBLIC_PROJECT_ID, PUBLIC_API_HOST, PUBLIC_APIGEE_ENV } from '$env/static/public';
+import { tryParseJson } from "$lib/utils";
 
 const auth = new GoogleAuth({
   scopes: 'https://www.googleapis.com/auth/cloud-platform'
@@ -43,9 +44,13 @@ export const POST: RequestHandler = async({ params, url, request}) => {
   let prompt: string = newProduct.specPrompt;
 
   prompt += "   " + payload;
+  let specJson: any = false;
 
-  let newSpec = (await generateSpecGemini(prompt)).replaceAll("```json", "").replaceAll("```", "");
-  newProduct.specContents = newSpec;
+  while (!specJson) {
+    let newSpec = (await generateSpecGemini(prompt)).replaceAll("```json", "").replaceAll("```", "");
+    specJson = tryParseJson(newSpec);
+    if (specJson) newProduct.specContents = newSpec;
+  }
 
 	return json(newProduct);
 }

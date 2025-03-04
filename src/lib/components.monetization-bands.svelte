@@ -16,7 +16,7 @@
 
     if (previousBand.end == "-1" || previousBand.end == "0" || previousBand.end == "") {
       let currentNano = (parseInt(previousBand.fee.nanos) - 1).toString();
-      if (currentNano.length === 1) currentNano = "0" + currentNano;
+      if (currentNano.length === 1) currentNano = currentNano + "0000000";
       previousBand.end = (parseInt(previousBand.start) + 100).toString();
       newBand.start = (parseInt(previousBand.end) + 1).toString();
       newBand.fee = {currencyCode: "USD", units: previousBand.fee.units, nanos: currentNano};

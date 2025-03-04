@@ -1,10 +1,10 @@
 <script lang="ts">
-  import { goto, invalidate } from "$app/navigation";
   import { page } from "$app/stores";
   import { appService } from "$lib/app-service";
   import { onMount } from "svelte";
   import MenuLeftAccount from "$lib/components-menus-left/menus-left.account.svelte";
   import { ApiApp, DataProduct, DialogType } from "$lib/interfaces";
+    import { generateRandomString } from "$lib/utils";
 
   let name: string = "";
   let description: string = "";
@@ -20,7 +20,7 @@
     if (products && !name) {
       let product = products.find((x) => x.apigeeProductId === urlProduct);
       if (product) {
-        name = product.name + " app";
+        name = product.name + " App " + generateRandomString(4);
         product_input = product.id;
       }
     }
@@ -34,7 +34,7 @@
       if (products && !name) {
         let product = products.find((x) => x.apigeeProductId === urlProduct);
         if (product) {
-          name = product.name + " app";
+          name = product.name + " App " + generateRandomString(4);
           product_input = product.id;
         }
       }

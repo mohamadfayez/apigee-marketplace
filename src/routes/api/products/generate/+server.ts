@@ -3,6 +3,7 @@ import { json, type RequestHandler } from "@sveltejs/kit";
 import { GoogleAuth } from "google-auth-library";
 import { PUBLIC_PROJECT_ID, PUBLIC_API_HOST, PUBLIC_APIGEE_ENV } from '$env/static/public';
 import { VertexAI } from "@google-cloud/vertexai";
+import { tryParseJson } from "$lib/utils";
 
 const auth = new GoogleAuth({
   scopes: 'https://www.googleapis.com/auth/cloud-platform'
@@ -52,20 +53,23 @@ export const POST: RequestHandler = async({ params, url, request}) => {
 
   let newProduct: DataProduct = await request.json();
   let genAiResponse: string = "";
+  let genAiResponseJson: any = false;
 
   if (newProduct.protocols.includes("API") && (newProduct.source.startsWith("BigQuery") || newProduct.source === "API")) {
     // Set KVM entry for the data proxy to BigQuery
     await setKVMEntry("marketplace-kvm", newProduct.entity, newProduct.query);
   } else if (newProduct.source === DataSourceTypes.GenAITest) {
-    genAiResponse = await generatePayloadGemini(`Generate a sample JSON payload for ${newProduct.query} with at least 10 records and 20 properties per record. Only return pure JSON. `);
-    genAiResponse = genAiResponse.replace("```json", "").replace("```", "").replaceAll("\n", "");
-    await setKVMEntry("marketplace-kvm", newProduct.entity + "__mock", genAiResponse);
+    while (!genAiResponseJson) {
+      genAiResponse = await generatePayloadGemini(`Generate a sample JSON payload for ${newProduct.query} with at least 10 records and 20 properties per record. Only return valid JSON with no sympols or special characters. `);
+      genAiResponse = genAiResponse.replace("```json", "").replace("```", "").replaceAll("\n", "");
+      genAiResponseJson = tryParseJson(genAiResponse);
+
+      if (genAiResponseJson)
+        await setKVMEntry("marketplace-kvm", newProduct.entity + "__mock", genAiResponse);
+    }
   }
 
-  let response = {};
-  if (genAiResponse) response = JSON.parse(genAiResponse);
-
-	return json(response);
+	return json(genAiResponseJson);
 }
 
 async function setKVMEntry(KVMName: string, keyName: string, keyValue: string) {

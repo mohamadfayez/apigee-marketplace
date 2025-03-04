@@ -5,14 +5,20 @@
   import { onMount } from "svelte";
   import { error } from "@sveltejs/kit";
   import { fade, fly, scale, slide } from "svelte/transition";
+  import {tryParseJson} from "$lib/utils";
 
   let job: DataGenJob = new DataGenJob();
+  let newItemNames: string[] = [];
   let processing: boolean = false;
 
   job.userName = appService.currentUser?.firstName + " " + appService.currentUser?.lastName;
   job.userEmail = appService.currentUser?.email ?? "";
   job.site = appService.currentSiteData.id;
   job.categories = appService.currentSiteData.categories;
+
+  if (appService.configData && appService.configData.ratePlans) {
+    job.monetizationPlans = appService.configData.ratePlans;
+  }
 
   onMount(() => {
     document.addEventListener("userUpdated", () => {
@@ -23,6 +29,10 @@
     document.addEventListener("siteUpdated", () => {
       job.site = appService.currentSiteData.id;
       job.categories = appService.currentSiteData.categories;
+
+      if (appService.configData && appService.configData.ratePlans) {
+        job.monetizationPlans = appService.configData.ratePlans;
+      }
     });
 
     if (appService.dataGenJob) {
@@ -49,23 +59,21 @@
 
   async function monitorJob() {
     if (appService.dataGenJob) {
-      const processingResponse = await fetch('/api/datagen?id=' + appService.dataGenJob.id);
+      const processingResponse = await fetch('/api/datagen?id=' + appService.dataGenJob.id, {signal: AbortSignal.timeout(1800000)});
       if (processingResponse && processingResponse.body) {
         const reader = processingResponse.body.pipeThrough(new TextDecoderStream()).getReader();
         while (true) {
           const { value, done } = await reader.read();
           if (done) break;
-          job = JSON.parse(value);
+          let o = tryParseJson(value);
+          if (o) newItemNames = o;
         }
       }
 
-      if (job && job.products.length > 0) {
-        appService.products = appService.products?.concat(job.products);
-        appService.GoTo("/home", true);
-      }
       appService.dataGenJob = undefined;
       processing = false;
       appService.ShowSnackbar("Data successfully generated.");
+      appService.GoTo("/home", true);
     }
   }
 
@@ -112,10 +120,10 @@
             <div></div>
           </div>
           <div style="margin-bottom: 20px; margin-left: 8px;">
-            Created {job.products.length} item(s) of {job.apiCount}.
-            {#if job.products && job.products.length > 0}
-              {#each job.products as product}
-                <div>Item: {product.name}</div>
+            Created {newItemNames.length} item(s) of {job.apiCount}.
+            {#if newItemNames && newItemNames.length > 0}
+              {#each newItemNames as itemName}
+                <div>Item: {itemName}</div>
               {/each}
             {/if}
           </div>

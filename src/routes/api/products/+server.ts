@@ -64,8 +64,8 @@ export const POST: RequestHandler = async ({ params, url, request }) => {
     // set mock data if product is Gen AI test generated
     setKVMEntry("marketplace-kvm", newProduct.entity + "-mock", newProduct.samplePayload);
     // create and set product
-    createProduct("marketplace_" + newProduct.id, "Marketplace " + newProduct.name, "/" + newProduct.entity, proxyName);
-    newProduct.apigeeProductId = "marketplace_" + newProduct.id;
+    newProduct.apigeeProductId = "marketplace-" + newProduct.id;
+    createProduct(newProduct.apigeeProductId, "Marketplace " + newProduct.name, "/" + newProduct.entity, proxyName);
   } else if ((newProduct.source.startsWith("BigQuery") || newProduct.source === DataSourceTypes.API)
     && newProduct.protocols.includes(ProductProtocols.API)
     && newProduct.entity) {
@@ -82,28 +82,30 @@ export const POST: RequestHandler = async ({ params, url, request }) => {
     }
     
     // create and set product
-    createProduct("marketplace_" + newProduct.id, "Marketplace " + newProduct.name, "/" + newProduct.entity, proxyName);
-    newProduct.apigeeProductId = "marketplace_" + newProduct.id;
+    newProduct.apigeeProductId = "marketplace-" + newProduct.id;
+    createProduct(newProduct.apigeeProductId, "Marketplace " + newProduct.name, "/" + newProduct.entity, proxyName);
 
   } else if (newProduct.source === DataSourceTypes.AIModel) {
     setKVMEntry("marketplace-kvm", newProduct.entity + "-model", newProduct.query);
     setKVMEntry("marketplace-kvm", newProduct.entity + "-systemprompt", newProduct.queryAdditionalInfo);
     // create and set product
-    createProduct("marketplace_" + newProduct.id, "Marketplace " + newProduct.name, "/" + newProduct.entity, proxyName);
-    newProduct.apigeeProductId = "marketplace_" + newProduct.id;
+    newProduct.apigeeProductId = "marketplace-" + newProduct.id;
+    createProduct(newProduct.apigeeProductId, "Marketplace " + newProduct.name, "/" + newProduct.entity, proxyName);
   }
 
   // create monetization rate plan for product, if set
   if (newProduct.monetizationData) {
-    createMonetizationPlanForProduct(newProduct);
+    await delay(3000);
+    newProduct.monetizationData.apiproduct = newProduct.apigeeProductId;
+    await createMonetizationPlanForProduct(newProduct);
   }
 
   if (newProduct.protocols.includes(ProductProtocols.DataSync)) {
     // Set KVM entry for the data proxy to BigQuery
     setKVMEntry("marketplace-kvm", newProduct.entity, newProduct.query);
     // Create the API product to access the storage export
-    createProduct("marketplace_storage_" + newProduct.id, "Marketplace Storage " + newProduct.name, "/", "MP-StorageAPI-v1");
-    newProduct.apigeeProductId = "marketplace_storage_" + newProduct.id;
+    newProduct.apigeeProductId = "marketplace-storage-" + newProduct.id;
+    createProduct(newProduct.apigeeProductId, "Marketplace Storage " + newProduct.name, "/", "MP-StorageAPI-v1");
     // Add to storage entities to sync daily through integration flow
     // let storageConfigDoc = firestore.doc("data-marketplace-config/storage-sync");
     // let storageConfig = await storageConfigDoc.get();
@@ -191,7 +193,7 @@ function deleteApiHubProduct(id: string) {
 }
 
 async function createMonetizationPlanForProduct(product: DataProduct) {
-  let newPlan: MonetizationRatePlan = JSON.parse(JSON.stringify(product.monetizationData))
+  let newPlan: MonetizationRatePlan = JSON.parse(JSON.stringify(product.monetizationData));
   delete newPlan.name;
 
   let token = await auth.getAccessToken();
@@ -205,6 +207,9 @@ async function createMonetizationPlanForProduct(product: DataProduct) {
   });
 
   let responsePayload = await response.json();
+  if (responsePayload && responsePayload.name) {
+    product.apigeeMonetizationId = responsePayload.name;
+  }
 
   if (response.status != 201) {
     console.error("Error creating monetization plan");
@@ -557,4 +562,8 @@ async function getApiHubAttribute(name: string): Promise<ApiHubAttribute[]> {
   }
 
   return attributes;
+}
+
+function delay(ms: number): Promise<void> {
+  return new Promise((res) => setTimeout(res, ms));
 }

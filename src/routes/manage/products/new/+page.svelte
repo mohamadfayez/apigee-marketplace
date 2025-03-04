@@ -76,7 +76,10 @@
         let ratePlan = appService.configData.ratePlans.find((x) => x.name === product?.monetizationId);
         if (ratePlan) {
           product.monetizationData = JSON.parse(JSON.stringify(ratePlan));
-          if (product.monetizationData) product.monetizationData.apiproduct = product.apigeeProductId;
+          if (product.monetizationData) {
+            product.monetizationData.apiproduct = product.apigeeProductId;
+            product.monetizationData.displayName = product.name + " " + product.monetizationData.displayName;
+          }
         }
       }
 

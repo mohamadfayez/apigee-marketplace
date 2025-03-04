@@ -448,7 +448,7 @@ curl -i -X POST "https://firestore.googleapis.com/v1/projects/$PROJECT_ID/databa
                                           "stringValue": "0"
                                         },
                                         "nanos": {
-                                          "stringValue": "10"
+                                          "stringValue": "100000000"
                                         }
                                       }
                                     }
@@ -475,7 +475,7 @@ curl -i -X POST "https://firestore.googleapis.com/v1/projects/$PROJECT_ID/databa
                                           "stringValue": "0"
                                         },
                                         "nanos": {
-                                          "stringValue": "09"
+                                          "stringValue": "90000000"
                                         }
                                       }
                                     }
@@ -502,7 +502,7 @@ curl -i -X POST "https://firestore.googleapis.com/v1/projects/$PROJECT_ID/databa
                                           "stringValue": "0"
                                         },
                                         "nanos": {
-                                          "stringValue": "08"
+                                          "stringValue": "80000000"
                                         }
                                       }
                                     }
@@ -529,7 +529,7 @@ curl -i -X POST "https://firestore.googleapis.com/v1/projects/$PROJECT_ID/databa
                                           "stringValue": "0"
                                         },
                                         "nanos": {
-                                          "stringValue": "07"
+                                          "stringValue": "70000000"
                                         }
                                       }
                                     }
@@ -634,7 +634,7 @@ curl -i -X POST "https://firestore.googleapis.com/v1/projects/$PROJECT_ID/databa
                                           "stringValue": "0"
                                         },
                                         "nanos": {
-                                          "stringValue": "08"
+                                          "stringValue": "80000000"
                                         }
                                       }
                                     }
@@ -661,7 +661,7 @@ curl -i -X POST "https://firestore.googleapis.com/v1/projects/$PROJECT_ID/databa
                                           "stringValue": "0"
                                         },
                                         "nanos": {
-                                          "stringValue": "07"
+                                          "stringValue": "70000000"
                                         }
                                       }
                                     }
@@ -688,7 +688,7 @@ curl -i -X POST "https://firestore.googleapis.com/v1/projects/$PROJECT_ID/databa
                                           "stringValue": "0"
                                         },
                                         "nanos": {
-                                          "stringValue": "06"
+                                          "stringValue": "60000000"
                                         }
                                       }
                                     }
@@ -715,7 +715,7 @@ curl -i -X POST "https://firestore.googleapis.com/v1/projects/$PROJECT_ID/databa
                                           "stringValue": "0"
                                         },
                                         "nanos": {
-                                          "stringValue": "05"
+                                          "stringValue": "50000000"
                                         }
                                       }
                                     }
@@ -820,7 +820,7 @@ curl -i -X POST "https://firestore.googleapis.com/v1/projects/$PROJECT_ID/databa
                                           "stringValue": "0"
                                         },
                                         "nanos": {
-                                          "stringValue": "05"
+                                          "stringValue": "50000000"
                                         }
                                       }
                                     }
@@ -847,7 +847,7 @@ curl -i -X POST "https://firestore.googleapis.com/v1/projects/$PROJECT_ID/databa
                                           "stringValue": "0"
                                         },
                                         "nanos": {
-                                          "stringValue": "04"
+                                          "stringValue": "40000000"
                                         }
                                       }
                                     }
@@ -874,7 +874,7 @@ curl -i -X POST "https://firestore.googleapis.com/v1/projects/$PROJECT_ID/databa
                                           "stringValue": "0"
                                         },
                                         "nanos": {
-                                          "stringValue": "03"
+                                          "stringValue": "30000000"
                                         }
                                       }
                                     }
@@ -901,7 +901,7 @@ curl -i -X POST "https://firestore.googleapis.com/v1/projects/$PROJECT_ID/databa
                                           "stringValue": "0"
                                         },
                                         "nanos": {
-                                          "stringValue": "02"
+                                          "stringValue": "20000000"
                                         }
                                       }
                                     }
