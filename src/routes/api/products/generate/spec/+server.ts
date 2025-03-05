@@ -46,10 +46,14 @@ export const POST: RequestHandler = async({ params, url, request}) => {
   prompt += "   " + payload;
   let specJson: any = false;
 
-  while (!specJson) {
-    let newSpec = (await generateSpecGemini(prompt)).replaceAll("```json", "").replaceAll("```", "");
-    specJson = tryParseJson(newSpec);
-    if (specJson) newProduct.specContents = newSpec;
+  if (newProduct.source === DataSourceTypes.GenAITest) {
+    newProduct.specContents = generateSpecMockData(newProduct.name, "https://" + PUBLIC_API_HOST, "/v1/mock/" + newProduct.entity, newProduct.samplePayload);
+  } else {
+    while (!specJson) {
+      let newSpec = (await generateSpecGemini(prompt)).replaceAll("```json", "").replaceAll("```", "");
+      specJson = tryParseJson(newSpec);
+      if (specJson) newProduct.specContents = newSpec;
+    }
   }
 
 	return json(newProduct);
@@ -70,54 +74,271 @@ function generateSpecGemini(prompt: string): Promise<string> {
   });
 }
 
-function generateSpecApigee(prompt: string): Promise<string> {
-  return new Promise<string>((resolve, reject) => {
-    let url = `https://${PUBLIC_API_HOST}/v2/genai/prompt`;
-    console.log(url);
-    fetch(url, {
-      headers: {
-        "Content-Type": "application/json"
-      },
-      method: "POST",
-      body: JSON.stringify({
-        prompt: prompt
-      })
-    }).then((response) => {
-      if (response.status != 200) {
-        console.error("Could not call Gen AI Prompt API, response code from server: " + response.status);
-        reject("Could not call Gen AI Prompt API");
+function generateSpecMockData(name: string, server: string, path: string, payload: string): string {
+  let result = JSON.parse(JSON.stringify(baseSpec));
+  result.info.title = name;
+  result.info.description = result.info.description.replaceAll("{name}", name).replaceAll("{path}", path);
+  result.servers[0].url = server;
+  delete Object.assign(result.paths, {[path]: result.paths["{path}"] })["{path}"];
+  delete Object.assign(result.paths, {[path+ "/{id}"]: result.paths["{path}/{id}"] })["{path}/{id}"];
+  result.paths[path].get.summary = "Get all " + name + " records";
+  result.paths[path].get.description = "Retrieves a list of all " + name + " records";
+  result.paths[path].post.summary = "Create a new " + name + " record";
+  result.paths[path].post.description = "Creates a new " + name + " record";
+  result.paths[path+"/{id}"].get.summary = "Get a single " + name + " record by id";
+  result.paths[path+"/{id}"].get.description = "Retrieves a single " + name + " record by id";
+  result.paths[path+"/{id}"].put.summary = "Updates a single " + name + " record by id";
+  result.paths[path+"/{id}"].put.description = "Updates a single " + name + " record by id";
+  result.paths[path+"/{id}"].delete.summary = "Deletes a single " + name + " record by id";
+  result.paths[path+"/{id}"].delete.description = "Deletes a single " + name + " record by id";
+
+  let payloadObject = tryParseJson(payload);
+
+  result.components.schemas.Record.properties = {};
+  result.components.schemas.Record.required = [];
+
+  if (payloadObject) {
+    for (const [key, value] of Object.entries(payloadObject[0])) {
+      let valType = typeof value;
+      let isInt = Number.isInteger(value);
+      let valProp: any = { "type": "string" };
+      if (valType === "number"){
+        if (isInt) {
+          valProp = { "type": "integer", "format": "int64" };
+        } else {
+          valProp = { "type": "number", "format": "float" };
+        }
+      } else if (valType === "boolean") {
+        valProp = { "type": "boolean"};
       }
-      else
-        return response.text();
-    }).then((result: string | undefined) => {
-      if (result) {
-        let jsonResult = JSON.parse(result);
-        resolve(jsonResult.answer);
-      }
-    }).catch((error) => {
-      console.error("Error in genai request: ");
-      console.error(error);
-      reject("Error in calling Gen AI API.");
-    })
-    
-  });
+
+      result.components.schemas.Record.properties[key] = valProp;
+      if (result.components.schemas.Record.required.length < 3)
+        result.components.schemas.Record.required.push(key);
+    }
+  }
+
+
+  return JSON.stringify(result, null, 2);
 }
 
-function setKVMEntry(KVMName: string, keyName: string, keyValue: string) {
-  auth.getAccessToken().then((token) => {
-    fetch(`https://apigee.googleapis.com/v1/organizations/${PUBLIC_PROJECT_ID}/environments/${PUBLIC_APIGEE_ENV}/keyvaluemaps/${KVMName}/entries`, {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${token}`,
-        "Content-Type": "application/json"
+let baseSpec = {
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Client Onboarding API",
+    "version": "1.0.0",
+    "description": "This API allows you to manage {name} information.  Use this API to GET, POST, PUT, and DELETE records.\n\n**Authentication:** All requests require an API key in the `x-api-key` header.\n\n**Endpoints:**\n\n* `{path}`:  Handles GET (retrieve all records) and POST (create new records) operations. \n* `{path}/{id}`: Handles GET (retrieve a single record), PUT (update a single record), and DELETE (delete a single record) operations.\n\n"
+  },
+  "servers": [
+    {
+      "url": "https://34-149-70-69.nip.io",
+      "description": "Production server"
+    }
+  ],
+  "paths": {
+    "{path}": {
+      "get": {
+        "summary": "Get all records",
+        "description": "Retrieves a list of records.",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "A list of records",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Record"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ]
       },
-      body: JSON.stringify({
-        name: keyName,
-        value: keyValue
-      })
-    }).then((response) => {
-    }).catch((error) => {
-      console.error(error);
-    });
-  });
-}
+      "post": {
+        "summary": "Create a new client onboarding record",
+        "description": "Creates a new client onboarding record.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Record"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Record created successfully"
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ]
+      }
+    },
+    "{path}/{id}": {
+      "get": {
+        "summary": "Get a single record",
+        "description": "Retrieves a specific record by id.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of the resource",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A single record",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Record"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ]
+      },
+      "put": {
+        "summary": "Update a record",
+        "description": "Updates a specific record by id.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of the record",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Record"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Record updated successfully"
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ]
+      },
+      "delete": {
+        "summary": "Delete a record",
+        "description": "Deletes a specific record by id.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of the record",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Record deleted successfully"
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Record": {
+        "type": "object",
+        "properties": {
+          "clientId": { "type": "string" },
+          "clientName": { "type": "string" },
+          "contactPerson": { "type": "string" },
+          "contactTitle": { "type": "string" },
+          "contactEmail": { "type": "string", "format": "email" },
+          "contactPhone": { "type": "string" },
+          "addressLine1": { "type": "string" },
+          "addressLine2": { "type": "string" },
+          "city": { "type": "string" },
+          "state": { "type": "string" },
+          "zipCode": { "type": "string" },
+          "country": { "type": "string" },
+          "industry": { "type": "string" },
+          "annualRevenue": { "type": "integer", "format": "int64" },
+          "investmentObjective": { "type": "string" },
+          "riskTolerance": { "type": "string" },
+          "accountType": { "type": "string" },
+          "legalStructure": { "type": "string" },
+          "incorporationDate": { "type": "string", "format": "date" },
+          "taxId": { "type": "string" },
+          "accountOfficer": { "type": "string" }
+        },
+        "required": [
+          "clientId",
+          "clientName",
+          "contactPerson",
+          "contactTitle",
+          "contactEmail",
+          "contactPhone",
+          "addressLine1",
+          "city",
+          "state",
+          "zipCode",
+          "country",
+          "industry",
+          "annualRevenue",
+          "investmentObjective",
+          "riskTolerance",
+          "accountType",
+          "legalStructure",
+          "incorporationDate",
+          "taxId",
+          "accountOfficer"
+        ]
+      }
+    },
+    "securitySchemes": {
+      "ApiKeyAuth": {
+        "type": "apiKey",
+        "name": "x-api-key",
+        "in": "header"
+      }
+    }
+  }
+};

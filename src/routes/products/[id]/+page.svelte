@@ -546,6 +546,7 @@
             allow-api-list-style-selection="false"
             allow-search="false"
             allow-advanced-search="false"
+            allow-spec-file-download="true"
             theme="light"
             render-style="focused"
             style={{ textAlign: "left" }}
@@ -860,7 +861,7 @@
     left: 10px;
     right: 10px;
     bottom: 10px;
-    background-color: rgba(255, 255, 255, 0.75);
+    background-color: rgba(0, 0, 0, 0.5);
   }
 
   .preview_data_content {

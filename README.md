@@ -39,3 +39,6 @@ After deploying and running you can open the dev version in your browser at http
 ## Open source libraries used
 - [Svelte-JSON Editor](https://github.com/josdejong/svelte-jsoneditor) - awesome JSON editor svelte control.
 - [Rapidoc](https://rapidocweb.com/) - very nice Open API spec documentation web element that is used for API docs.
+
+## Support
+This is not an officially supported Google product.

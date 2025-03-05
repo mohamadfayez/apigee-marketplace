@@ -6,12 +6,13 @@
   import { generateRandomString, defaultCategories, bqtables } from "$lib/utils";
   import { appService } from "$lib/app-service";
   import { PUBLIC_PROJECT_ID } from '$env/static/public';
+    import { goto } from "$app/navigation";
 
   let site: Site = {id: generateRandomString(4), name: "", nameTop: "-12px", nameLeft: "4px", logoUrl: "/loop.svg", logoWidth: "36px", owner: appService.currentUser?.email ? appService.currentUser?.email : "", categories: defaultCategories, products: [], bqtables: bqtables, googleCloudProjectId: PUBLIC_PROJECT_ID, heroImageUrl: "/products_banner.png", heroGradientStyle: "", heroBackgroundPosition: ""};
 
   onMount(() => {
     document.addEventListener("siteUpdated", () => {
-      site.categories = appService.currentSiteData.categories;
+      site.categories = defaultCategories;
     });
   });
 
@@ -33,9 +34,9 @@
     }).then((response) => {
         return response.json();
     }).then((data: Site) => {
-      appService.sites.push(data);
-      document.dispatchEvent(new Event('siteUpdated'));
-      appService.GoTo("/home?site=" + data.id);
+      goto("/home?site=" + data.id).then(() => {
+        location.reload();
+      });
     }).catch((error) => {
       console.error(error);
     });

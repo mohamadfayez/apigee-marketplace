@@ -17,7 +17,7 @@
   import InputSelect from "$lib/components.input.select.svelte";
   import TagCloud from "$lib/components.tag.cloud.svelte";
   import CatTableSelect from "$lib/components.flat-table-grouped.svelte";
-  import { protocols, audiences } from "$lib/utils";
+  import { protocols, audiences, capFirst } from "$lib/utils";
   import { JSONEditor, Mode } from "svelte-jsoneditor";
   // import {FlatTable} from "$lib/components.flat-table.svelte";
   import { text } from "@sveltejs/kit";
@@ -298,12 +298,21 @@
 
   function onGenAiTestChange(e: any) {
     let pieces = product.query.split(" ");
-    if (pieces.length > 1 && pieces[1].toLowerCase() != "data")
+    if (pieces.length > 1 && pieces[1].toLowerCase() != "data") {
       product.entity = pieces[0].toLowerCase() + "-" + pieces[1].toLowerCase() +  "-data";
-    else if (pieces.length > 1)
+      if (!product.name) product.name = capFirst(pieces[0]) + " " + capFirst(pieces[1]) + " API";
+      if (!product.description) product.description = capFirst(pieces[0]) + " " + capFirst(pieces[1]) + " API for the organization.";
+    }
+    else if (pieces.length > 1) {
       product.entity = pieces[0].toLowerCase() + "-" + pieces[1].toLowerCase();
-    else if (pieces.length > 0)
+      if (!product.name) product.name = capFirst(pieces[0]) + " " + capFirst(pieces[1]) + " API";
+      if (!product.description) product.description = capFirst(pieces[0]) + " " + capFirst(pieces[1]) + " API for the organization.";
+    }
+    else if (pieces.length > 0) {
       product.entity = pieces[0].toLowerCase() + "-data";
+      if (!product.name) product.name = capFirst(pieces[0]) + " API";
+      if (!product.description) product.description = capFirst(pieces[0]) + " API for the organization.";
+    }
     
     refreshPayload();
   }

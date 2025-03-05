@@ -60,7 +60,7 @@ export const POST: RequestHandler = async({ params, url, request}) => {
     await setKVMEntry("marketplace-kvm", newProduct.entity, newProduct.query);
   } else if (newProduct.source === DataSourceTypes.GenAITest) {
     while (!genAiResponseJson) {
-      genAiResponse = await generatePayloadGemini(`Generate a sample JSON payload for ${newProduct.query} with at least 10 records and 20 properties per record. Only return valid JSON with no sympols or special characters. `);
+      genAiResponse = await generatePayloadGemini(`Generate a sample JSON payload for ${newProduct.query} with at least 10 records and 20 properties per record with the first property named id. Only return valid JSON with no sympols or special characters. `);
       genAiResponse = genAiResponse.replace("```json", "").replace("```", "").replaceAll("\n", "");
       genAiResponseJson = tryParseJson(genAiResponse);
 

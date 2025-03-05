@@ -140,20 +140,20 @@
       {#if siteMenuVisible}
         <!-- svelte-ignore a11y-no-static-element-interactions -->
         <!-- svelte-ignore a11y-click-events-have-key-events -->
-        <div class="menuPanel" transition:slide on:click|stopPropagation={() => {}} style="right: 76px; width: 240px; max-height: 454px;">
+        <div class="menuPanel" transition:slide on:click|stopPropagation={() => {}} style="right: 76px; width: 240px;">
           <div class="arrow" style="left: 196px;" />
-          <div class="menu" style="width: 100%;">
-            <div class="panel">
-              <span style="width: 100%; text-align: center; font-size: 17px; position: relative; top: -13px; color: darkslategray;">
-                {#if currentUser.roles.includes("admin")}
-                  <div style="display: flex; padding-left: 4px; padding-right: 4px;">
-                    <a class="text_button" style="width: 50%; text-align: left; padding: 0px;" href={`/manage/sites?site=${currentSite.id}`}>Hubs</a>
-                    <a class="text_button" style="width: 50%; text-align: right; padding: 0px;" href={`/manage/sites/new?site=${currentSite.id}`}>+ New</a>
-                  </div>
-                {:else}
-                  <b>Hubs</b>
-                {/if}
-              </span>
+          <div class="site_menu" style="width: 100%;">
+            <span style="width: 100%; text-align: center; position: relative; top: 15px; font-size: 17px; color: darkslategray;">
+              {#if currentUser.roles.includes("admin")}
+                <div style="display: flex; padding-left: 4px; padding-right: 4px;">
+                  <a class="text_button" style="width: 50%; text-align: left; padding: 0px; position: relative; left: 6x;" href={`/manage/sites?site=${currentSite.id}`}>Hubs</a>
+                  <a class="text_button" style="width: 50%; text-align: right; padding: 0px;" href={`/manage/sites/new?site=${currentSite.id}`}>+ New</a>
+                </div>
+              {:else}
+                <b>Hubs</b>
+              {/if}
+            </span>
+            <div class="site_panel">
               {#each allSites as site}
                 <div class="site_line" style="display: flex;">
                     <img src={site.logoUrl} alt="" width="10%" style="position: relative; top: -2px; margin: 0px 4px;"/>
@@ -253,7 +253,7 @@
   }
 
   .menu {
-    height: 222px;
+    /* height: 222px; */
     width: 300px;
     overflow-y: auto;
     background-color: rgb(255, 255, 255);
@@ -364,6 +364,32 @@
     background-color: #f1f1f1;
   }
 
+  .site_menu {
+    height: 300px;
+    width: 340px;
+    overflow-y: auto;
+    background-color: rgb(255, 255, 255);
+    z-index: 2;
+    position: relative;
+    top: -15px;
+    display: flex;
+    flex-flow: column;
+  }
+
+  .site_panel {
+    background: rgb(255, 255, 255);
+    padding-left: 10px;
+    padding-right: 10px;
+    margin-top: 18px;
+    z-index: 2;
+    padding-top: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row-reverse;
+    align-items: flex-end;
+    overflow-y: auto;
+  }
+
   .site_button {
     font-size: 15px;
     width: 97%;
@@ -376,5 +402,23 @@
 
   .site_line:hover {
     background-color: #f1f1f1;
+  }
+
+  /* Scroll bars */
+
+  ::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #f1f1f1; 
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: #cccccc; 
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #cfcfcf; 
   }
 </style>

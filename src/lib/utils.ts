@@ -31,6 +31,11 @@ export function tryParseJson (jsonString: string){
 // Generates a random string of a given length. Defaults to 6 characters.
 export const generateRandomString = (length = 6) => Math.random().toString(20).substring(2, length + 2);
 
+// Capitalize first letter
+export function capFirst(input: string): string { 
+	return input.charAt(0).toUpperCase() + input.slice(1); 
+}
+
 export let bqtables: { name: string, table: string, entity: string }[] = [{ "name": "DeepMind Alphafold", "table": "bigquery-public-data.deepmind_alphafold.metadata", "entity": "alphafold-metadata" }, { "name": "Austin Bike Trips", "table": "bigquery-public-data.austin_bikeshare.bikeshare_trips", "entity": "bike-trips" }, { "name": "London Bike Trips", "table": "bigquery-public-data.london_bicycles.cycle_hire", "entity": "london-bike-trips" }, { "name": "New York City Bike Trips", "table": "bigquery-public-data.new_york_citibike.citibike_trips", "entity": "new-york-bike-trips" }, { "name": "New York City Subway Trips", "table": "bigquery-public-data.new_york_subway.trips", "entity": "new-york-subway-trips" }, { "name": "Chicago Taxi Trips", "table": "bigquery-public-data.chicago_taxi_trips.taxi_trips", "entity": "chicago-taxi-trips" }, { "name": "BBC News Full Text", "table": "bigquery-public-data.bbc_news.fulltext", "entity": "news-text" }, { "name": "Bitcoin Transactions", "table": "bigquery-public-data.crypto_bitcoin.transactions", "entity": "bitcoin-transactions" }, { "name": "Ethereum Transactions", "table": "bigquery-public-data.crypto_ethereum.transactions", "entity": "ethereum-transactions" }, { "name": "Github Commits", "table": "bigquery-public-data.github_repos.commits", "entity": "github-commits" }, { "name": "NOAA Hurricane Data", "table": "bigquery-public-data.noaa_hurricanes.hurricanes", "entity": "noaa-hurricanes" }, { "name": "NOAA Lightning Data", "table": "bigquery-public-data.noaa_lightning.lightning_strikes", "entity": "noaa-lightning-strikes" }, { "name": "Google Maps Project Sunroof", "table": "bigquery-public-data.sunroof_solar.solar_potential_by_postal_code", "entity": "maps-sunroof" }];
 
 export let protocols: DisplayOptions[] = [
