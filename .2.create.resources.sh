@@ -28,6 +28,8 @@ gcloud iam service-accounts create mpservice \
     --description="Service account to manage marketplace services" \
     --display-name="MarketplaceService" --project $PROJECT_ID
 
+sleep 5
+
 gcloud projects add-iam-policy-binding $PROJECT_ID \
     --member="serviceAccount:mpservice@$PROJECT_ID.iam.gserviceaccount.com" \
     --role="roles/integrations.integrationInvoker" --project $PROJECT_ID
@@ -184,8 +186,9 @@ curl -X POST "https://apigee.googleapis.com/v1/organizations/$PROJECT_ID/reports
 EOF
 
 echo "Enabling Model Armor in our region..."
-gcloud config set api_endpoint_overrides/modelarmor "https://modelarmor.$MODEL_ARMOR_REGION.rep.googleapis.com/"
-gcloud model-armor templates create --location $MODEL_ARMOR_REGION marketplace-template1 \
+gcloud config set api_endpoint_overrides/modelarmor "https://modelarmor.$MODEL_ARMOR_REGION.rep.googleapis.com/" --project $PROJECT_ID
+
+gcloud model-armor templates create --location $MODEL_ARMOR_REGION --project $PROJECT_ID marketplace-template1 \
   --rai-settings-filters='[{ "filterType": "HATE_SPEECH", "confidenceLevel": "MEDIUM_AND_ABOVE" },{ "filterType": "HARASSMENT", "confidenceLevel": "MEDIUM_AND_ABOVE" },{ "filterType": "SEXUALLY_EXPLICIT", "confidenceLevel": "MEDIUM_AND_ABOVE" }]' \
   --basic-config-filter-enforcement=enabled  \
   --pi-and-jailbreak-filter-settings-enforcement=enabled \

@@ -1,8 +1,8 @@
-<APIProxy revision="2" name="MP-StorageAPI-v1">
+<APIProxy revision="1" name="MP-StorageAPI-v1">
     <DisplayName></DisplayName>
     <Description></Description>
-    <CreatedAt>1739685287202</CreatedAt>
-    <LastModifiedAt>1739685287202</LastModifiedAt>
+    <CreatedAt>1741409290216</CreatedAt>
+    <LastModifiedAt>1741409290216</LastModifiedAt>
     <BasePaths>/v1/storage</BasePaths>
     <Policies>
         <Policy>AM-DownloadRedirect</Policy>

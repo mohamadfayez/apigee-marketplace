@@ -1,0 +1,19 @@
+<APIProxy revision="1" name="MP-IntegrationAPI-v1">
+    <DisplayName></DisplayName>
+    <Description></Description>
+    <CreatedAt>1741409285432</CreatedAt>
+    <LastModifiedAt>1741409285432</LastModifiedAt>
+    <BasePaths>/v1/integration</BasePaths>
+    <Policies>
+        <Policy>AM-SetCors</Policy>
+        <Policy>JWT-VerifyToken</Policy>
+        <Policy>RF-ReturnCors</Policy>
+        <Policy>SA-SpikeArrest</Policy>
+    </Policies>
+    <ProxyEndpoints>
+        <ProxyEndpoint>default</ProxyEndpoint>
+    </ProxyEndpoints>
+    <TargetEndpoints>
+        <TargetEndpoint>default</TargetEndpoint>
+    </TargetEndpoints>
+</APIProxy>

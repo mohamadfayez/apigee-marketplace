@@ -428,7 +428,7 @@ export enum DataSourceTypes {
 export class DataGenJob {
   id: string = "";
   name: string = "";
-  topic: string = "financial services investment banking";
+  topic: string = "order management";
   apiCount: number = 15;
   userName: string = "";
   userEmail: string = "";

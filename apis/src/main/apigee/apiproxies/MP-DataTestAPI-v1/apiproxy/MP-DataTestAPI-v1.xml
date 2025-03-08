@@ -1,8 +1,8 @@
-<APIProxy revision="2" name="MP-DataTestAPI-v1">
+<APIProxy revision="1" name="MP-DataTestAPI-v1">
     <DisplayName></DisplayName>
     <Description></Description>
-    <CreatedAt>1739685283009</CreatedAt>
-    <LastModifiedAt>1739685283009</LastModifiedAt>
+    <CreatedAt>1741409282726</CreatedAt>
+    <LastModifiedAt>1741409282726</LastModifiedAt>
     <BasePaths>/v1/test/data</BasePaths>
     <Policies>
         <Policy>AM-RemoveKey</Policy>

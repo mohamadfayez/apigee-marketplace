@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<VerifyJWT continueOnError="false" enabled="true" name="JWT-VerifyToken">
+  <Algorithm>RS256</Algorithm>
+  <Source>request.header.Authorization</Source>
+  <IgnoreUnresolvedVariables>false</IgnoreUnresolvedVariables>
+  <PublicKey>
+    <JWKS uri="https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com"/>
+  </PublicKey>
+  <Issuer>https://securetoken.google.com/apigee-tlab5</Issuer>
+  <Audience>apigee-tlab5</Audience>
+</VerifyJWT>

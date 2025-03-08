@@ -55,7 +55,7 @@
                 })
                 .then((data: ApiApp) => {
                   let index = appService.apiApps?.apps.findIndex(x => x.appId === data.appId);
-                  if (index && index >= 0) {
+                  if (index !== undefined && index >= 0) {
                     let newAppData = appService.apiApps;
                     newAppData?.apps.splice(index, 1);
                     appService.apiApps = newAppData;

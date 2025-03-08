@@ -6,7 +6,6 @@
     <Headers>
       <Header name="Access-Control-Allow-Origin">*</Header>
       <Header name="Access-Control-Allow-Headers">*</Header>
-      <Header name="Access-Control-Allow-Methods">*</Header>
     </Headers>
   </Set>
   <IgnoreUnresolvedVariables>true</IgnoreUnresolvedVariables>

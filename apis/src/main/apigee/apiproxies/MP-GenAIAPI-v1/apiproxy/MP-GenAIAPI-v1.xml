@@ -1,28 +1,28 @@
-<APIProxy revision="28" name="MP-GenAIAPI-v1">
+<APIProxy revision="1" name="MP-GenAIAPI-v1">
     <DisplayName></DisplayName>
     <Description>This API provides Gen AI services.</Description>
-    <CreatedAt>1741099618623</CreatedAt>
-    <LastModifiedAt>1741099618623</LastModifiedAt>
+    <CreatedAt>1741409284200</CreatedAt>
+    <LastModifiedAt>1741409284200</LastModifiedAt>
     <BasePaths>/v1/genai</BasePaths>
     <Policies>
         <Policy>AM-RemoveKey</Policy>
         <Policy>AM-SetCors</Policy>
+        <Policy>AM-SetDefaultModel</Policy>
         <Policy>AM-SetGeminiData</Policy>
         <Policy>AM-SetMistralData</Policy>
+        <Policy>AM-SetSystemPrompt</Policy>
+        <Policy>DC-TokenCounts</Policy>
         <Policy>EV-GetInputs</Policy>
         <Policy>EV-GetMistralTokens</Policy>
+        <Policy>EV-ModelArmor</Policy>
         <Policy>JS-SetGeminiResponse</Policy>
         <Policy>JS-SetMistralResponse</Policy>
+        <Policy>KVM-GetSystemPrompt</Policy>
+        <Policy>RC-CheckCache</Policy>
         <Policy>RF-ReturnCors</Policy>
         <Policy>RF-ValidateInputs</Policy>
-        <Policy>VA-VerifyKey</Policy>
-        <Policy>KVM-GetSystemPrompt</Policy>
-        <Policy>AM-SetSystemPrompt</Policy>
-        <Policy>AM-SetDefaultModel</Policy>
-        <Policy>DC-TokenCounts</Policy>
-        <Policy>RC-CheckCache</Policy>
         <Policy>SC-ModelArmor</Policy>
-        <Policy>EV-ModelArmor</Policy>
+        <Policy>VA-VerifyKey</Policy>
     </Policies>
     <ProxyEndpoints>
         <ProxyEndpoint>default</ProxyEndpoint>
@@ -32,6 +32,7 @@
         <Resource>jsc://mistral-functions.js</Resource>
     </Resources>
     <TargetEndpoints>
+        <TargetEndpoint>Gemini</TargetEndpoint>
         <TargetEndpoint>Gemini Llama</TargetEndpoint>
         <TargetEndpoint>Mistral</TargetEndpoint>
     </TargetEndpoints>

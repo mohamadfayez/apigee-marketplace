@@ -31,6 +31,10 @@ export function tryParseJson (jsonString: string){
 // Generates a random string of a given length. Defaults to 6 characters.
 export const generateRandomString = (length = 6) => Math.random().toString(20).substring(2, length + 2);
 
+export function generateRandomInt(max: number): number {
+  return Math.floor(Math.random() * max) + 1;;
+}
+
 // Capitalize first letter
 export function capFirst(input: string): string { 
 	return input.charAt(0).toUpperCase() + input.slice(1); 

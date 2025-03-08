@@ -1,8 +1,8 @@
-<APIProxy revision="2" name="MP-ServicesTestAPI-v1">
+<APIProxy revision="1" name="MP-ServicesTestAPI-v1">
     <DisplayName></DisplayName>
     <Description></Description>
-    <CreatedAt>1739685286329</CreatedAt>
-    <LastModifiedAt>1739685286329</LastModifiedAt>
+    <CreatedAt>1741409288993</CreatedAt>
+    <LastModifiedAt>1741409288993</LastModifiedAt>
     <BasePaths>/v1/test/services</BasePaths>
     <Policies>
         <Policy>AM-SetTarget</Policy>

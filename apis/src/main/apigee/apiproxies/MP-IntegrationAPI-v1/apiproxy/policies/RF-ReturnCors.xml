@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<RaiseFault continueOnError="false" enabled="true" name="RF-ValidateInputs">
-  <DisplayName>RF-ValidateInputs</DisplayName>
+<RaiseFault continueOnError="false" enabled="true" name="RF-ReturnCors">
+  <DisplayName>RF-ReturnCors</DisplayName>
   <Properties/>
   <FaultResponse>
     <Set>
@@ -9,10 +9,9 @@
         <Header name="Access-Control-Allow-Headers">*</Header>
       </Headers>
       <Payload contentType="text/plain">
-      Incorrect or rejected inputs.
       </Payload>
-      <StatusCode>400</StatusCode>
-      <ReasonPhrase>Incorrect input parameters</ReasonPhrase>
+      <StatusCode>200</StatusCode>
+      <ReasonPhrase>Success</ReasonPhrase>
     </Set>
   </FaultResponse>
   <IgnoreUnresolvedVariables>true</IgnoreUnresolvedVariables>

@@ -64,8 +64,8 @@ export const POST: RequestHandler = async ({ params, url, request }) => {
     // set mock data if product is Gen AI test generated
     setKVMEntry("marketplace-kvm", newProduct.entity + "-mock", newProduct.samplePayload);
     // create and set product
-    newProduct.apigeeProductId = "marketplace-" + newProduct.id;
-    createProduct(newProduct.apigeeProductId, "Marketplace " + newProduct.name, "/" + newProduct.entity, proxyName);
+    newProduct.apigeeProductId = newProduct.id;
+    await createProduct(newProduct.apigeeProductId, "Marketplace " + newProduct.name, "/" + newProduct.entity, proxyName);
   } else if ((newProduct.source.startsWith("BigQuery") || newProduct.source === DataSourceTypes.API)
     && newProduct.protocols.includes(ProductProtocols.API)
     && newProduct.entity) {
@@ -82,15 +82,15 @@ export const POST: RequestHandler = async ({ params, url, request }) => {
     }
     
     // create and set product
-    newProduct.apigeeProductId = "marketplace-" + newProduct.id;
-    createProduct(newProduct.apigeeProductId, "Marketplace " + newProduct.name, "/" + newProduct.entity, proxyName);
+    newProduct.apigeeProductId = newProduct.id;
+    await createProduct(newProduct.apigeeProductId, "Marketplace " + newProduct.name, "/" + newProduct.entity, proxyName);
 
   } else if (newProduct.source === DataSourceTypes.AIModel) {
     setKVMEntry("marketplace-kvm", newProduct.entity + "-model", newProduct.query);
     setKVMEntry("marketplace-kvm", newProduct.entity + "-systemprompt", newProduct.queryAdditionalInfo);
     // create and set product
-    newProduct.apigeeProductId = "marketplace-" + newProduct.id;
-    createProduct(newProduct.apigeeProductId, "Marketplace " + newProduct.name, "/" + newProduct.entity, proxyName);
+    newProduct.apigeeProductId = newProduct.id;
+    await createProduct(newProduct.apigeeProductId, "Marketplace " + newProduct.name, "/" + newProduct.entity, proxyName);
   }
 
   // create monetization rate plan for product, if set
@@ -105,7 +105,7 @@ export const POST: RequestHandler = async ({ params, url, request }) => {
     setKVMEntry("marketplace-kvm", newProduct.entity, newProduct.query);
     // Create the API product to access the storage export
     newProduct.apigeeProductId = "marketplace-storage-" + newProduct.id;
-    createProduct(newProduct.apigeeProductId, "Marketplace Storage " + newProduct.name, "/", "MP-StorageAPI-v1");
+    await createProduct(newProduct.apigeeProductId, "Marketplace Storage " + newProduct.name, "/", "MP-StorageAPI-v1");
     // Add to storage entities to sync daily through integration flow
     // let storageConfigDoc = firestore.doc("data-marketplace-config/storage-sync");
     // let storageConfig = await storageConfigDoc.get();
@@ -162,34 +162,32 @@ async function deleteProducts(idList: string[]) {
   }
 }
 
-function deleteApiProduct(id: string) {
-  auth.getAccessToken().then((token) => {
-    fetch(`https://apigee.googleapis.com/v1/organizations/${PUBLIC_PROJECT_ID}/apiproducts/${id}`, {
-      method: "DELETE",
-      headers: {
-        "Authorization": `Bearer ${token}`
-      }
-    }).then((response) => {
-      return response.json();
-    }).catch((error) => {
-      console.error(error);
-    });
+async function deleteApiProduct(id: string) {
+  let token = await auth.getAccessToken();
+  let response = await fetch(`https://apigee.googleapis.com/v1/organizations/${PUBLIC_PROJECT_ID}/apiproducts/${id}`, {
+    method: "DELETE",
+    headers: {
+      "Authorization": `Bearer ${token}`
+    }
   });
+
+  if (response.status != 200) {
+    console.log("API product " + id + " could not be deleted: " + response.status + " - " + response.statusText);
+  }
 }
 
-function deleteApiHubProduct(id: string) {
-  auth.getAccessToken().then((token) => {
-    fetch(`https://apihub.googleapis.com/v1/projects/${PUBLIC_PROJECT_ID}/locations/${PUBLIC_APIHUB_REGION}/apis/${id}?force=true`, {
-      method: "DELETE",
-      headers: {
-        "Authorization": `Bearer ${token}`
-      }
-    }).then((response) => {
-      return response.json();
-    }).catch((error) => {
-      console.error(error);
-    });
+async function deleteApiHubProduct(id: string) {
+  let token = await auth.getAccessToken();
+  let response = await fetch(`https://apihub.googleapis.com/v1/projects/${PUBLIC_PROJECT_ID}/locations/${PUBLIC_APIHUB_REGION}/apis/${id}?force=true`, {
+    method: "DELETE",
+    headers: {
+      "Authorization": `Bearer ${token}`
+    }
   });
+
+  if (response.status != 200) {
+    console.log("API Hub product " + id + " could not be deleted: " + response.status + " - " + response.statusText);
+  }
 }
 
 async function createMonetizationPlanForProduct(product: DataProduct) {
@@ -312,6 +310,16 @@ async function apiHubRegister(product: DataProduct) {
           enumValues: {
             values: [
               gdprValues[Math.floor(Math.random() * (gdprValues.length - 1))]
+            ]
+          }
+        },
+        "projects/$PROJECT_ID/locations/$REGION/attributes/source": {
+          enumValues: {
+            values: [
+              {
+                id: "marketplace",
+                displayName: "Marketplace"
+              }
             ]
           }
         }
@@ -498,50 +506,53 @@ function setKVMEntry(KVMName: string, keyName: string, keyValue: string) {
   });
 }
 
-function createProduct(name: string, displayName: string, path: string, proxyName: string): Promise<void> {
-  return new Promise<void>((resolve, reject) => {
-    auth.getAccessToken().then((token) => {
-      fetch(`https://apigee.googleapis.com/v1/organizations/${PUBLIC_PROJECT_ID}/apiproducts`, {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${token}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          name: name,
-          displayName: displayName,
-          approvalType: "auto",
-          environments: [PUBLIC_APIGEE_ENV],
-          attributes: [
-            {
-              name: "access",
-              value: "public"
-            }
-          ],
-          operationGroup: {
-            operationConfigs: [
+async function createProduct(name: string, displayName: string, path: string, proxyName: string) {
+  let token = await auth.getAccessToken();
+  let response = await fetch(`https://apigee.googleapis.com/v1/organizations/${PUBLIC_PROJECT_ID}/apiproducts`, {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${token}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      name: name,
+      displayName: displayName,
+      approvalType: "auto",
+      environments: [PUBLIC_APIGEE_ENV],
+      attributes: [
+        {
+          name: "access",
+          value: "public"
+        }
+      ],
+      operationGroup: {
+        operationConfigs: [
+          {
+            apiSource: proxyName,
+            operations: [
               {
-                apiSource: proxyName,
-                operations: [
-                  {
-                    resource: path,
-                    methods: ["GET", "POST"]
-                  }
-                ]
+                resource: path,
+                methods: ["GET", "POST"]
               }
             ]
-          }
-        })
-      }).then((response) => {
-        return response.json();
-      }).then((result: any) => {
-        resolve();
-      }).catch((error) => {
-        console.error(error);
-        reject();
-      });
-    });
+          },
+          {
+            apiSource: proxyName,
+            operations: [
+              {
+                resource: path + "/*",
+                methods: ["GET", "DELETE", "PUT"]
+              }
+            ]
+          }              
+        ]
+      }
+    })
   });
+
+  if (response.status !== 201) {
+    console.log(`Error creating product ${name} - response code: ${response.status} - message: ${response.statusText}`)
+  }
 }
 
 async function getApiHubAttribute(name: string): Promise<ApiHubAttribute[]> {

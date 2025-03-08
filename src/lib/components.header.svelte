@@ -146,11 +146,11 @@
             <span style="width: 100%; text-align: center; position: relative; top: 15px; font-size: 17px; color: darkslategray;">
               {#if currentUser.roles.includes("admin")}
                 <div style="display: flex; padding-left: 4px; padding-right: 4px;">
-                  <a class="text_button" style="width: 50%; text-align: left; padding: 0px; position: relative; left: 6x;" href={`/manage/sites?site=${currentSite.id}`}>Hubs</a>
+                  <a class="text_button" style="width: 50%; text-align: left; padding: 0px; padding-left: 12px;" href={`/manage/sites?site=${currentSite.id}`}>Hubs</a>
                   <a class="text_button" style="width: 50%; text-align: right; padding: 0px;" href={`/manage/sites/new?site=${currentSite.id}`}>+ New</a>
                 </div>
               {:else}
-                <b>Hubs</b>
+                <b style="position: relative; left: 12px;">Hubs</b>
               {/if}
             </span>
             <div class="site_panel">
