@@ -3,7 +3,7 @@ echo "Adding additional deployment types to API Hub..."
 curl -X PATCH "https://apihub.googleapis.com/v1/projects/$PROJECT_ID/locations/$REGION/attributes/system-deployment-type?updateMask=allowedValues" \
 -H "Authorization: Bearer $(gcloud auth print-access-token)" \
 -H 'Content-Type: application/json; charset=utf-8' \
---data-binary @- << EOF >> $LOG_FILE 2>&1
+--data-binary @- << EOF
 
 {
 	"name": "projects/$PROJECT_ID/locations/$REGION/attributes/system-deployment-type",
@@ -79,6 +79,12 @@ curl -X PATCH "https://apihub.googleapis.com/v1/projects/$PROJECT_ID/locations/$
 			"description": "Azure API Management",
 			"immutable": false
 		},
+		{
+			"id": "sap-api-management",
+			"displayName": "SAP API Management",
+			"description": "SAP API Management",
+			"immutable": false
+		}
 	],
 	"cardinality": 1,
 	"mandatory": true
@@ -90,7 +96,7 @@ echo "Adding example business units to API Hub..."
 curl -X PATCH "https://apihub.googleapis.com/v1/projects/$PROJECT_ID/locations/$REGION/attributes/system-business-unit?updateMask=allowedValues" \
 -H "Authorization: Bearer $(gcloud auth print-access-token)" \
 -H 'Content-Type: application/json; charset=utf-8' \
---data-binary @- << EOF >> $LOG_FILE 2>&1
+--data-binary @- << EOF
 
 {
   "name": "projects/$PROJECT_ID/locations/$REGION/attributes/system-business-unit",
@@ -161,6 +167,11 @@ curl -X PATCH "https://apihub.googleapis.com/v1/projects/$PROJECT_ID/locations/$
       "description": "Business Development"
     },
     {
+      "id": "partner-management",
+      "displayName": "Partner Management",
+      "description": "Partner Management"
+    },
+    {
       "id": "procurement",
       "displayName": "Procurement",
       "description": "Procurement"
@@ -175,7 +186,7 @@ echo "Adding example teams to API Hub..."
 curl -X PATCH "https://apihub.googleapis.com/v1/projects/$PROJECT_ID/locations/$REGION/attributes/system-team?updateMask=allowedValues" \
 -H "Authorization: Bearer $(gcloud auth print-access-token)" \
 -H 'Content-Type: application/json; charset=utf-8' \
---data-binary @- << EOF >> $LOG_FILE 2>&1
+--data-binary @- << EOF
 
 {
   "name": "projects/$PROJECT_ID/locations/$REGION/attributes/system-team",
@@ -240,7 +251,7 @@ echo "Adding additional user attributes to API Hub..."
 curl -X POST "https://apihub.googleapis.com/v1/projects/$PROJECT_ID/locations/$REGION/attributes?attributeId=gdpr-relevance" \
 -H "Authorization: Bearer $(gcloud auth print-access-token)" \
 -H 'Content-Type: application/json; charset=utf-8' \
---data-binary @- << EOF >> $LOG_FILE 2>&1
+--data-binary @- << EOF
 
 {
   "name": "projects/$PROJECT_ID/locations/$REGION/attributes/gdpr-relevance",
@@ -272,7 +283,7 @@ EOF
 curl -X POST "https://apihub.googleapis.com/v1/projects/$PROJECT_ID/locations/$REGION/attributes?attributeId=business-type" \
 -H "Authorization: Bearer $(gcloud auth print-access-token)" \
 -H 'Content-Type: application/json; charset=utf-8' \
---data-binary @- << EOF >> $LOG_FILE 2>&1
+--data-binary @- << EOF
 
 {
   "name": "projects/$PROJECT_ID/locations/$REGION/attributes/business-type",
@@ -314,7 +325,7 @@ EOF
 curl -X POST "https://apihub.googleapis.com/v1/projects/$PROJECT_ID/locations/$REGION/attributes?attributeId=regions" \
 -H "Authorization: Bearer $(gcloud auth print-access-token)" \
 -H 'Content-Type: application/json; charset=utf-8' \
---data-binary @- << EOF >> $LOG_FILE 2>&1
+--data-binary @- << EOF
 
 {
   "name": "projects/$PROJECT_ID/locations/$REGION/attributes/regions",
@@ -361,13 +372,13 @@ EOF
 curl -X POST "https://apihub.googleapis.com/v1/projects/$PROJECT_ID/locations/$REGION/attributes?attributeId=source" \
 -H "Authorization: Bearer $(gcloud auth print-access-token)" \
 -H 'Content-Type: application/json; charset=utf-8' \
---data-binary @- << EOF >> $LOG_FILE 2>&1
+--data-binary @- << EOF
 
 {
   "name": "projects/$PROJECT_ID/locations/$REGION/attributes/source",
   "displayName": "Source",
   "description": "The source of the API registration.",
-  "scope": "API",
+  "scope": "VERSION",
   "dataType": "ENUM",
   "allowedValues": [
     {
@@ -386,6 +397,6 @@ curl -X POST "https://apihub.googleapis.com/v1/projects/$PROJECT_ID/locations/$R
       "description": "Marketplace registration"
     }
   ],
-  "cardinality": 20
+  "cardinality": 1
 }
 EOF

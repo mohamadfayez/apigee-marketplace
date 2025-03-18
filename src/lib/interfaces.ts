@@ -384,11 +384,23 @@ export class ApiHubApi {
   name: string = "";
   displayName: string = "";
   description: string = "";
+  attributes: {[key: string]: ApigeeAPIHubAttribute} = {};
   documentation: {externalUri: string} = {externalUri: ""};
   owner: {displayName: string, email: string} = {displayName: "", email: ""};
   versions: string[] = [];
   createTime: string = "";
   updateTime: string = "";
+}
+
+export class ApigeeAPIHubAttribute {
+  attribute: string = "";
+  enumValues: {values: ApigeeAPIHubAttributeValue[]} = {values: []};
+}
+
+export class ApigeeAPIHubAttributeValue {
+  description: string = "";
+  displayName: string = "";
+  id: string = "";
 }
 
 export class ApigeeApiProduct {

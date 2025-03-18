@@ -97,25 +97,46 @@
       });
 
     // get API Hub APIs
-    fetch("/api/apihub")
-      .then((response) => {
-        if (response.status === 200)
-          return response.json();
-        else
-          console.error("Could not fetch API Hub APIs - " + response.status);
-      })
-      .then((result: ApiHubApi[]) => {
-        apiHubApis = result;
-      });
+    // fetch("/api/apihub")
+    //   .then((response) => {
+    //     if (response.status === 200)
+    //       return response.json();
+    //     else
+    //       console.error("Could not fetch API Hub APIs - " + response.status);
+    //   })
+    //   .then((result: any[]) => {
+    //     console.log(result);
+    //     let tempApiHubApis = {};
+    //     for(let hubApi of result) {
+    //       if (hubApi.versions && hubApi.versions.length > 0) {
+    //         for (let version of hubApi.versions) {
+    //           if (version.deployments && version.deployments.length > 0) {
+
+    //           }
+    //         }
+    //       }
+
+    //       for (const [key, value] of Object.entries(hubApi.attributes)) {
+    //         if (key.endsWith("/source")) {
+    //           for (let enumValue of value.enumValues.values) {
+    //             if (enumValue.id === "marketplace") fromMarketplace = true;
+    //           }
+    //         }
+    //       }
+
+    //       if(!fromMarketplace) tempApiHubApis.push(hubApi);
+    //     }
+    //     apiHubApis = result;
+    //   });
 
     // get Apigee products
-    fetch("/api/apigee")
-      .then((response) => {
-        return response.json();
-      })
-      .then((result: ApigeeApiProduct[]) => {
-        apigeeApiProducts = result;
-      });
+    // fetch("/api/apigee")
+    //   .then((response) => {
+    //     return response.json();
+    //   })
+    //   .then((result: ApigeeApiProduct[]) => {
+    //     apigeeApiProducts = result;
+    //   });
 
     // set SLA
     if (slas.length > 0) {
@@ -677,8 +698,8 @@
           <option value={DataSourceTypes.BigQuery}>BigQuery query</option>
           <option value={DataSourceTypes.AIModel}>AI Model</option>
           <option value={DataSourceTypes.GenAITest}>Gen AI test data</option>
-          <!-- <option value={DataSourceTypes.ApigeeProduct}>{DataSourceTypes.ApigeeProduct}</option>
-          <option value={DataSourceTypes.ApiHub}>{DataSourceTypes.ApiHub}</option> -->
+          <!-- <option value={DataSourceTypes.ApigeeProduct}>{DataSourceTypes.ApigeeProduct}</option-->
+          <!-- <option value={DataSourceTypes.ApiHub}>{DataSourceTypes.ApiHub}</option> -->
           <option value={DataSourceTypes.API}>API endpoint</option>
         </select>
       </div>

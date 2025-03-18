@@ -63,7 +63,7 @@
         >API subscriptions</span
       >
     </a>
-    <a href={`/user/apps/bitquery?site=${appService.currentSiteData.id}`} class={getClassName("side_menu_button", "bigqueryapps")}>
+    <a href={`/user/apps/bigquery?site=${appService.currentSiteData.id}`} class={getClassName("side_menu_button", "bigqueryapps")}>
       <svg
         class={getClassName("side_menu_button_logo", "bigqueryapps")}
         width="20px"

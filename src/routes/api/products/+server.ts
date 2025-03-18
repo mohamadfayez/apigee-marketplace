@@ -312,16 +312,6 @@ async function apiHubRegister(product: DataProduct) {
               gdprValues[Math.floor(Math.random() * (gdprValues.length - 1))]
             ]
           }
-        },
-        "projects/$PROJECT_ID/locations/$REGION/attributes/source": {
-          enumValues: {
-            values: [
-              {
-                id: "marketplace",
-                displayName: "Marketplace"
-              }
-            ]
-          }
         }
       }
     })
@@ -389,7 +379,8 @@ async function apiHubCreateVersion(product: DataProduct) {
   let token = await auth.getAccessToken();
   let hubUrl = `https://apihub.googleapis.com/v1/projects/${PUBLIC_PROJECT_ID}/locations/${apigeeHubLocation}/apis/${product.id}/versions?version_id=${product.id + "_1"}`;
 
-  let newBody = JSON.stringify({
+  let sourceAttrId = "projects/" + PUBLIC_PROJECT_ID + "/locations/" + PUBLIC_APIHUB_REGION + "/attributes/source";
+  let newBody = {
     "displayName": product.name,
     "description": product.description,
     "documentation": {
@@ -397,8 +388,20 @@ async function apiHubCreateVersion(product: DataProduct) {
     },
     "deployments": [
       `projects/${PUBLIC_PROJECT_ID}/locations/${PUBLIC_APIHUB_REGION}/deployments/${product.id + "_1"}`
-    ]
-  });
+    ],
+    "attributes": {}
+  };
+
+  newBody["attributes"][sourceAttrId] = {
+    enumValues: {
+      values: [
+        {
+          id: "marketplace",
+          displayName: "Marketplace"
+        }
+      ]
+    }
+  };
 
   let response = await fetch(hubUrl, {
     method: "POST",
@@ -406,7 +409,7 @@ async function apiHubCreateVersion(product: DataProduct) {
       "Authorization": `Bearer ${token}`,
       "Content-Type": "application/json"
     },
-    body: newBody
+    body: JSON.stringify(newBody)
   });
 
   let result: Response = await response;
