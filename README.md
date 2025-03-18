@@ -4,7 +4,7 @@ This project offers a sample marketplace frontend application for Apigee to offe
 ## Prerequisites
 1. A [**GCP project**](https://console.cloud.google.com/) with Apigee X deployed (subscription, paygo, or trial). [This script](https://github.com/api-integration-samples/apigee-integration-quickstart) will create a project & Apigee X instance in one go.
 2. Configure [**Identity Platform**](https://console.cloud.google.com/customer-identity). Add the Google & Email/Password providers, then use **Application Setup Details > apiKey and authDomain** in the below steps in the `.1.env.PROJECT_ID.sh` file.
-3. Install the [Apintegrate](https://github.com/apintegrate/apintegrate) CLI tool in your shell for Apigee deployments.
+3. Install the [apintegrate](https://github.com/apintegrate/apintegrate) and [apigeecli](https://github.com/apigee/apigeecli) CLI tools in your shell for Apigee deployments.
 4. If you plan on using Gen AI models in the marketplace, optionally enable these third-party models:
 - [Llama 3.3](https://console.cloud.google.com/vertex-ai/publishers/meta/model-garden/llama-3.3-70b-instruct-maas)
 - [Mistral Nemo](https://console.cloud.google.com/vertex-ai/publishers/mistralai/model-garden/mistral-nemo)
