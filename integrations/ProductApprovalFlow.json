@@ -1,0 +1,164 @@
+{
+	"description": "Flow for marketplace product approvals.",
+	"snapshotNumber": "3",
+	"triggerConfigs": [
+		{
+			"label": "API Trigger",
+			"triggerType": "API",
+			"triggerNumber": "1",
+			"triggerId": "api_trigger/ProductApprovalFlow_API_1",
+			"startTasks": [
+				{
+					"taskId": "1"
+				}
+			],
+			"properties": {
+				"Trigger name": "ProductApprovalFlow_API_1"
+			}
+		}
+	],
+	"taskConfigs": [
+		{
+			"task": "SuspensionTask",
+			"taskId": "1",
+			"parameters": {
+				"customMessage": {
+					"key": "customMessage",
+					"value": {
+						"stringValue": "Hello! $UserEmails$ would like to access product $ProductId$ - $ProductName$. Do you approve?"
+					}
+				},
+				"isApproved": {
+					"key": "isApproved",
+					"value": {
+						"stringArray": {
+							"stringValues": [
+								"$`Task_1_isApproved`$"
+							]
+						}
+					}
+				},
+				"notifications": {
+					"key": "notifications",
+					"value": {
+						"jsonValue": "{\n  \"protoValues\": [{\n    \"@type\": \"type.googleapis.com/enterprise.crm.eventbus.proto.Notification\",\n    \"emailAddress\": {\n      \"email\": \"test@example.com\"\n    }\n  }]\n}"
+					}
+				},
+				"suspensionExpiration": {
+					"key": "suspensionExpiration",
+					"value": {
+						"jsonValue": "{\n  \"@type\": \"type.googleapis.com/enterprise.crm.eventbus.proto.SuspensionExpiration\",\n  \"remindAfterMs\": 86400000,\n  \"expireAfterMs\": 172800000\n}"
+					}
+				}
+			},
+			"displayName": "Approval",
+			"taskExecutionStrategy": "WHEN_ALL_SUCCEED",
+			"successPolicy": {
+				"finalState": "SUSPENDED"
+			},
+			"externalTaskType": "NORMAL_TASK"
+		}
+	],
+	"integrationParameters": [
+		{
+			"key": "`ExecutionMode`",
+			"dataType": "STRING_VALUE",
+			"defaultValue": {
+				"stringValue": ""
+			},
+			"isTransient": true
+		},
+		{
+			"key": "`ErrorInfo`",
+			"dataType": "JSON_VALUE",
+			"defaultValue": {
+				"jsonValue": "{\n  \"message\": \"\",\n  \"code\": 0.0\n}"
+			},
+			"isTransient": true,
+			"jsonSchema": "{\n  \"$schema\": \"http://json-schema.org/draft-07/schema#\",\n  \"type\": \"object\",\n  \"properties\": {\n    \"code\": {\n      \"type\": \"number\"\n    },\n    \"message\": {\n      \"type\": \"string\"\n    }\n  }\n}"
+		},
+		{
+			"key": "`ExecutionId`",
+			"dataType": "STRING_VALUE",
+			"defaultValue": {
+				"stringValue": ""
+			},
+			"isTransient": true
+		},
+		{
+			"key": "`IntegrationName`",
+			"dataType": "STRING_VALUE",
+			"defaultValue": {
+				"stringValue": ""
+			},
+			"isTransient": true
+		},
+		{
+			"key": "`Region`",
+			"dataType": "STRING_VALUE",
+			"defaultValue": {
+				"stringValue": ""
+			},
+			"isTransient": true
+		},
+		{
+			"key": "`ProjectId`",
+			"dataType": "STRING_VALUE",
+			"defaultValue": {
+				"stringValue": ""
+			},
+			"isTransient": true
+		},
+		{
+			"key": "ApprovalEmails",
+			"dataType": "STRING_ARRAY",
+			"defaultValue": {
+				"stringArray": {
+					"stringValues": [
+						"[]"
+					]
+				}
+			},
+			"inputOutputType": "IN"
+		},
+		{
+			"key": "ProductId",
+			"dataType": "STRING_VALUE",
+			"defaultValue": {
+				"stringValue": ""
+			},
+			"inputOutputType": "IN"
+		},
+		{
+			"key": "ProductName",
+			"dataType": "STRING_VALUE",
+			"defaultValue": {
+				"stringValue": ""
+			},
+			"inputOutputType": "IN"
+		},
+		{
+			"key": "UserEmails",
+			"dataType": "STRING_ARRAY",
+			"defaultValue": {
+				"stringArray": {
+					"stringValues": [
+						"[]"
+					]
+				}
+			},
+			"inputOutputType": "IN"
+		},
+		{
+			"key": "`Task_1_isApproved`",
+			"dataType": "BOOLEAN_VALUE",
+			"isTransient": true,
+			"producer": "1_1"
+		}
+	],
+	"databasePersistencePolicy": "DATABASE_PERSISTENCE_ASYNC",
+	"cloudLoggingDetails": {
+		"cloudLoggingSeverity": "CLOUD_LOGGING_SEVERITY_UNSPECIFIED",
+		"enableCloudLogging": false
+	}
+}

@@ -2,7 +2,7 @@ import type { DataProduct } from "$lib/interfaces";
 import { Firestore } from "@google-cloud/firestore";
 import { error, json, type RequestHandler } from "@sveltejs/kit";
 import { GoogleAuth } from "google-auth-library";
-import { PUBLIC_PROJECT_ID } from '$env/static/public';
+import { PUBLIC_PROJECT_ID, PUBLIC_REGION } from '$env/static/public';
 
 const auth = new GoogleAuth({
   scopes: 'https://www.googleapis.com/auth/cloud-platform'
@@ -43,7 +43,7 @@ async function startApprovalFlow(productId: string, productName: string, userEma
   return new Promise(async (resolve, reject) => {
     let token = await auth.getAccessToken();
 
-    let response = await fetch(`https://integrations.googleapis.com/v2/projects/${PUBLIC_PROJECT_ID}/locations/europe-west1/integrations/ProductApprovalFlow:execute?triggerId=api_trigger/ProductApprovalFlow_API_1`, {
+    let response = await fetch(`https://integrations.googleapis.com/v2/projects/${PUBLIC_PROJECT_ID}/locations/${PUBLIC_REGION}/integrations/ProductApprovalFlow:execute?triggerId=api_trigger/ProductApprovalFlow_API_1`, {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${token}`,
@@ -67,7 +67,7 @@ async function getApprovalFlowStatus(executionId: string): Promise<boolean> {
   return new Promise(async (resolve, reject) => {
     let token = await auth.getAccessToken();
 
-    let response = await fetch(`https://integrations.googleapis.com/v1/projects/${PUBLIC_PROJECT_ID}/locations/europe-west1/integrations/ProductApprovalFlow/executions/${executionId}`, {
+    let response = await fetch(`https://integrations.googleapis.com/v1/projects/${PUBLIC_PROJECT_ID}/locations/${PUBLIC_REGION}/integrations/ProductApprovalFlow/executions/${executionId}`, {
       method: "GET",
       headers: {
         "Authorization": `Bearer ${token}`
