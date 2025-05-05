@@ -19,10 +19,10 @@
   import CatTableSelect from "$lib/components.flat-table-grouped.svelte";
   import { protocols, audiences, capFirst } from "$lib/utils";
   import { JSONEditor, Mode } from "svelte-jsoneditor";
-  // import {FlatTable} from "$lib/components.flat-table.svelte";
   import { text } from "@sveltejs/kit";
   import { onMount } from "svelte";
   import { appService } from "./app-service";
+  import { PUBLIC_API_HOST } from '$env/static/public';
 
   export let product: DataProduct;
   let slas: SLA[] = appService.configData ? appService.configData.slas : [];
@@ -560,7 +560,7 @@
   },
   "servers": [
     {
-      "url": "https://34-149-70-69.nip.io",
+      "url": "https://${PUBLIC_API_HOST}",
       "description": "${product.name} Server"
     }
   ],

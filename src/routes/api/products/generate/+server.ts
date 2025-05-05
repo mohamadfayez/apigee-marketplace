@@ -9,7 +9,7 @@ const auth = new GoogleAuth({
   scopes: 'https://www.googleapis.com/auth/cloud-platform'
 });
 const vertex_ai = new VertexAI({project: PUBLIC_PROJECT_ID, location: 'us-central1'});
-const model = 'gemini-1.5-flash-002';
+const model = 'gemini-2.0-flash-001';
 const generativeModel = vertex_ai.preview.getGenerativeModel({
   model: model,
   generationConfig: {

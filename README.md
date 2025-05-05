@@ -25,7 +25,7 @@ source .1.env.YOUR_PROJECT_ID.sh
 ./.3.deploy_apis.sh
 
 # deploy Cloud Run service
-./.4.deploy.services.sh
+./.4.deploy.service.sh
 
 # run import data to setup Firebase db
 ./.5.import.data.sh
