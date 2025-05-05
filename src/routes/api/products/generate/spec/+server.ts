@@ -94,10 +94,14 @@ function generateSpecMockData(name: string, server: string, path: string, payloa
 
   let payloadObject = tryParseJson(payload);
 
+  if (!payloadObject.length) {
+    payloadObject = payloadObject[Object.keys(payloadObject)[0]];
+  }
+
   result.components.schemas.Record.properties = {};
   result.components.schemas.Record.required = [];
 
-  if (payloadObject) {
+  if (payloadObject.length && payloadObject.length > 0) {
     for (const [key, value] of Object.entries(payloadObject[0])) {
       let valType = typeof value;
       let isInt = Number.isInteger(value);
@@ -116,6 +120,8 @@ function generateSpecMockData(name: string, server: string, path: string, payloa
       if (result.components.schemas.Record.required.length < 3)
         result.components.schemas.Record.required.push(key);
     }
+  } else {
+    console.log("Could not find an object in payload to generate spec from: " + payload);
   }
 
 
