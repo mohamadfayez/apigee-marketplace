@@ -130,7 +130,7 @@ echo $"PUBLIC_INTERNAL_DOMAINS=$INTERNAL_DOMAINS" >> .env
 cp .env .env.$PROJECT_ID.env
 
 echo "Creating storage bucket..."
-gcloud storage buckets create gs://$BUCKET_NAME --location=eu --project $PROJECT_ID
+gcloud storage buckets create gs://$BUCKET_NAME --location=sa --project $PROJECT_ID
 
 echo "Creating Apigee KVM and default model keys..."
 apigeecli kvms create -e $APIGEE_ENV -n marketplace-kvm -o $PROJECT_ID -t $(gcloud auth print-access-token)
