@@ -1,6 +1,6 @@
 # Set environment variables here
 export PROJECT_ID=
-export REGION=europe-west1
+export REGION=me-central2
 export MODEL_ARMOR_REGION=europe-west4
 export SERVICE_NAME=apigee-marketplace
 export SITE_NAME="Apigee Marketplace"
@@ -18,7 +18,7 @@ export BUCKET_NAME=marketplace-
 export APIGEE_ENV=dev
 # Host just the host name, without https:// (e.g. 34-149-70-69.nip.io)
 export APIGEE_ENVGROUP_HOST=
-export APIGEE_APIHUB_REGION=europe-west1
+export APIGEE_APIHUB_REGION=me-central2
 
 # Internal domains are the comma-separated email domains that will be considered internal for users registering (no approval needed)
 export INTERNAL_DOMAINS=
