@@ -1,7 +1,7 @@
 # Set environment variables here
 export PROJECT_ID=
 export REGION=me-central2
-export MODEL_ARMOR_REGION=europe-west4
+export MODEL_ARMOR_REGION=me-central2
 export SERVICE_NAME=apigee-marketplace
 export SITE_NAME="Apigee Marketplace"
 export SITE_URL="https://marketplace.googee.cloud"
